@@ -21,7 +21,7 @@ npx prisma migrate dev --name X  # Create + apply a new named migration
 npx prisma studio                # GUI for the database
 ```
 
-No test runner is configured yet.
+No test runner is configured yet (Vitest + Playwright planned — see `docs/SPEC.md`).
 
 ## Database setup
 
