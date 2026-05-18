@@ -1,0 +1,25 @@
+# dependencies
+node_modules/
+
+# next.js
+.next/
+out/
+
+# env (secrets)
+.env
+.env*.local
+
+# debug / tooling
+npm-debug.log*
+.DS_Store
+*.tsbuildinfo
+
+# prisma
+prisma/*.db
+prisma/*.db-journal
+
+# test / coverage
+coverage/
+
+# vercel
+.vercel
