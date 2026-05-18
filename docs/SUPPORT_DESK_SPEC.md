@@ -1,10 +1,12 @@
 # Awano — Product Spec
 
+
 |                         |                                                     |
 | ----------------------- | --------------------------------------------------- |
 | **Project name**        | Awano                                               |
 | **Repository / folder** | `awano`                                             |
 | **Package name (npm)**  | `awano` (or `@awano/web` if using a monorepo later) |
+
 
 **Product:** **Awano** is a multi-team support desk for a workforce/recruitment-style company. **Customers**,
 **recruiters**, and **field agents** submit tickets; **support staff** triage and resolve them; **managers** authorize
@@ -17,13 +19,15 @@ have an isolated workspace with its own accounts.
 
 ## Roles & permissions
 
+
 | Role                                                   | Who                                                     | Permissions                                                                                                                                                   |
 | ------------------------------------------------------ | ------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Requester** (`CUSTOMER`, `RECRUITER`, `FIELD_AGENT`) | External/partner users                                  | Create ticket, comment on own tickets, upload attachments, view own tickets only                                                                              |
-| **Support** (`SUPPORT`)                                | Company support staff                                   | View **team** queue, assign self/others, change status/priority, public + **internal** notes, cannot manage users                                             |
+| **Support** (`SUPPORT`)                                | Company support staff/responder                         | View **team** queue, assign self/others, change status/priority, public + **internal** notes, cannot manage users                                             |
 | **Manager** (`MANAGER`)                                | Team lead / ops                                         | Everything Support has + **reassign any ticket**, **close/reopen**, manage users & categories within team, view dashboard & export                            |
 | **Admin** (`ADMIN`)                                    | Team IT/ops (optional; can merge with Manager per team) | User invites, role changes, category CRUD within team                                                                                                         |
 | **Super** (`SUPER`)                                    | Platform operator (you, for demos)                      | Create/update **teams**, seed or manage demo users across teams, view all teams (read-only on tickets optional in v1), no day-to-day ticket handling required |
+
 
 ### Authorization rules
 
@@ -32,7 +36,7 @@ have an isolated workspace with its own accounts.
 - Only **Manager+** (within a team) can change another user’s role or deactivate users.
 - Only **Super** can create teams and assign the first Manager/Admin for a team.
 - **Support** cannot reassign tickets to arbitrary users unless **Manager+** (configurable: MVP = Manager-only for
-  assign-to-other).
+assign-to-other).
 - Status changes to `ESCALATED` or reopening `CLOSED` tickets: **Manager+** within the team.
 
 ---
@@ -42,6 +46,7 @@ have an isolated workspace with its own accounts.
 Each **team** is an isolated workspace (separate organization or business unit). Use one **Awano** deployment to host
 many teams when you need separate data and logins.
 
+
 | Concept            | Description                                                                                                                     |
 | ------------------ | ------------------------------------------------------------------------------------------------------------------------------- |
 | **Team**           | Top-level tenant: name, slug (e.g. `east-support`), optional notes for your own reference (e.g. `"Pilot rollout — March 2026"`) |
@@ -49,7 +54,9 @@ many teams when you need separate data and logins.
 | **Super workflow** | Super creates team → creates or seeds users → shares login details in README or onboarding docs                                 |
 | **Login**          | User enters email + password; login form includes **team slug** (e.g. `/login?team=east-support`)                               |
 
+
 ### Super: team management (MVP screens)
+
 
 | Route                             | Purpose                                                                               |
 | --------------------------------- | ------------------------------------------------------------------------------------- |
@@ -57,9 +64,11 @@ many teams when you need separate data and logins.
 | `/super/teams/[teamId]`           | Team detail: member list, quick “seed demo users” action, copy-paste credential block |
 | `/super/teams/[teamId]/users/new` | Create user in team (email, password, role, requester type)                           |
 
+
 ### Seed demo users (per team)
 
 One-click or script seeds the standard set:
+
 
 | Email pattern        | Role      | Requester type |
 | -------------------- | --------- | -------------- |
@@ -68,6 +77,7 @@ One-click or script seeds the standard set:
 | `agent@demo.com`     | Requester | `FIELD_AGENT`  |
 | `support@demo.com`   | Support   | —              |
 | `manager@demo.com`   | Manager   | —              |
+
 
 Password: single documented demo password (e.g. `Demo123!`) in README; override per team in Super UI optional.
 
@@ -84,6 +94,7 @@ OPEN → IN_PROGRESS → WAITING_ON_REQUESTER → RESOLVED → CLOSED
       ESCALATED (Manager visibility emphasized)
 ```
 
+
 | Status                 | Meaning                                   |
 | ---------------------- | ----------------------------------------- |
 | `OPEN`                 | New, unassigned or just created           |
@@ -92,6 +103,7 @@ OPEN → IN_PROGRESS → WAITING_ON_REQUESTER → RESOLVED → CLOSED
 | `ESCALATED`            | Needs manager attention                   |
 | `RESOLVED`             | Fix delivered, awaiting confirmation      |
 | `CLOSED`               | Done                                      |
+
 
 **Priority:** `LOW` | `NORMAL` | `HIGH` | `URGENT` (Support+ sets; Requester default `NORMAL`)
 
@@ -125,6 +137,7 @@ Attachment (ticketId, commentId?, fileName, url, uploadedById)  // v1.1 optional
 
 ## Core screens
 
+
 | Route               | Audience         | Purpose                                                     |
 | ------------------- | ---------------- | ----------------------------------------------------------- |
 | `/login`            | All              | Team slug + email + password                                |
@@ -139,9 +152,11 @@ Attachment (ticketId, commentId?, fileName, url, uploadedById)  // v1.1 optional
 | `/super/teams`      | Super            | List / create teams                                         |
 | `/super/teams/[id]` | Super            | Members, seed demo, export credentials                      |
 
+
 ---
 
 ## API / server actions (representative)
+
 
 | Action                             | Auth                                    |
 | ---------------------------------- | --------------------------------------- |
@@ -152,6 +167,7 @@ Attachment (ticketId, commentId?, fileName, url, uploadedById)  // v1.1 optional
 | `POST comment`                     | Requester (own, non-internal); Support+ |
 | Team users, categories             | Manager+                                |
 | `POST/GET/PATCH teams`, seed users | **Super only**                          |
+
 
 **Validation:** Zod on input; never accept `teamId` or `createdById` from client on create; derive from session.
 
@@ -173,7 +189,7 @@ Attachment (ticketId, commentId?, fileName, url, uploadedById)  // v1.1 optional
 
 - Session: **NextAuth (Credentials)** or httpOnly JWT; bcrypt passwords.
 - Session payload: `userId`, `teamId`, `role`, `requesterType?`.
-- Middleware: `/desk/*` → Support+; `/admin/*` → Manager+; `/super/*` → Super only.
+- Middleware: `/desk/`* → Support+; `/admin/`* → Manager+; `/super/*` → Super only.
 - Helpers: `assertCanViewTicket(user, ticket)`, `assertCanUpdateTicket(user, ticket)`, `assertSameTeam(user, resource)`.
 - Super cannot impersonate without explicit “act as” (out of scope v1).
 
@@ -191,17 +207,18 @@ Attachment (ticketId, commentId?, fileName, url, uploadedById)  // v1.1 optional
 
 ## Quality bar (MVP)
 
-- [ ] Migrations + seed (1 Super user, 2 teams with demo users, sample tickets per team)
-- [ ] Deployed URL + README with per-team credential tables
-- [ ] Tests: requester isolation; internal note hidden; cross-team access denied; Super can create team
-- [ ] CI: lint + test on push
-- [ ] `ARCHITECTURE.md`: roles, team scoping, auth flow
+- Migrations + seed (1 Super user, 2 teams with demo users, sample tickets per team)
+- Deployed URL + README with per-team credential tables
+- Tests: requester isolation; internal note hidden; cross-team access denied; Super can create team
+- CI: lint + test on push
+- `ARCHITECTURE.md`: roles, team scoping, auth flow
 
 ---
 
 ## Demo accounts (template per team)
 
 After seeding team `{slug}`:
+
 
 | Email                | Role      | Type        |
 | -------------------- | --------- | ----------- |
@@ -210,6 +227,7 @@ After seeding team `{slug}`:
 | `agent@demo.com`     | Requester | FIELD_AGENT |
 | `support@demo.com`   | Support   | —           |
 | `manager@demo.com`   | Manager   | —           |
+
 
 **Login:** `https://{awano-app}/login?team={slug}` · Password: see README.
 
