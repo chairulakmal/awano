@@ -1,0 +1,165 @@
+// Awano database schema — maps to PostgreSQL tables.
+// Docs: https://www.prisma.io/docs/orm/prisma-schema
+
+// ---------------------------------------------------------------------------
+// 1) Generator — tells Prisma how to generate the TypeScript client
+// ---------------------------------------------------------------------------
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+// ---------------------------------------------------------------------------
+// 2) Datasource — PostgreSQL (connection URL is in prisma.config.ts / .env)
+// ---------------------------------------------------------------------------
+datasource db {
+  provider = "postgresql"
+}
+
+// ---------------------------------------------------------------------------
+// 3) Enums — fixed sets of values stored in Postgres as enum types
+// ---------------------------------------------------------------------------
+
+/// Staff vs requester vs platform super-user (see spec: Roles & permissions)
+enum Role {
+  REQUESTER
+  SUPPORT
+  MANAGER
+  ADMIN
+  SUPER
+}
+
+/// Only set when role = REQUESTER
+enum RequesterType {
+  CUSTOMER
+  RECRUITER
+  FIELD_AGENT
+}
+
+enum TicketStatus {
+  OPEN
+  IN_PROGRESS
+  WAITING_ON_REQUESTER
+  ESCALATED
+  RESOLVED
+  CLOSED
+}
+
+enum TicketPriority {
+  LOW
+  NORMAL
+  HIGH
+  URGENT
+}
+
+// ---------------------------------------------------------------------------
+// 4) Models — each `model` block = one SQL table
+// ---------------------------------------------------------------------------
+
+/// Tenant / workspace (multi-team isolation)
+model Team {
+  id        String   @id @default(cuid())
+  name      String
+  slug      String   @unique // login URL: /login?team={slug}
+  notes     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  users      User[]
+  categories Category[]
+  tickets    Ticket[]
+}
+
+/// Super users have teamId = null; everyone else belongs to one team
+model User {
+  id           String         @id @default(cuid())
+  teamId       String?
+  email        String
+  passwordHash String
+  role         Role
+  requesterType RequesterType?
+  name         String?
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  team Team? @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  ticketsCreated   Ticket[]      @relation("TicketCreatedBy")
+  ticketsAssigned  Ticket[]      @relation("TicketAssignee")
+  comments         Comment[]
+  statusEvents     StatusEvent[]
+
+  @@unique([teamId, email])
+  @@index([teamId])
+}
+
+/// Per-team ticket categories (Account, Billing, …)
+model Category {
+  id        String   @id @default(cuid())
+  teamId    String
+  name      String
+  slug      String
+  createdAt DateTime @default(now())
+
+  team    Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  tickets Ticket[]
+
+  @@unique([teamId, slug])
+  @@index([teamId])
+}
+
+model Ticket {
+  id          String         @id @default(cuid())
+  teamId      String
+  createdById String
+  assigneeId  String?
+  categoryId  String
+  subject     String
+  body        String
+  status      TicketStatus   @default(OPEN)
+  priority    TicketPriority @default(NORMAL)
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  team      Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  createdBy User     @relation("TicketCreatedBy", fields: [createdById], references: [id])
+  assignee  User?    @relation("TicketAssignee", fields: [assigneeId], references: [id])
+  category  Category @relation(fields: [categoryId], references: [id])
+
+  comments     Comment[]
+  statusEvents StatusEvent[]
+
+  @@index([teamId, status])
+  @@index([teamId, assigneeId])
+  @@index([createdById])
+}
+
+model Comment {
+  id         String   @id @default(cuid())
+  ticketId   String
+  authorId   String
+  body       String
+  isInternal Boolean  @default(false)
+  createdAt  DateTime @default(now())
+
+  ticket Ticket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  author User   @relation(fields: [authorId], references: [id])
+
+  @@index([ticketId, createdAt])
+}
+
+/// Audit trail when ticket status changes
+model StatusEvent {
+  id         String        @id @default(cuid())
+  ticketId   String
+  actorId    String
+  fromStatus TicketStatus?
+  toStatus   TicketStatus
+  note       String?
+  createdAt  DateTime      @default(now())
+
+  ticket Ticket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  actor  User   @relation(fields: [actorId], references: [id])
+
+  @@index([ticketId, createdAt])
+}
