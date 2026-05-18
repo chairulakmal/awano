@@ -73,16 +73,17 @@ npx prisma migrate dev
 
 ## Useful commands
 
-| Task | Command |
-|------|---------|
-| View logs | `docker compose logs -f db` |
-| Stop (keep data) | `docker compose stop` |
-| Start again | `docker compose start` |
-| Stop and remove container | `docker compose down` |
-| Stop and **delete all data** | `docker compose down -v` |
+| Task                         | Command                     |
+| ---------------------------- | --------------------------- |
+| View logs                    | `docker compose logs -f db` |
+| Stop (keep data)             | `docker compose stop`       |
+| Start again                  | `docker compose start`      |
+| Stop and remove container    | `docker compose down`       |
+| Stop and **delete all data** | `docker compose down -v`    |
 
 ## Troubleshooting
 
-**Port 5432 already in use** — another Postgres is running. Stop it or change the host port in `docker-compose.yml`, e.g. `"5433:5432"`, and update `DATABASE_URL` to use port `5433`.
+**Port 5432 already in use** — another Postgres is running. Stop it or change the host port in
+`docker-compose.yml`, e.g. `"5433:5432"`, and update `DATABASE_URL` to use port `5433`.
 
 **Container exits immediately** — run `docker compose logs db` for the error message.
