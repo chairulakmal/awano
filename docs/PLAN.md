@@ -1,74 +1,70 @@
 # Awano — Build Plan
 
-**Current state (2026-05-19):** Prisma schema complete, one migration applied, app is default
-Next.js scaffold. No auth, no routes, no service layer.
+**Current state (2026-05-19):** Auth foundation complete — Credentials provider, middleware route
+guards, auth assertions, login page, Prisma singleton, and seed script are all in place. No
+application routes yet.
 
 ---
 
-## What to build next: Auth foundation
+## Completed
 
-Everything else — routes, server actions, service layer — depends on a verified session. Auth is the
-single most-blocking dependency. Build it first.
+### Auth foundation
 
-### Step 1 — Install missing packages
+- [x] Packages: `next-auth@beta`, `bcryptjs`, `zod`
+- [x] `src/auth.ts` — Credentials provider; team slug → teamId; SUPER path; bcrypt verify; JWT payload
+- [x] `middleware.ts` — Role-gated route guards with `roleHome` redirect for post-login landing
+- [x] `src/lib/auth/assertions.ts` — `assertAuthenticated`, `assertRole`, `assertSameTeam`, `assertCanViewTicket`, `assertCanUpdateTicket`
+- [x] `src/app/login/page.tsx` — Server component + `LoginForm` client form + server action
+- [x] `src/lib/db.ts` — Prisma singleton
+- [x] `prisma/seed.ts` — 1 super, 2 teams (acme, beta), 9 users, 4 tickets across statuses
 
-```bash
-npm install next-auth@beta bcryptjs zod
-npm install -D @types/bcryptjs
-```
+---
 
-### Step 2 — Auth.js config (`src/auth.ts`)
+## What to build next: Service foundation
 
-- Credentials provider: resolve `?team` slug → `teamId`, verify bcrypt hash
-- Session callback: embed `userId`, `teamId`, `role`, `requesterType` into the JWT
-- Extend `Session` type so TypeScript knows the full payload
+Auth is done. Before touching any route, lay the service-layer primitives every route depends on.
 
-### Step 3 — Middleware (`middleware.ts`)
+### Step 1 — Ticket FSM (`src/lib/tickets/fsm.ts`)
 
-Route guards using the session from Auth.js:
-
-| Prefix       | Required role                 |
-| ------------ | ----------------------------- |
-| `/desk/*`    | `SUPPORT \| MANAGER \| ADMIN` |
-| `/admin/*`   | `MANAGER \| ADMIN`            |
-| `/super/*`   | `SUPER`                       |
-| `/tickets/*` | `REQUESTER`                   |
-
-Unauthenticated requests redirect to `/login?team={slug}` (preserve the slug if available).
-
-### Step 4 — Auth assertions (`src/lib/auth/assertions.ts`)
+Encode the state machine from the spec. Pure validation — no Prisma calls here.
 
 ```ts
-assertAuthenticated(session);
-assertRole(session, allowedRoles);
-assertSameTeam(session, resource);
-assertCanViewTicket(session, ticket);
-assertCanUpdateTicket(session, ticket);
+type Transition = { from: TicketStatus; to: TicketStatus; minRole: Role };
+
+const TRANSITIONS: Transition[] = [ ... ];
+
+export function assertTransition(from: TicketStatus, to: TicketStatus, role: Role): void;
+export function getAllowedTransitions(from: TicketStatus, role: Role): TicketStatus[];
 ```
 
-Each throws a typed error (not `Error`) so server actions can convert it to the right HTTP status.
+`transitionStatus` (in the service layer) calls `assertTransition`, then writes the `StatusEvent`.
 
-### Step 5 — Login page (`src/app/login/page.tsx`)
+### Step 2 — Ticket service (`src/lib/tickets/service.ts`)
 
-- Server component reads `?team` from the URL
-- Client form: team slug (pre-filled if in URL), email, password
-- Calls `signIn("credentials", ...)` from Auth.js
+```ts
+createTicket(payload, session)
+listMyTickets(session)
+listDeskTickets(filters, session)
+getTicket(id, session)
+assignTicket(id, assigneeId, session)
+transitionStatus(id, to, session)
+postComment(id, body, isInternal, session)
+```
+
+Each function: validate with Zod → assert auth → Prisma → return typed result.
 
 ---
 
-## After auth is done — ordered queue
+## After service foundation — ordered queue
 
-| #   | What                                                                   | Why first                                              |
-| --- | ---------------------------------------------------------------------- | ------------------------------------------------------ |
-| 2   | FSM (`src/lib/tickets/fsm.ts`)                                         | `transitionStatus` depends on it; no UI needed to test |
-| 3   | Prisma singleton (`src/lib/db.ts`)                                     | Needed before any service function                     |
-| 4   | Seed (`prisma/seed.ts`)                                                | Unblocks manual testing of every route                 |
-| 5   | Requester routes (`/tickets`, `/tickets/new`, `/tickets/[id]`)         | Simplest RBAC path; good smoke test for auth           |
-| 6   | Desk routes (`/desk`, `/desk/[id]`)                                    | Core support workflow; exercises FSM + StatusEvent     |
-| 7   | Admin routes (`/admin/users`, `/admin/categories`, `/admin/dashboard`) | Manager-only; lower priority                           |
-| 8   | Super routes (`/super/teams`, `/super/teams/[id]`)                     | Needed for provisioning but not for demo               |
-| 9   | Vitest unit tests (FSM, assertions, service functions)                 | Spec requires; unblock after service layer exists      |
-| 10  | Playwright E2E                                                         | Last; requires all routes working                      |
+| #   | What                                                                   | Why first                                          |
+| --- | ---------------------------------------------------------------------- | -------------------------------------------------- |
+| 3   | Requester routes (`/tickets`, `/tickets/new`, `/tickets/[id]`)         | Simplest RBAC path; good smoke test for auth       |
+| 4   | Desk routes (`/desk`, `/desk/[id]`)                                    | Core support workflow; exercises FSM + StatusEvent |
+| 5   | Admin routes (`/admin/users`, `/admin/categories`, `/admin/dashboard`) | Manager-only; lower priority                       |
+| 6   | Super routes (`/super/teams`, `/super/teams/[id]`)                     | Needed for provisioning but not for demo           |
+| 7   | Vitest unit tests (FSM, assertions, service functions)                 | Spec requires; unblock after service layer exists  |
+| 8   | Playwright E2E                                                         | Last; requires all routes working                  |
 
 ---
 

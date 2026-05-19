@@ -4,7 +4,7 @@
 | --------------------- | -------------------------------------------------------------------------------------------------------------- |
 | **Status**            | Draft                                                                                                          |
 | **Owner**             | Chairul Akmal                                                                                                  |
-| **Last updated**      | 2026-05-18                                                                                                     |
+| **Last updated**      | 2026-05-19                                                                                                     |
 | **Stack**             | Next.js 16 (App Router) · TypeScript (strict) · Prisma 7 · PostgreSQL · Auth.js v5 · Zod · Vitest · Playwright |
 | **Deployment target** | Railway                                                                                                        |
 
@@ -33,6 +33,7 @@ actions. A super admin provisions isolated team workspaces.
 - Real-time push (polling sufficient for v1)
 - Cross-team ticket transfer
 - Mobile app
+- Object-capability (Ocaps) tokens — see Open Questions
 
 ---
 
@@ -320,11 +321,22 @@ Login: `/login?team={slug}`. Demo password documented in `README.md`.
 
 ## Open Questions
 
-| #   | Question                                             | Owner | Due |
-| --- | ---------------------------------------------------- | ----- | --- |
-| 1   | Use Railway PR environments for preview deployments? | —     | —   |
-| 2   | Rate-limit login attempts (middleware or external)?  | —     | —   |
-| 3   | CSV export: streaming response or pre-generated?     | —     | —   |
+### CI/CD & Infrastructure
+
+| #   | Question                                                                                                                                                                                                                                                                                                                                                              | Owner | Due |
+| --- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----- | --- |
+| 1   | **Railway PR environments:** Enable a Railway preview environment per PR, each with its own ephemeral Postgres instance? Enables Playwright E2E against real infra before merge. Cost: one Railway service + DB per open PR; complexity: seed must run on environment spin-up.                                                                                          | —     | —   |
+| 2   | **GitHub Actions pipeline:** Run `eslint → tsc --noEmit → vitest → next build` in GH Actions rather than relying on Railway's build step alone? GH Actions gives PR status checks, job caching (`node_modules`, Next.js build cache), and matrix runs; Railway's build is simpler but doesn't block merges on test failure.                                          | —     | —   |
+| 3   | **Separate NestJS API server:** Split into Next.js (UI + thin BFF) + NestJS (REST API) as two Railway services sharing the same Postgres? NestJS brings structured DI, guards, interceptors, and OpenAPI generation — valuable if the service layer grows complex or needs to be consumed by a mobile client. Trade-off: a service-to-service hop on every Server Action, two repos or a monorepo workspace to maintain, and Railway costs for a second web service. Not justified for v1; revisit if a mobile app or public API lands on the roadmap. | —     | —   |
+| 4   | **Migration rollback strategy:** `prisma migrate deploy` runs as a Railway release command — a failed migration can leave the DB in a partial state before the new container goes live. Options: (a) additive-only migrations enforced by convention; (b) explicit down migrations checked in alongside each up; (c) separate Railway "migration job" service that must succeed before the web deploy proceeds. | —     | —   |
+| 5   | **Health check & zero-downtime deploys:** Add a `/api/health` endpoint and configure Railway's health-check path so the old instance keeps serving traffic until the new one passes? Currently no health check is configured; a slow cold start could drop in-flight requests.                                                                                         | —     | —   |
+| 6   | **Rate-limiting login:** Edge middleware (stateless, no extra infra) vs. Upstash Rate Limit (Redis-backed, survives multiple instances)? Stateless middleware is sufficient while Railway runs a single instance; add Upstash when horizontal scaling becomes relevant.                                                                                                | —     | —   |
+
+### Feature
+
+| #   | Question                                                                                                                                                                                                                                                                                                                                                              | Owner | Due |
+| --- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----- | --- |
+| 7   | **Ocaps (Object Capabilities):** Issue revocable, unforgeable capability tokens for scoped external access — e.g. a guest link to view a single ticket without an account, or a per-integration API token scoped to one category. Complements RBAC rather than replacing it; could ship as a v2 add-on without touching the session model. See Non-goals.             | —     | —   |
 
 ---
 
@@ -338,3 +350,4 @@ Login: `/login?team={slug}`. Demo password documented in `README.md`.
 | FSM in `src/lib/tickets/fsm.ts`                 | Single source of truth for valid transitions; eliminates scattered status-check conditionals                           |
 | Railway over Vercel + Supabase                  | Single platform for app + Postgres; no cold starts on the web service; simpler ops for a persistent container workload |
 | Prisma client output to `src/generated/prisma`  | Avoids `node_modules` pollution; required by Prisma 7 `generator client` config                                        |
+| Ocaps deferred to post-v1                        | RBAC via session roles is sufficient for the closed-team model in v1. Ocaps adds meaningful implementation surface (token issuance, storage, revocation, expiry) only justified once external guest access or a public API is on the roadmap. |
