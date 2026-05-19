@@ -25,8 +25,8 @@ Awano is a web application built with **Next.js**, **TypeScript**, **Prisma**, a
 
 ## Status
 
-The project is in early development. The [product spec](docs/SPEC.md) describes roles,
-workflows, and planned screens; the app itself is not built yet.
+The project is in early development. The [product spec](docs/SPEC.md) describes roles, workflows,
+and planned screens; the app itself is not built yet.
 
 ## License
 
