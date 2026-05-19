@@ -26,9 +26,9 @@ const STATS = [
 
 export default function Home() {
   return (
-    <div className="flex-1 flex flex-col bg-white text-zinc-900 font-sans">
+    <div className="flex-1 flex flex-col bg-zinc-50 bg-dots text-zinc-900 font-sans">
       {/* Nav */}
-      <nav className="sticky top-0 z-10 flex items-center justify-between px-8 py-4 bg-white/95 backdrop-blur-sm shadow-sm">
+      <nav className="sticky top-0 z-10 flex items-center justify-between px-8 py-4 bg-zinc-50/95 backdrop-blur-sm shadow-sm">
         <span className="text-base font-semibold tracking-tight">Awano</span>
         <Link
           href="/login"
@@ -39,7 +39,7 @@ export default function Home() {
       </nav>
 
       {/* Hero */}
-      <section className="w-full bg-gradient-to-b from-amber-50/60 to-white">
+      <section className="w-full hero-bg">
         <div className="max-w-5xl mx-auto px-8 py-32">
           <p className="text-xs uppercase tracking-widest text-zinc-400 font-medium mb-8">
             Multi-tenant support desk
@@ -74,7 +74,7 @@ export default function Home() {
       </section>
 
       {/* Features */}
-      <section id="how-it-works" className="bg-zinc-50">
+      <section id="how-it-works" className="bg-zinc-100/70 bg-dots">
         <div className="max-w-5xl mx-auto px-8 py-20">
           <p className="text-xs uppercase tracking-widest text-zinc-400 font-medium mb-10">
             How it works
@@ -99,7 +99,7 @@ export default function Home() {
       </section>
 
       {/* Stats */}
-      <section>
+      <section className="bg-dots">
         <div className="max-w-5xl mx-auto px-8 py-16 flex flex-col sm:flex-row items-center justify-center gap-10 sm:gap-0 sm:divide-x sm:divide-zinc-100">
           {STATS.map(({ value, label }) => (
             <div
