@@ -10,16 +10,19 @@ export default async function LoginPage({
   return (
     <div className="flex min-h-screen items-center justify-center bg-zinc-50 px-4">
       <div className="w-full max-w-sm">
-        <div className="mb-8 text-center">
-          <h1 className="text-2xl font-semibold tracking-tight text-zinc-900">
-            Awano
-          </h1>
-          <p className="mt-1.5 text-sm text-zinc-500">
-            Sign in to your team workspace.
-          </p>
-        </div>
+        <div className="rounded-2xl bg-white p-10 shadow-panel">
+          <div className="mb-8">
+            <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-primary mb-6 mx-auto">
+              <span className="text-white font-bold text-base select-none">A</span>
+            </div>
+            <h1 className="text-xl font-semibold tracking-tight text-zinc-900 text-center">
+              Sign in to Awano
+            </h1>
+            <p className="mt-1.5 text-sm text-zinc-500 text-center">
+              Enter your team workspace credentials.
+            </p>
+          </div>
 
-        <div className="rounded-xl border border-zinc-200 bg-white p-8 shadow-sm">
           <LoginForm defaultTeam={team} />
         </div>
       </div>

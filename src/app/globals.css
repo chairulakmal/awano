@@ -14,15 +14,64 @@
   --color-primary-hover: #d97706;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+/* ─── Shared border / ring styles ─────────────────────────────────────────── */
+
+/*
+ * .ring-subtle  — replaces bare border-zinc-200 on cards, panels, and modals.
+ *   Semi-transparent so it reads naturally on any background tone.
+ */
+.ring-subtle {
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.06);
+}
+
+/*
+ * .ring-input   — form fields at rest.
+ */
+.ring-input {
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.12);
+}
+
+/*
+ * .ring-input:focus  — focused field gets the primary ring.
+ *   Pair with outline-none in JSX.
+ */
+.ring-input:focus {
+  box-shadow: 0 0 0 2px var(--color-primary);
+}
+
+/*
+ * .ring-ghost   — ghost/secondary button border at rest.
+ */
+.ring-ghost {
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.10);
+}
+
+.ring-ghost:hover {
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.18);
+}
+
+/* ─── Card shadows ────────────────────────────────────────────────────────── */
+
+/*
+ * .shadow-card  — subtle lift for white cards on light backgrounds.
+ */
+.shadow-card {
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.06),
+    0 1px 4px rgba(0, 0, 0, 0.04);
+}
+
+/*
+ * .shadow-panel — stronger lift for floating panels (login card, modals).
+ */
+.shadow-panel {
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.06),
+    0 4px 24px rgba(0, 0, 0, 0.07);
 }

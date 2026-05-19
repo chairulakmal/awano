@@ -132,10 +132,10 @@
 ### Form input
 
 ```tsx
-<input className="rounded-md border border-zinc-300 px-3 py-2 text-sm text-zinc-900 placeholder:text-zinc-400 outline-none focus:border-primary focus:ring-2 focus:ring-amber-100 transition" />
+<input className="w-full rounded-lg ring-input px-3.5 py-2.5 text-sm text-zinc-900 placeholder:text-zinc-400 outline-none transition" />
 ```
 
-Focus ring: `focus:ring-amber-100` (very light amber glow, not harsh).
+Focus state handled by `.ring-input:focus` in `globals.css` — primary color ring, no extra classes needed.
 
 ### Login card
 
@@ -158,8 +158,26 @@ Use semantic status colors from the Color table.
 ### Card (desk / ticket list item)
 
 ```tsx
-<div className="rounded-lg border border-zinc-200 bg-white p-5 hover:border-zinc-300 transition-colors">
+<div className="rounded-xl bg-white p-8 shadow-card">
+  {/* shadow-card = subtle ring + soft lift, defined in globals.css */}
+</div>
 ```
+
+### Ghost button border
+
+```tsx
+<button className="... ring-ghost transition-colors">
+```
+
+### Login / modal panel
+
+```tsx
+<div className="rounded-2xl bg-white p-10 shadow-panel">
+  {/* shadow-panel = same ring + stronger drop shadow */}
+</div>
+```
+
+All three border/shadow utilities are defined in `globals.css` and should be used instead of arbitrary `ring-*` or `border-*` values.
 
 ---
 
