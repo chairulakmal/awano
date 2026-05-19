@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useActionState } from "react";
 import { loginAction } from "./actions";
 
@@ -8,20 +9,26 @@ export function LoginForm({ defaultTeam }: { defaultTeam?: string }) {
 
   return (
     <form action={formAction} className="flex flex-col gap-5">
-      <div className="flex flex-col gap-1.5">
-        <label htmlFor="team" className="text-sm font-medium text-zinc-700">
-          Team
-        </label>
-        <input
-          id="team"
-          name="team"
-          type="text"
-          defaultValue={defaultTeam}
-          placeholder="your-team-slug"
-          autoComplete="organization"
-          className="w-full rounded-lg ring-input px-3.5 py-2.5 text-sm text-zinc-900 placeholder:text-zinc-400 outline-none transition"
-        />
-      </div>
+      {/*
+        Team field is only shown when a team slug is already known from the URL.
+        Bare /login (no ?team=) skips this field entirely — that path is for
+        platform admins (SUPER role) who have no team.
+      */}
+      {defaultTeam && (
+        <div className="flex flex-col gap-1.5">
+          <label className="text-sm font-medium text-zinc-700">Team</label>
+          <input type="hidden" name="team" value={defaultTeam} />
+          <div className="w-full rounded-lg bg-zinc-100 px-3.5 py-2.5 text-sm text-zinc-500 flex items-center justify-between">
+            <span>{defaultTeam}</span>
+            <Link
+              href="/login"
+              className="text-xs text-zinc-400 hover:text-primary transition-colors"
+            >
+              Sign in differently?
+            </Link>
+          </div>
+        </div>
+      )}
 
       <div className="flex flex-col gap-1.5">
         <label htmlFor="email" className="text-sm font-medium text-zinc-700">
@@ -47,7 +54,7 @@ export function LoginForm({ defaultTeam }: { defaultTeam?: string }) {
           type="password"
           required
           autoComplete="current-password"
-          className="w-full rounded-lg border border-zinc-300 px-3.5 py-2.5 text-sm text-zinc-900 outline-none focus:border-primary focus:ring-3 focus:ring-amber-100 transition"
+          className="w-full rounded-lg ring-input px-3.5 py-2.5 text-sm text-zinc-900 placeholder:text-zinc-400 outline-none transition"
         />
       </div>
 
@@ -64,6 +71,19 @@ export function LoginForm({ defaultTeam }: { defaultTeam?: string }) {
       >
         {pending ? "Signing in…" : "Sign in"}
       </button>
+
+      {/*
+        Demo credentials hint — only shown on the demo team login.
+        Makes it easy for portfolio reviewers to get in without asking.
+        Replace these with real seeded credentials before sharing.
+      */}
+      {defaultTeam === "demo" && (
+        <div className="rounded-lg bg-amber-50 border border-amber-100 px-3.5 py-3 text-xs text-amber-800 space-y-1">
+          <p className="font-semibold">Demo credentials</p>
+          <p>support@demo.com / demo1234</p>
+          <p>requester@demo.com / demo1234</p>
+        </div>
+      )}
     </form>
   );
 }

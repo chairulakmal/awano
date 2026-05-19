@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Header } from "@/components/Header";
 
 const FEATURES = [
   {
@@ -27,16 +28,7 @@ const STATS = [
 export default function Home() {
   return (
     <div className="flex-1 flex flex-col bg-zinc-50 bg-dots text-zinc-900 font-sans">
-      {/* Nav */}
-      <nav className="sticky top-0 z-10 flex items-center justify-between px-8 py-4 bg-zinc-50/95 backdrop-blur-sm shadow-sm">
-        <span className="text-base font-semibold tracking-tight">Awano</span>
-        <Link
-          href="/login"
-          className="text-sm font-medium text-primary hover:text-primary-hover transition-colors"
-        >
-          Sign in →
-        </Link>
-      </nav>
+      <Header />
 
       {/* Hero */}
       <section className="w-full hero-bg">
@@ -57,11 +49,12 @@ export default function Home() {
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4">
+            {/* Primary CTA goes to the demo team so reviewers land pre-scoped */}
             <Link
-              href="/login"
+              href="/login?team=demo"
               className="inline-flex items-center justify-center h-12 px-8 rounded-lg bg-primary text-white text-base font-semibold hover:bg-primary-hover transition-colors shadow-sm"
             >
-              Sign in
+              Try the demo →
             </Link>
             <a
               href="#how-it-works"
