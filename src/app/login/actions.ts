@@ -9,8 +9,9 @@ export async function loginAction(
   formData: FormData
 ): Promise<string | null> {
   try {
+    const team = formData.get("team") as string | null;
     await signIn("credentials", {
-      team: (formData.get("team") as string) || undefined,
+      ...(team ? { team } : {}),
       email: formData.get("email") as string,
       password: formData.get("password") as string,
       redirectTo: "/",

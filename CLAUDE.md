@@ -67,7 +67,12 @@ Five roles exist on `User.role` (`Role` enum): `REQUESTER`, `SUPPORT`, `MANAGER`
 
 Auth.js v5 Credentials provider. Session payload: `userId`, `teamId`, `role`, `requesterType?`.
 
-Middleware guards:
+### Route guards (Next.js 16 proxy pattern)
+
+Next.js 16 does **not** use `middleware.ts`. Route protection lives in `src/proxy.ts`, which is
+the framework's replacement. Do not create a `middleware.ts` — it will be ignored.
+
+Route guards in `proxy.ts`:
 
 - `/desk/*` → Support+
 - `/admin/*` → Manager+
