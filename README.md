@@ -24,6 +24,8 @@ Every piece of data is scoped to a **Team**. A support agent from Team A cannot 
 
 **Service layer keeps business logic testable.** The pattern is `Server Action → service.ts → Prisma`. No Prisma calls outside the service layer. This means the business rules (who can escalate, which transitions are valid) can be tested in Vitest against a real database without mocking Next.js internals.
 
+**User-facing strings live in components, not logic.** Labels, error messages, and status copy are kept in UI components rather than server actions or service functions. The convention costs nothing now and keeps the codebase extractable for i18n without touching business logic when the time comes.
+
 ---
 
 ## Stack
