@@ -83,7 +83,7 @@ export async function getDashboardMetrics(session: SessionPayload) {
   const assigneeIds = assigneeGroups.map((g) => g.assigneeId as string);
   const assignees = assigneeIds.length
     ? await db.user.findMany({
-        where: { id: { in: assigneeIds } },
+        where: { id: { in: assigneeIds }, teamId },
         select: { id: true, name: true, email: true },
       })
     : [];

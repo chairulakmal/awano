@@ -36,15 +36,6 @@ const PRIORITY_LABEL: Record<TicketPriority, string> = {
   URGENT: "Urgent",
 };
 
-type View = "unassigned" | "mine" | "open" | "escalated";
-
-const VIEWS: { key: View; label: string }[] = [
-  { key: "unassigned", label: "Unassigned" },
-  { key: "mine", label: "Mine" },
-  { key: "open", label: "Open" },
-  { key: "escalated", label: "Escalated" },
-];
-
 function getFilters(view: string, userId: string) {
   switch (view) {
     case "mine":
@@ -67,28 +58,10 @@ export default async function DeskPage({
   const session = await auth();
   const payload = assertAuthenticated(session);
   const tickets = await listDeskTickets(getFilters(view, payload.userId), payload);
-  const activeView = VIEWS.find((v) => v.key === view) ? (view as View) : "unassigned";
 
   return (
     <div>
       <h1 className="text-2xl font-semibold text-zinc-900 mb-6">Inbox</h1>
-
-      {/* Tab nav */}
-      <nav className="flex gap-1 p-1 bg-white rounded-xl shadow-card mb-6">
-        {VIEWS.map(({ key, label }) => (
-          <Link
-            key={key}
-            href={`/desk?view=${key}`}
-            className={`flex-1 text-center py-2 text-sm font-medium rounded-lg transition-colors ${
-              activeView === key
-                ? "bg-primary text-white shadow-sm"
-                : "text-zinc-500 hover:text-zinc-900"
-            }`}
-          >
-            {label}
-          </Link>
-        ))}
-      </nav>
 
       {tickets.length === 0 ? (
         <div className="rounded-xl shadow-card bg-white px-6 py-16 text-center">
