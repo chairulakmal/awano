@@ -76,6 +76,18 @@ npm run format      # Prettier
 npx prisma studio   # Database GUI
 ```
 
+### Running tests
+
+The unit tests cover the FSM (`assertTransition`, `getAllowedTransitions`) and authorization
+assertions (`assertAuthenticated`, `assertRole`, `assertSameTeam`, `assertCanViewTicket`,
+`assertCanUpdateTicket`). They are pure and require no database connection.
+
+```bash
+npm test                # Run all unit tests once
+npm run test:watch      # Re-run on file change (development)
+npm run test:coverage   # Run with V8 coverage report
+```
+
 ---
 
 ## Demo accounts
