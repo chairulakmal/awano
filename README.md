@@ -80,17 +80,17 @@ npx prisma studio   # Database GUI
 
 ## Demo accounts
 
-Log in at [`/login?team=demo`](http://localhost:3000/login?team=demo) — password for all accounts: **`demo1234`**
+Log in at [`/login?team=demo`](http://localhost:3000/login?team=demo) — password for all accounts: **`oretachinomachida`**
 
 | Email                | Role      | Requester type |
 | -------------------- | --------- | -------------- |
-| `customer@demo.com`  | Requester | Customer       |
-| `recruiter@demo.com` | Requester | Recruiter      |
-| `agent@demo.com`     | Requester | Field Agent    |
-| `support@demo.com`   | Support   | —              |
-| `manager@demo.com`   | Manager   | —              |
+| `customer@awano.demo`  | Requester | Customer       |
+| `recruiter@awano.demo` | Requester | Recruiter      |
+| `agent@awano.demo`     | Requester | Field Agent    |
+| `support@awano.demo`   | Support   | —              |
+| `manager@awano.demo`   | Manager   | —              |
 
-Super admin: `super@awano.local` at `/login` (no team slug — Super users have no team).
+Super admin: `super@awano.demo` at `/login` (no team slug — Super users have no team).
 
 ---
 

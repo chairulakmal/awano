@@ -80,8 +80,8 @@ export function LoginForm({ defaultTeam }: { defaultTeam?: string }) {
       {defaultTeam === "demo" && (
         <div className="rounded-lg bg-amber-50 border border-amber-100 px-3.5 py-3 text-xs text-amber-800 space-y-1">
           <p className="font-semibold">Demo credentials</p>
-          <p>support@demo.com / demo1234</p>
-          <p>requester@demo.com / demo1234</p>
+          <p>support@awano.demo / oretachinomachida</p>
+          <p>customer@awano.demo / oretachinomachida</p>
         </div>
       )}
     </form>

@@ -6,7 +6,7 @@ import { PrismaPg } from "@prisma/adapter-pg";
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL! });
 const db = new PrismaClient({ adapter });
 
-const DEMO_PASSWORD = "demo1234";
+const DEMO_PASSWORD = "oretachinomachida";
 
 async function upsertTeam(slug: string, name: string) {
   return db.team.upsert({ where: { slug }, update: {}, create: { slug, name } });
@@ -43,10 +43,10 @@ async function main() {
   // -------------------------------------------------------------------------
   await db.user.upsert({
     where: { id: "seed-super" },
-    update: {},
+    update: { email: "super@awano.demo", passwordHash: hash },
     create: {
       id: "seed-super",
-      email: "super@awano.local",
+      email: "super@awano.demo",
       passwordHash: hash,
       role: "SUPER",
       name: "Super Admin",
@@ -54,14 +54,14 @@ async function main() {
   });
 
   // -------------------------------------------------------------------------
-  // Team A — Acme Corp
+  // Team A — Demo (primary team, matches README credentials)
   // -------------------------------------------------------------------------
-  const teamA = await upsertTeam("acme", "Acme Corp");
+  const teamA = await upsertTeam("demo", "Awano Demo");
   const catA = await upsertCategory(teamA.id, "general", "General");
 
   const customerA = await upsertUser(
     teamA.id,
-    "customer@acme.demo",
+    "customer@awano.demo",
     hash,
     "REQUESTER",
     "Alice Customer",
@@ -69,15 +69,15 @@ async function main() {
   );
   await upsertUser(
     teamA.id,
-    "recruiter@acme.demo",
+    "recruiter@awano.demo",
     hash,
     "REQUESTER",
     "Bob Recruiter",
     "RECRUITER"
   );
-  await upsertUser(teamA.id, "agent@acme.demo", hash, "REQUESTER", "Carol Agent", "FIELD_AGENT");
-  const supportA = await upsertUser(teamA.id, "support@acme.demo", hash, "SUPPORT", "Dan Support");
-  await upsertUser(teamA.id, "manager@acme.demo", hash, "MANAGER", "Eve Manager");
+  await upsertUser(teamA.id, "agent@awano.demo", hash, "REQUESTER", "Carol Agent", "FIELD_AGENT");
+  const supportA = await upsertUser(teamA.id, "support@awano.demo", hash, "SUPPORT", "Dan Support");
+  await upsertUser(teamA.id, "manager@awano.demo", hash, "MANAGER", "Eve Manager");
 
   const ticketA1 = await db.ticket.upsert({
     where: { id: "seed-ticket-a1" },
@@ -178,9 +178,9 @@ async function main() {
 
   console.log("✓ Seeded: 1 super, 2 teams, 9 users, 4 tickets");
   console.log(`  Password for all accounts: ${DEMO_PASSWORD}`);
-  console.log("  Team A (acme): customer@acme.demo | support@acme.demo | manager@acme.demo");
-  console.log("  Team B (beta): customer@beta.demo | support@beta.demo | manager@beta.demo");
-  console.log("  Super: super@awano.local (no team slug needed)");
+  console.log("  Team demo: customer@awano.demo | support@awano.demo | manager@awano.demo");
+  console.log("  Team beta: customer@beta.demo  | support@beta.demo  | manager@beta.demo");
+  console.log("  Super: super@awano.demo (no team slug needed)");
 }
 
 main()

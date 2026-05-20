@@ -292,19 +292,22 @@ Playwright E2E runs against Railway preview deployment on pull requests.
 
 `prisma/seed.ts` creates:
 
-- 1 Super user (`super@awano.local`)
+- 1 Super user (`super@awano.demo`)
 - 2 teams with full demo user sets per team
 - Sample tickets in each team across multiple statuses
 
-| Email                | Role      | Type        |
-| -------------------- | --------- | ----------- |
-| `customer@demo.com`  | REQUESTER | CUSTOMER    |
-| `recruiter@demo.com` | REQUESTER | RECRUITER   |
-| `agent@demo.com`     | REQUESTER | FIELD_AGENT |
-| `support@demo.com`   | SUPPORT   | —           |
-| `manager@demo.com`   | MANAGER   | —           |
+| Email                   | Role      | Type        | Team  |
+| ----------------------- | --------- | ----------- | ----- |
+| `customer@awano.demo`   | REQUESTER | CUSTOMER    | demo  |
+| `recruiter@awano.demo`  | REQUESTER | RECRUITER   | demo  |
+| `agent@awano.demo`      | REQUESTER | FIELD_AGENT | demo  |
+| `support@awano.demo`    | SUPPORT   | —           | demo  |
+| `manager@awano.demo`    | MANAGER   | —           | demo  |
+| `customer@beta.demo`    | REQUESTER | CUSTOMER    | beta  |
+| `support@beta.demo`     | SUPPORT   | —           | beta  |
+| `manager@beta.demo`     | MANAGER   | —           | beta  |
 
-Login: `/login?team={slug}`. Demo password documented in `README.md`.
+Login: `/login?team=demo`. Demo password documented in `README.md`.
 
 ---
 
