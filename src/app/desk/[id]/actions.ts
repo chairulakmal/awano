@@ -11,7 +11,7 @@ import { TicketStatus, TicketPriority } from "@/generated/prisma/enums";
 export async function transitionStatusAction(formData: FormData): Promise<void> {
   const session  = await auth();
   const payload  = assertAuthenticated(session);
-  const ticketId = z.string().cuid().parse(formData.get("ticketId"));
+  const ticketId = z.string().min(1).parse(formData.get("ticketId"));
   const to       = z.nativeEnum(TicketStatus).parse(formData.get("toStatus"));
   await transitionStatus(ticketId, to, payload);
   revalidatePath(`/desk/${ticketId}`);
@@ -23,7 +23,7 @@ export async function assignTicketAction(
 ): Promise<string | null> {
   const session  = await auth();
   const payload  = assertAuthenticated(session);
-  const ticketId = z.string().cuid().parse(formData.get("ticketId"));
+  const ticketId = z.string().min(1).parse(formData.get("ticketId"));
   const raw      = formData.get("assigneeId");
   const assigneeId = !raw || raw === "" ? null : z.string().cuid().parse(raw);
 
@@ -43,7 +43,7 @@ export async function setPriorityAction(
 ): Promise<string | null> {
   const session  = await auth();
   const payload  = assertAuthenticated(session);
-  const ticketId = z.string().cuid().parse(formData.get("ticketId"));
+  const ticketId = z.string().min(1).parse(formData.get("ticketId"));
   const priority = z.nativeEnum(TicketPriority).parse(formData.get("priority"));
 
   try {
@@ -62,7 +62,7 @@ export async function postDeskCommentAction(
 ): Promise<string | null> {
   const session    = await auth();
   const payload    = assertAuthenticated(session);
-  const ticketId   = z.string().cuid().parse(formData.get("ticketId"));
+  const ticketId   = z.string().min(1).parse(formData.get("ticketId"));
   const body       = z.string().min(1).parse(formData.get("body"));
   const isInternal = formData.get("isInternal") === "true";
 

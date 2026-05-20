@@ -14,7 +14,7 @@ export async function postCommentAction(
   const session = await auth();
   const payload = assertAuthenticated(session);
 
-  const ticketId = z.string().cuid().parse(formData.get("ticketId"));
+  const ticketId = z.string().min(1).parse(formData.get("ticketId"));
   const body     = z.string().min(1).parse(formData.get("body"));
 
   try {
