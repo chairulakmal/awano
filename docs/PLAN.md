@@ -60,18 +60,30 @@
 
 ---
 
-## What to build next: Tests
+### Vitest unit tests — 2026-05-20
 
-All routes complete. Testing is next.
+- [x] `vitest.config.ts` — configured with native `resolve.tsconfigPaths`; `npm test`, `npm run test:watch`, `npm run test:coverage`
+- [x] `src/lib/tickets/fsm.test.ts` — `assertTransition` (all 9 valid transitions, role-rank gates, nonexistent pairs, error message content) + `getAllowedTransitions` (every state × role combination including WAITING_ON_REQUESTER and ESCALATED states)
+- [x] `src/lib/auth/assertions.test.ts` — error class properties (status codes, names, messages); `assertAuthenticated`; `assertRole`; `assertSameTeam` (SUPER bypass, MANAGER/ADMIN still blocked cross-team); `assertCanViewTicket` (REQUESTER own-only, SUPPORT cross-team blocked, SUPER bypass); `assertCanUpdateTicket` (REQUESTER always blocked, ADMIN allowed)
+- [x] `src/lib/tickets/service.test.ts` — role guards; `getTicket` (`isInternal: false` filter built for REQUESTER, cross-team/own-ticket gates); `assignTicket` (self-assign vs other-assign role split, null unassign); `transitionStatus` (not-found, SUPPORT escalation blocked, StatusEvent written in `$transaction`); `postComment` (internal note blocked for REQUESTER, Zod body validation)
+- [x] `src/lib/users/service.test.ts` — `changeUserRole` (role guard, self-edit guard, SUPER role rejected, cross-team blocked, requesterType defaulting on role change)
+- [x] `src/lib/categories/service.test.ts` — `createCategory` (slug generation: lowercase, space→hyphen, symbol stripping, trim, teamId scoping, empty-slug guard); `deleteCategory` (has-tickets guard, cross-team guard)
+
+**Total: 142 tests across 5 test files — all passing.**
+
+---
+
+## What to build next: Playwright E2E
+
+All unit tests complete. E2E is next.
 
 ---
 
 ## Ordered queue
 
-| #   | What                                                   | Why first                                         |
-| --- | ------------------------------------------------------ | ------------------------------------------------- |
-| 1   | Vitest unit tests (FSM, assertions, service functions) | Spec requires; service layer is stable now        |
-| 2   | Playwright E2E                                         | Last; requires all routes working                 |
+| #   | What                  | Why first                                      |
+| --- | --------------------- | ---------------------------------------------- |
+| 1   | Playwright E2E        | Last step; requires all routes working (done)  |
 
 ---
 

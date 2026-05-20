@@ -117,6 +117,58 @@ describe("assertTransition — nonexistent transitions", () => {
       assertTransition(TicketStatus.OPEN, TicketStatus.OPEN, Role.SUPER),
     ).toThrow(AuthorizationError);
   });
+
+  it("OPEN → ESCALATED has no path", () => {
+    expect(() =>
+      assertTransition(TicketStatus.OPEN, TicketStatus.ESCALATED, Role.SUPER),
+    ).toThrow(AuthorizationError);
+  });
+
+  it("ESCALATED → CLOSED has no path", () => {
+    expect(() =>
+      assertTransition(TicketStatus.ESCALATED, TicketStatus.CLOSED, Role.SUPER),
+    ).toThrow(AuthorizationError);
+  });
+
+  it("WAITING_ON_REQUESTER → RESOLVED has no path", () => {
+    expect(() =>
+      assertTransition(TicketStatus.WAITING_ON_REQUESTER, TicketStatus.RESOLVED, Role.SUPER),
+    ).toThrow(AuthorizationError);
+  });
+});
+
+describe("assertTransition — error message content", () => {
+  it("nonexistent transition error names both states", () => {
+    expect(() =>
+      assertTransition(TicketStatus.OPEN, TicketStatus.CLOSED, Role.SUPER),
+    ).toThrow(/OPEN.*CLOSED|CLOSED.*OPEN/);
+  });
+
+  it("insufficient-role error names the required role", () => {
+    expect(() =>
+      assertTransition(TicketStatus.IN_PROGRESS, TicketStatus.ESCALATED, Role.SUPPORT),
+    ).toThrow(/MANAGER/);
+  });
+});
+
+describe("assertTransition — ADMIN role (rank above MANAGER)", () => {
+  it("ADMIN can de-escalate ESCALATED → IN_PROGRESS", () => {
+    expect(() =>
+      assertTransition(TicketStatus.ESCALATED, TicketStatus.IN_PROGRESS, Role.ADMIN),
+    ).not.toThrow();
+  });
+
+  it("ADMIN can reopen CLOSED → OPEN", () => {
+    expect(() =>
+      assertTransition(TicketStatus.CLOSED, TicketStatus.OPEN, Role.ADMIN),
+    ).not.toThrow();
+  });
+
+  it("ADMIN can reopen RESOLVED → IN_PROGRESS", () => {
+    expect(() =>
+      assertTransition(TicketStatus.RESOLVED, TicketStatus.IN_PROGRESS, Role.ADMIN),
+    ).not.toThrow();
+  });
 });
 
 // ---------------------------------------------------------------------------
@@ -171,5 +223,37 @@ describe("getAllowedTransitions", () => {
     expect(allowed).toContain(TicketStatus.ESCALATED);
     expect(allowed).toContain(TicketStatus.WAITING_ON_REQUESTER);
     expect(allowed).toContain(TicketStatus.RESOLVED);
+  });
+
+  it("SUPPORT from WAITING_ON_REQUESTER can return to IN_PROGRESS", () => {
+    const allowed = getAllowedTransitions(TicketStatus.WAITING_ON_REQUESTER, Role.SUPPORT);
+    expect(allowed).toEqual([TicketStatus.IN_PROGRESS]);
+  });
+
+  it("REQUESTER from WAITING_ON_REQUESTER sees no transitions", () => {
+    expect(getAllowedTransitions(TicketStatus.WAITING_ON_REQUESTER, Role.REQUESTER)).toEqual([]);
+  });
+
+  it("MANAGER from ESCALATED can return to IN_PROGRESS", () => {
+    const allowed = getAllowedTransitions(TicketStatus.ESCALATED, Role.MANAGER);
+    expect(allowed).toEqual([TicketStatus.IN_PROGRESS]);
+  });
+
+  it("SUPPORT from ESCALATED sees no transitions", () => {
+    expect(getAllowedTransitions(TicketStatus.ESCALATED, Role.SUPPORT)).toEqual([]);
+  });
+
+  it("REQUESTER from ESCALATED sees no transitions", () => {
+    expect(getAllowedTransitions(TicketStatus.ESCALATED, Role.REQUESTER)).toEqual([]);
+  });
+
+  it("ADMIN from CLOSED can reopen (ADMIN rank > MANAGER)", () => {
+    expect(getAllowedTransitions(TicketStatus.CLOSED, Role.ADMIN)).toContain(TicketStatus.OPEN);
+  });
+
+  it("getAllowedTransitions returns only valid targets — no duplicates", () => {
+    const allowed = getAllowedTransitions(TicketStatus.IN_PROGRESS, Role.MANAGER);
+    const unique = new Set(allowed);
+    expect(allowed.length).toBe(unique.size);
   });
 });
