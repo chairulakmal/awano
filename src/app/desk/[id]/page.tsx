@@ -12,39 +12,38 @@ import { DeskCommentForm } from "./DeskCommentForm";
 import type { TicketStatus, TicketPriority } from "@/generated/prisma/enums";
 
 const STATUS_LABEL: Record<TicketStatus, string> = {
-  OPEN:                 "Open",
-  IN_PROGRESS:          "In progress",
+  OPEN: "Open",
+  IN_PROGRESS: "In progress",
   WAITING_ON_REQUESTER: "Waiting on requester",
-  ESCALATED:            "Escalated",
-  RESOLVED:             "Resolved",
-  CLOSED:               "Closed",
+  ESCALATED: "Escalated",
+  RESOLVED: "Resolved",
+  CLOSED: "Closed",
 };
 
 const STATUS_CLASS: Record<TicketStatus, string> = {
-  OPEN:                 "bg-zinc-100 text-zinc-600",
-  IN_PROGRESS:          "bg-blue-50 text-blue-700",
+  OPEN: "bg-zinc-100 text-zinc-600",
+  IN_PROGRESS: "bg-blue-50 text-blue-700",
   WAITING_ON_REQUESTER: "bg-amber-50 text-amber-700",
-  ESCALATED:            "bg-red-50 text-red-700",
-  RESOLVED:             "bg-green-50 text-green-700",
-  CLOSED:               "bg-zinc-100 text-zinc-400",
+  ESCALATED: "bg-red-50 text-red-700",
+  RESOLVED: "bg-green-50 text-green-700",
+  CLOSED: "bg-zinc-100 text-zinc-400",
 };
 
 const PRIORITY_LABEL: Record<TicketPriority, string> = {
-  LOW: "Low", NORMAL: "Normal", HIGH: "High", URGENT: "Urgent",
+  LOW: "Low",
+  NORMAL: "Normal",
+  HIGH: "High",
+  URGENT: "Urgent",
 };
 
 const PRIORITY_CLASS: Record<TicketPriority, string> = {
-  LOW:    "text-zinc-400",
+  LOW: "text-zinc-400",
   NORMAL: "text-zinc-500",
-  HIGH:   "text-amber-600",
+  HIGH: "text-amber-600",
   URGENT: "text-red-600 font-semibold",
 };
 
-export default async function DeskTicketPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
+export default async function DeskTicketPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const session = await auth();
   const payload = assertAuthenticated(session);
@@ -169,10 +168,7 @@ export default async function DeskTicketPage({
 
           {/* Priority */}
           <div className="rounded-xl shadow-card bg-white px-5 py-5">
-            <PriorityForm
-              ticketId={ticket.id}
-              currentPriority={ticket.priority}
-            />
+            <PriorityForm ticketId={ticket.id} currentPriority={ticket.priority} />
           </div>
 
           {/* Timeline */}

@@ -7,7 +7,10 @@ import type { TicketPriority } from "@/generated/prisma/enums";
 const PRIORITIES: TicketPriority[] = ["LOW", "NORMAL", "HIGH", "URGENT"];
 
 const PRIORITY_LABEL: Record<TicketPriority, string> = {
-  LOW: "Low", NORMAL: "Normal", HIGH: "High", URGENT: "Urgent",
+  LOW: "Low",
+  NORMAL: "Normal",
+  HIGH: "High",
+  URGENT: "Urgent",
 };
 
 export function PriorityForm({

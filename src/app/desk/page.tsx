@@ -5,49 +5,56 @@ import { listDeskTickets } from "@/lib/tickets/service";
 import type { TicketStatus, TicketPriority } from "@/generated/prisma/enums";
 
 const STATUS_LABEL: Record<TicketStatus, string> = {
-  OPEN:                 "Open",
-  IN_PROGRESS:          "In progress",
+  OPEN: "Open",
+  IN_PROGRESS: "In progress",
   WAITING_ON_REQUESTER: "Waiting on requester",
-  ESCALATED:            "Escalated",
-  RESOLVED:             "Resolved",
-  CLOSED:               "Closed",
+  ESCALATED: "Escalated",
+  RESOLVED: "Resolved",
+  CLOSED: "Closed",
 };
 
 const STATUS_CLASS: Record<TicketStatus, string> = {
-  OPEN:                 "bg-zinc-100 text-zinc-600",
-  IN_PROGRESS:          "bg-blue-50 text-blue-700",
+  OPEN: "bg-zinc-100 text-zinc-600",
+  IN_PROGRESS: "bg-blue-50 text-blue-700",
   WAITING_ON_REQUESTER: "bg-amber-50 text-amber-700",
-  ESCALATED:            "bg-red-50 text-red-700",
-  RESOLVED:             "bg-green-50 text-green-700",
-  CLOSED:               "bg-zinc-100 text-zinc-400",
+  ESCALATED: "bg-red-50 text-red-700",
+  RESOLVED: "bg-green-50 text-green-700",
+  CLOSED: "bg-zinc-100 text-zinc-400",
 };
 
 const PRIORITY_CLASS: Record<TicketPriority, string> = {
-  LOW:    "text-zinc-400",
+  LOW: "text-zinc-400",
   NORMAL: "text-zinc-500",
-  HIGH:   "text-amber-600",
+  HIGH: "text-amber-600",
   URGENT: "text-red-600 font-semibold",
 };
 
 const PRIORITY_LABEL: Record<TicketPriority, string> = {
-  LOW: "Low", NORMAL: "Normal", HIGH: "High", URGENT: "Urgent",
+  LOW: "Low",
+  NORMAL: "Normal",
+  HIGH: "High",
+  URGENT: "Urgent",
 };
 
 type View = "unassigned" | "mine" | "open" | "escalated";
 
 const VIEWS: { key: View; label: string }[] = [
   { key: "unassigned", label: "Unassigned" },
-  { key: "mine",       label: "Mine" },
-  { key: "open",       label: "Open" },
-  { key: "escalated",  label: "Escalated" },
+  { key: "mine", label: "Mine" },
+  { key: "open", label: "Open" },
+  { key: "escalated", label: "Escalated" },
 ];
 
 function getFilters(view: string, userId: string) {
   switch (view) {
-    case "mine":      return { assigneeId: userId };
-    case "open":      return { status: "OPEN" as TicketStatus };
-    case "escalated": return { status: "ESCALATED" as TicketStatus };
-    default:          return { assigneeId: null };
+    case "mine":
+      return { assigneeId: userId };
+    case "open":
+      return { status: "OPEN" as TicketStatus };
+    case "escalated":
+      return { status: "ESCALATED" as TicketStatus };
+    default:
+      return { assigneeId: null };
   }
 }
 
@@ -57,9 +64,9 @@ export default async function DeskPage({
   searchParams: Promise<{ view?: string }>;
 }) {
   const { view = "unassigned" } = await searchParams;
-  const session  = await auth();
-  const payload  = assertAuthenticated(session);
-  const tickets  = await listDeskTickets(getFilters(view, payload.userId), payload);
+  const session = await auth();
+  const payload = assertAuthenticated(session);
+  const tickets = await listDeskTickets(getFilters(view, payload.userId), payload);
   const activeView = VIEWS.find((v) => v.key === view) ? (view as View) : "unassigned";
 
   return (

@@ -7,7 +7,7 @@ import { seedDemoUsers } from "@/lib/teams/service";
 
 export async function seedDemoAction(
   _prevState: string | null,
-  formData: FormData,
+  formData: FormData
 ): Promise<string | null> {
   try {
     const session = await auth();

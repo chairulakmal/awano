@@ -9,13 +9,13 @@ import { Role } from "@/generated/prisma/enums";
 
 export async function changeRoleAction(
   _prevState: string | null,
-  formData: FormData,
+  formData: FormData
 ): Promise<string | null> {
   try {
     const session = await auth();
     const payload = assertAuthenticated(session);
     const userId = z.string().cuid().parse(formData.get("userId"));
-    const role   = z.nativeEnum(Role).parse(formData.get("role"));
+    const role = z.nativeEnum(Role).parse(formData.get("role"));
     await changeUserRole(userId, role, payload);
     revalidatePath("/admin/users");
     return null;

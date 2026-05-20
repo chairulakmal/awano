@@ -38,14 +38,13 @@ export default function Home() {
           </p>
 
           <h1 className="text-5xl sm:text-6xl lg:text-7xl font-semibold tracking-tight leading-[1.06] mb-8 max-w-3xl">
-            Every request,{" "}
-            <span className="text-primary">handled.</span>
+            Every request, <span className="text-primary">handled.</span>
           </h1>
 
           <p className="text-xl text-zinc-500 max-w-xl leading-relaxed mb-12">
-            Customers, recruiters, and field agents open tickets when they need
-            help. Your support team picks them up, replies, and tracks every
-            step to resolution — one isolated workspace per team.
+            Customers, recruiters, and field agents open tickets when they need help. Your support
+            team picks them up, replies, and tracks every step to resolution — one isolated
+            workspace per team.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4">
@@ -74,16 +73,11 @@ export default function Home() {
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
             {FEATURES.map(({ n, title, body }) => (
-              <div
-                key={n}
-                className="bg-white rounded-xl p-8 flex flex-col gap-4 shadow-card"
-              >
+              <div key={n} className="bg-white rounded-xl p-8 flex flex-col gap-4 shadow-card">
                 <span className="font-mono text-xs font-semibold text-primary tracking-widest">
                   {n}
                 </span>
-                <h3 className="text-base font-semibold text-zinc-900 leading-snug">
-                  {title}
-                </h3>
+                <h3 className="text-base font-semibold text-zinc-900 leading-snug">{title}</h3>
                 <p className="text-sm text-zinc-500 leading-relaxed">{body}</p>
               </div>
             ))}
@@ -95,16 +89,9 @@ export default function Home() {
       <section className="bg-dots">
         <div className="max-w-5xl mx-auto px-8 py-16 flex flex-col sm:flex-row items-center justify-center gap-10 sm:gap-0 sm:divide-x sm:divide-zinc-100">
           {STATS.map(({ value, label }) => (
-            <div
-              key={label}
-              className="flex flex-col items-center sm:px-16 text-center"
-            >
-              <span className="text-4xl font-semibold text-primary tabular-nums">
-                {value}
-              </span>
-              <span className="text-xs text-zinc-400 mt-2 uppercase tracking-widest">
-                {label}
-              </span>
+            <div key={label} className="flex flex-col items-center sm:px-16 text-center">
+              <span className="text-4xl font-semibold text-primary tabular-nums">{value}</span>
+              <span className="text-xs text-zinc-400 mt-2 uppercase tracking-widest">{label}</span>
             </div>
           ))}
         </div>

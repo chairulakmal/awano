@@ -8,9 +8,9 @@ export default async function NewTicketPage() {
   const payload = assertAuthenticated(session);
 
   const categories = await db.category.findMany({
-    where:   { teamId: payload.teamId! },
+    where: { teamId: payload.teamId! },
     orderBy: { name: "asc" },
-    select:  { id: true, name: true },
+    select: { id: true, name: true },
   });
 
   return (

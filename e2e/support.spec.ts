@@ -11,7 +11,9 @@ async function login(page: Page, email: string, team: string) {
 }
 
 test.describe("Support — assign · internal note · status change", () => {
-  test("support can assign, post internal note, and transition OPEN → IN_PROGRESS", async ({ page }) => {
+  test("support can assign, post internal note, and transition OPEN → IN_PROGRESS", async ({
+    page,
+  }) => {
     // 1. Login as support — redirects to /desk
     await login(page, "support@awano.demo", "demo");
 
@@ -38,10 +40,10 @@ test.describe("Support — assign · internal note · status change", () => {
     // After the transition, the OPEN → IN_PROGRESS button disappears and
     // SUPPORT-accessible IN_PROGRESS transitions appear
     await expect(
-      page.getByRole("button", { name: "→ Waiting on requester", exact: true }),
+      page.getByRole("button", { name: "→ Waiting on requester", exact: true })
     ).toBeVisible({ timeout: 8_000 });
     await expect(
-      page.getByRole("button", { name: "→ In progress", exact: true }),
+      page.getByRole("button", { name: "→ In progress", exact: true })
     ).not.toBeVisible();
   });
 });

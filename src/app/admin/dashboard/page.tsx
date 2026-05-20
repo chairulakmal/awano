@@ -4,12 +4,16 @@ import { getDashboardMetrics } from "@/lib/admin/service";
 import type { TicketStatus } from "@/generated/prisma/enums";
 
 const STATUS_ROWS: { status: TicketStatus; label: string; cls: string }[] = [
-  { status: "OPEN",                 label: "Open",               cls: "bg-zinc-100 text-zinc-600" },
-  { status: "IN_PROGRESS",          label: "In progress",        cls: "bg-blue-50 text-blue-700" },
-  { status: "WAITING_ON_REQUESTER", label: "Waiting on requester", cls: "bg-amber-50 text-amber-700" },
-  { status: "ESCALATED",            label: "Escalated",          cls: "bg-red-50 text-red-700" },
-  { status: "RESOLVED",             label: "Resolved",           cls: "bg-green-50 text-green-700" },
-  { status: "CLOSED",               label: "Closed",             cls: "bg-zinc-100 text-zinc-400" },
+  { status: "OPEN", label: "Open", cls: "bg-zinc-100 text-zinc-600" },
+  { status: "IN_PROGRESS", label: "In progress", cls: "bg-blue-50 text-blue-700" },
+  {
+    status: "WAITING_ON_REQUESTER",
+    label: "Waiting on requester",
+    cls: "bg-amber-50 text-amber-700",
+  },
+  { status: "ESCALATED", label: "Escalated", cls: "bg-red-50 text-red-700" },
+  { status: "RESOLVED", label: "Resolved", cls: "bg-green-50 text-green-700" },
+  { status: "CLOSED", label: "Closed", cls: "bg-zinc-100 text-zinc-400" },
 ];
 
 export default async function AdminDashboardPage() {
@@ -91,15 +95,7 @@ export default async function AdminDashboardPage() {
   );
 }
 
-function StatCard({
-  label,
-  value,
-  sub,
-}: {
-  label: string;
-  value: string | number;
-  sub?: string;
-}) {
+function StatCard({ label, value, sub }: { label: string; value: string | number; sub?: string }) {
   return (
     <div className="rounded-xl shadow-card bg-white px-5 py-5">
       <p className="text-xs text-zinc-400 mb-1">{label}</p>

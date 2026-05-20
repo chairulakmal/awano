@@ -3,9 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-const LINKS = [
-  { href: "/super/teams", label: "Teams" },
-];
+const LINKS = [{ href: "/super/teams", label: "Teams" }];
 
 export function SuperNav() {
   const pathname = usePathname();

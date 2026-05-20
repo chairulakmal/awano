@@ -19,47 +19,42 @@ export default async function LoginPage({
 
       {/* Centre the card in the remaining space below the header */}
       <div className="flex-1 flex items-center justify-center px-4">
-      <div className="w-full max-w-sm">
-
-        {/* Login card */}
-        <div className="rounded-2xl bg-white p-10 shadow-panel">
-          <div className="mb-8">
-            <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-primary mb-6 mx-auto">
-              <span className="text-white font-bold text-base select-none">A</span>
+        <div className="w-full max-w-sm">
+          {/* Login card */}
+          <div className="rounded-2xl bg-white p-10 shadow-panel">
+            <div className="mb-8">
+              <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-primary mb-6 mx-auto">
+                <span className="text-white font-bold text-base select-none">A</span>
+              </div>
+              <h1 className="text-xl font-semibold tracking-tight text-zinc-900 text-center">
+                Sign in to Awano
+              </h1>
+              <p className="mt-1.5 text-sm text-zinc-500 text-center">
+                Enter your team workspace credentials.
+              </p>
             </div>
-            <h1 className="text-xl font-semibold tracking-tight text-zinc-900 text-center">
-              Sign in to Awano
-            </h1>
-            <p className="mt-1.5 text-sm text-zinc-500 text-center">
-              Enter your team workspace credentials.
-            </p>
+
+            <LoginForm defaultTeam={team} />
           </div>
 
-          <LoginForm defaultTeam={team} />
-        </div>
-
-        {/*
+          {/*
           Below the card: context-sensitive hint.
           - Team flow (?team=demo): show a quiet link to platform admin login.
           - Bare /login (no team): remind the user this is the platform admin path.
         */}
-        {hasTeam ? (
-          <p className="mt-6 text-center text-xs text-zinc-400">
-            Reviewing the platform?{" "}
-            <Link
-              href="/login"
-              className="text-zinc-500 hover:text-primary transition-colors"
-            >
-              Platform admin login →
-            </Link>
-          </p>
-        ) : (
-          <p className="mt-6 text-center text-xs text-zinc-400">
-            Platform admin login. Team members use their workspace link.
-          </p>
-        )}
-
-      </div>
+          {hasTeam ? (
+            <p className="mt-6 text-center text-xs text-zinc-400">
+              Reviewing the platform?{" "}
+              <Link href="/login" className="text-zinc-500 hover:text-primary transition-colors">
+                Platform admin login →
+              </Link>
+            </p>
+          ) : (
+            <p className="mt-6 text-center text-xs text-zinc-400">
+              Platform admin login. Team members use their workspace link.
+            </p>
+          )}
+        </div>
       </div>
     </div>
   );

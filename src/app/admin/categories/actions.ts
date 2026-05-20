@@ -8,7 +8,7 @@ import { createCategory, deleteCategory } from "@/lib/categories/service";
 
 export async function createCategoryAction(
   _prevState: string | null,
-  formData: FormData,
+  formData: FormData
 ): Promise<string | null> {
   try {
     const session = await auth();
@@ -23,7 +23,7 @@ export async function createCategoryAction(
 
 export async function deleteCategoryAction(
   _prevState: string | null,
-  formData: FormData,
+  formData: FormData
 ): Promise<string | null> {
   try {
     const session = await auth();

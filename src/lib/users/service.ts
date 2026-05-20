@@ -1,5 +1,10 @@
 import { db } from "@/lib/db";
-import { assertRole, assertSameTeam, AuthorizationError, type SessionPayload } from "@/lib/auth/assertions";
+import {
+  assertRole,
+  assertSameTeam,
+  AuthorizationError,
+  type SessionPayload,
+} from "@/lib/auth/assertions";
 import type { Role } from "@/generated/prisma/enums";
 
 const ASSIGNABLE_ROLES: Role[] = ["REQUESTER", "SUPPORT", "MANAGER", "ADMIN"];
@@ -9,9 +14,9 @@ export async function listTeamMembers(session: SessionPayload) {
   return db.user.findMany({
     where: {
       teamId: session.teamId!,
-      role:   { notIn: ["REQUESTER", "SUPER"] },
+      role: { notIn: ["REQUESTER", "SUPER"] },
     },
-    select:  { id: true, name: true, email: true, role: true },
+    select: { id: true, name: true, email: true, role: true },
     orderBy: { name: "asc" },
   });
 }
@@ -19,8 +24,8 @@ export async function listTeamMembers(session: SessionPayload) {
 export async function listTeamUsers(session: SessionPayload) {
   assertRole(session, ["MANAGER", "ADMIN"]);
   return db.user.findMany({
-    where:   { teamId: session.teamId! },
-    select:  { id: true, name: true, email: true, role: true, requesterType: true, createdAt: true },
+    where: { teamId: session.teamId! },
+    select: { id: true, name: true, email: true, role: true, requesterType: true, createdAt: true },
     orderBy: [{ role: "asc" }, { name: "asc" }],
   });
 }
@@ -31,7 +36,7 @@ export async function changeUserRole(userId: string, newRole: Role, session: Ses
   if (userId === session.userId) throw new AuthorizationError("Cannot change your own role");
 
   const user = await db.user.findUnique({
-    where:  { id: userId },
+    where: { id: userId },
     select: { teamId: true, role: true, requesterType: true },
   });
   if (!user || !user.teamId) throw new AuthorizationError("User not found");
@@ -41,9 +46,7 @@ export async function changeUserRole(userId: string, newRole: Role, session: Ses
     where: { id: userId },
     data: {
       role: newRole,
-      requesterType: newRole === "REQUESTER"
-        ? (user.requesterType ?? "CUSTOMER")
-        : null,
+      requesterType: newRole === "REQUESTER" ? (user.requesterType ?? "CUSTOMER") : null,
     },
   });
 }

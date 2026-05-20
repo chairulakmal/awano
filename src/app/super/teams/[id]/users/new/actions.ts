@@ -8,7 +8,7 @@ import { createUserInTeam } from "@/lib/teams/service";
 
 export async function createUserAction(
   _prevState: string | null,
-  formData: FormData,
+  formData: FormData
 ): Promise<string | null> {
   const session = await auth();
   const payload = assertAuthenticated(session);
@@ -24,7 +24,7 @@ export async function createUserAction(
         role: formData.get("role"),
         requesterType: (formData.get("requesterType") as string) || undefined,
       },
-      payload,
+      payload
     );
   } catch (err) {
     return err instanceof Error ? err.message : "Something went wrong";

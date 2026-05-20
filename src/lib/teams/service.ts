@@ -67,17 +67,12 @@ export async function getTeamDetail(teamId: string, session: SessionPayload) {
   return team;
 }
 
-export async function createUserInTeam(
-  teamId: string,
-  input: unknown,
-  session: SessionPayload,
-) {
+export async function createUserInTeam(teamId: string, input: unknown, session: SessionPayload) {
   assertRole(session, ["SUPER"]);
   const parsed = createUserSchema.parse(input);
   const { name, email, password, role, requesterType } = parsed;
   const passwordHash = await bcrypt.hash(password, 12);
-  const effectiveRequesterType =
-    role === "REQUESTER" ? (requesterType ?? "CUSTOMER") : null;
+  const effectiveRequesterType = role === "REQUESTER" ? (requesterType ?? "CUSTOMER") : null;
 
   try {
     return await db.user.create({
@@ -107,11 +102,26 @@ export async function seedDemoUsers(teamId: string, session: SessionPayload) {
     role: Role;
     requesterType: RequesterType | null;
   }> = [
-    { email: `customer@${slug}.demo`, name: "Demo Customer",  role: "REQUESTER", requesterType: "CUSTOMER" },
-    { email: `recruiter@${slug}.demo`, name: "Demo Recruiter", role: "REQUESTER", requesterType: "RECRUITER" },
-    { email: `agent@${slug}.demo`,    name: "Demo Agent",     role: "REQUESTER", requesterType: "FIELD_AGENT" },
-    { email: `support@${slug}.demo`,  name: "Demo Support",   role: "SUPPORT",   requesterType: null },
-    { email: `manager@${slug}.demo`,  name: "Demo Manager",   role: "MANAGER",   requesterType: null },
+    {
+      email: `customer@${slug}.demo`,
+      name: "Demo Customer",
+      role: "REQUESTER",
+      requesterType: "CUSTOMER",
+    },
+    {
+      email: `recruiter@${slug}.demo`,
+      name: "Demo Recruiter",
+      role: "REQUESTER",
+      requesterType: "RECRUITER",
+    },
+    {
+      email: `agent@${slug}.demo`,
+      name: "Demo Agent",
+      role: "REQUESTER",
+      requesterType: "FIELD_AGENT",
+    },
+    { email: `support@${slug}.demo`, name: "Demo Support", role: "SUPPORT", requesterType: null },
+    { email: `manager@${slug}.demo`, name: "Demo Manager", role: "MANAGER", requesterType: null },
   ];
 
   let created = 0;
@@ -129,9 +139,6 @@ export async function seedDemoUsers(teamId: string, session: SessionPayload) {
 
 function isPrismaUniqueError(err: unknown): boolean {
   return (
-    !!err &&
-    typeof err === "object" &&
-    "code" in err &&
-    (err as { code: string }).code === "P2002"
+    !!err && typeof err === "object" && "code" in err && (err as { code: string }).code === "P2002"
   );
 }

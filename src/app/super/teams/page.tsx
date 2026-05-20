@@ -20,10 +20,18 @@ export default async function SuperTeamsPage() {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-zinc-100">
-                <th className="text-left px-5 py-3 text-xs font-medium text-zinc-400 uppercase tracking-wide">Name</th>
-                <th className="text-left px-5 py-3 text-xs font-medium text-zinc-400 uppercase tracking-wide">Slug</th>
-                <th className="text-right px-5 py-3 text-xs font-medium text-zinc-400 uppercase tracking-wide">Users</th>
-                <th className="text-right px-5 py-3 text-xs font-medium text-zinc-400 uppercase tracking-wide">Tickets</th>
+                <th className="text-left px-5 py-3 text-xs font-medium text-zinc-400 uppercase tracking-wide">
+                  Name
+                </th>
+                <th className="text-left px-5 py-3 text-xs font-medium text-zinc-400 uppercase tracking-wide">
+                  Slug
+                </th>
+                <th className="text-right px-5 py-3 text-xs font-medium text-zinc-400 uppercase tracking-wide">
+                  Users
+                </th>
+                <th className="text-right px-5 py-3 text-xs font-medium text-zinc-400 uppercase tracking-wide">
+                  Tickets
+                </th>
                 <th className="px-5 py-3" />
               </tr>
             </thead>

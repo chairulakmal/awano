@@ -16,15 +16,15 @@ import { assertTransition } from "./fsm";
 
 const CreateTicketSchema = z.object({
   categoryId: z.string().cuid(),
-  subject:    z.string().min(1).max(255),
-  body:       z.string().min(1),
+  subject: z.string().min(1).max(255),
+  body: z.string().min(1),
 });
 
 const ListDeskSchema = z.object({
-  status:     z.nativeEnum(TicketStatus).optional(),
+  status: z.nativeEnum(TicketStatus).optional(),
   assigneeId: z.union([z.string().cuid(), z.null()]).optional(), // null = unassigned filter
-  page:       z.number().int().positive().default(1),
-  pageSize:   z.number().int().positive().max(100).default(25),
+  page: z.number().int().positive().default(1),
+  pageSize: z.number().int().positive().max(100).default(25),
 });
 
 // ---------------------------------------------------------------------------
@@ -36,11 +36,11 @@ export async function createTicket(input: unknown, session: SessionPayload) {
   const data = CreateTicketSchema.parse(input);
   return db.ticket.create({
     data: {
-      teamId:      session.teamId!,
+      teamId: session.teamId!,
       createdById: session.userId,
-      categoryId:  data.categoryId,
-      subject:     data.subject,
-      body:        data.body,
+      categoryId: data.categoryId,
+      subject: data.subject,
+      body: data.body,
     },
   });
 }
@@ -48,7 +48,7 @@ export async function createTicket(input: unknown, session: SessionPayload) {
 export async function listMyTickets(session: SessionPayload) {
   assertRole(session, ["REQUESTER"]);
   return db.ticket.findMany({
-    where:   { teamId: session.teamId!, createdById: session.userId },
+    where: { teamId: session.teamId!, createdById: session.userId },
     orderBy: { createdAt: "desc" },
     include: { category: true },
   });
@@ -60,14 +60,14 @@ export async function listDeskTickets(filters: unknown, session: SessionPayload)
   return db.ticket.findMany({
     where: {
       teamId: session.teamId!,
-      ...(status     !== undefined ? { status }     : {}),
+      ...(status !== undefined ? { status } : {}),
       ...(assigneeId !== undefined ? { assigneeId } : {}),
     },
     orderBy: { createdAt: "desc" },
     include: {
-      category:  true,
+      category: true,
       createdBy: { select: { id: true, name: true, email: true } },
-      assignee:  { select: { id: true, name: true, email: true } },
+      assignee: { select: { id: true, name: true, email: true } },
     },
     skip: (page - 1) * pageSize,
     take: pageSize,
@@ -76,13 +76,13 @@ export async function listDeskTickets(filters: unknown, session: SessionPayload)
 
 export async function getTicket(id: string, session: SessionPayload) {
   const ticket = await db.ticket.findUnique({
-    where:   { id },
+    where: { id },
     include: {
-      category:  true,
+      category: true,
       createdBy: { select: { id: true, name: true, email: true } },
-      assignee:  { select: { id: true, name: true, email: true } },
+      assignee: { select: { id: true, name: true, email: true } },
       comments: {
-        where:   session.role === "REQUESTER" ? { isInternal: false } : {},
+        where: session.role === "REQUESTER" ? { isInternal: false } : {},
         orderBy: { createdAt: "asc" },
         include: { author: { select: { id: true, name: true, role: true } } },
       },
@@ -97,13 +97,9 @@ export async function getTicket(id: string, session: SessionPayload) {
   return ticket;
 }
 
-export async function assignTicket(
-  id: string,
-  assigneeId: string | null,
-  session: SessionPayload,
-) {
+export async function assignTicket(id: string, assigneeId: string | null, session: SessionPayload) {
   const ticket = await db.ticket.findUnique({
-    where:  { id },
+    where: { id },
     select: { teamId: true, createdById: true },
   });
   if (!ticket) throw new AuthorizationError("Ticket not found");
@@ -117,13 +113,9 @@ export async function assignTicket(
   return db.ticket.update({ where: { id }, data: { assigneeId } });
 }
 
-export async function transitionStatus(
-  id: string,
-  to: TicketStatus,
-  session: SessionPayload,
-) {
+export async function transitionStatus(id: string, to: TicketStatus, session: SessionPayload) {
   const ticket = await db.ticket.findUnique({
-    where:  { id },
+    where: { id },
     select: { teamId: true, createdById: true, status: true },
   });
   if (!ticket) throw new AuthorizationError("Ticket not found");
@@ -139,13 +131,9 @@ export async function transitionStatus(
   return updated;
 }
 
-export async function setPriority(
-  id: string,
-  priority: TicketPriority,
-  session: SessionPayload,
-) {
+export async function setPriority(id: string, priority: TicketPriority, session: SessionPayload) {
   const ticket = await db.ticket.findUnique({
-    where:  { id },
+    where: { id },
     select: { teamId: true, createdById: true },
   });
   if (!ticket) throw new AuthorizationError("Ticket not found");
@@ -157,13 +145,13 @@ export async function postComment(
   id: string,
   body: string,
   isInternal: boolean,
-  session: SessionPayload,
+  session: SessionPayload
 ) {
   z.string().min(1).parse(body);
   z.boolean().parse(isInternal);
 
   const ticket = await db.ticket.findUnique({
-    where:  { id },
+    where: { id },
     select: { teamId: true, createdById: true },
   });
   if (!ticket) throw new AuthorizationError("Ticket not found");

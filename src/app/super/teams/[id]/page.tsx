@@ -8,23 +8,23 @@ import type { Role, RequesterType } from "@/generated/prisma/enums";
 
 const ROLE_LABEL: Record<Role, string> = {
   REQUESTER: "Requester",
-  SUPPORT:   "Support",
-  MANAGER:   "Manager",
-  ADMIN:     "Admin",
-  SUPER:     "Super",
+  SUPPORT: "Support",
+  MANAGER: "Manager",
+  ADMIN: "Admin",
+  SUPER: "Super",
 };
 
 const ROLE_CLASS: Record<Role, string> = {
   REQUESTER: "bg-zinc-100 text-zinc-500",
-  SUPPORT:   "bg-blue-50 text-blue-700",
-  MANAGER:   "bg-violet-50 text-violet-700",
-  ADMIN:     "bg-amber-50 text-amber-700",
-  SUPER:     "bg-red-50 text-red-700",
+  SUPPORT: "bg-blue-50 text-blue-700",
+  MANAGER: "bg-violet-50 text-violet-700",
+  ADMIN: "bg-amber-50 text-amber-700",
+  SUPER: "bg-red-50 text-red-700",
 };
 
 const REQUESTER_TYPE_LABEL: Record<RequesterType, string> = {
-  CUSTOMER:    "Customer",
-  RECRUITER:   "Recruiter",
+  CUSTOMER: "Customer",
+  RECRUITER: "Recruiter",
   FIELD_AGENT: "Field agent",
 };
 
@@ -85,10 +85,18 @@ export default async function SuperTeamDetailPage({ params }: Props) {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-zinc-100">
-                <th className="text-left px-5 py-3 text-xs font-medium text-zinc-400 uppercase tracking-wide">Name</th>
-                <th className="text-left px-5 py-3 text-xs font-medium text-zinc-400 uppercase tracking-wide">Email</th>
-                <th className="text-left px-5 py-3 text-xs font-medium text-zinc-400 uppercase tracking-wide">Role</th>
-                <th className="text-left px-5 py-3 text-xs font-medium text-zinc-400 uppercase tracking-wide">Joined</th>
+                <th className="text-left px-5 py-3 text-xs font-medium text-zinc-400 uppercase tracking-wide">
+                  Name
+                </th>
+                <th className="text-left px-5 py-3 text-xs font-medium text-zinc-400 uppercase tracking-wide">
+                  Email
+                </th>
+                <th className="text-left px-5 py-3 text-xs font-medium text-zinc-400 uppercase tracking-wide">
+                  Role
+                </th>
+                <th className="text-left px-5 py-3 text-xs font-medium text-zinc-400 uppercase tracking-wide">
+                  Joined
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-zinc-50">
@@ -99,7 +107,9 @@ export default async function SuperTeamDetailPage({ params }: Props) {
                   </td>
                   <td className="px-5 py-3 text-zinc-500">{user.email}</td>
                   <td className="px-5 py-3">
-                    <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${ROLE_CLASS[user.role]}`}>
+                    <span
+                      className={`text-xs font-medium px-2 py-0.5 rounded-full ${ROLE_CLASS[user.role]}`}
+                    >
                       {ROLE_LABEL[user.role]}
                     </span>
                     {user.requesterType && (

@@ -8,7 +8,7 @@ import { createTeam } from "@/lib/teams/service";
 
 export async function createTeamAction(
   _prevState: string | null,
-  formData: FormData,
+  formData: FormData
 ): Promise<string | null> {
   const session = await auth();
   const payload = assertAuthenticated(session);
@@ -21,7 +21,7 @@ export async function createTeamAction(
         slug: formData.get("slug"),
         notes: (formData.get("notes") as string) || undefined,
       },
-      payload,
+      payload
     );
     teamId = team.id;
   } catch (err) {

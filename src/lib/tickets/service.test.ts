@@ -10,12 +10,12 @@ vi.mock("@/lib/db", () => ({
   db: {
     ticket: {
       findUnique: vi.fn(),
-      findMany:   vi.fn(),
-      create:     vi.fn(),
-      update:     vi.fn(),
+      findMany: vi.fn(),
+      create: vi.fn(),
+      update: vi.fn(),
     },
-    comment:      { create: vi.fn() },
-    statusEvent:  { create: vi.fn() },
+    comment: { create: vi.fn() },
+    statusEvent: { create: vi.fn() },
     $transaction: vi.fn(),
   },
 }));
@@ -51,7 +51,9 @@ function dbTicket(overrides: Record<string, unknown> = {}) {
   };
 }
 
-beforeEach(() => { vi.clearAllMocks(); });
+beforeEach(() => {
+  vi.clearAllMocks();
+});
 
 // ---------------------------------------------------------------------------
 // Role guards
@@ -59,12 +61,16 @@ beforeEach(() => { vi.clearAllMocks(); });
 
 describe("createTicket — role guard", () => {
   it("throws when called by SUPPORT", async () => {
-    await expect(createTicket({}, session({ role: Role.SUPPORT }))).rejects.toThrow(AuthorizationError);
+    await expect(createTicket({}, session({ role: Role.SUPPORT }))).rejects.toThrow(
+      AuthorizationError
+    );
     expect(db.ticket.create).not.toHaveBeenCalled();
   });
 
   it("throws when called by MANAGER", async () => {
-    await expect(createTicket({}, session({ role: Role.MANAGER }))).rejects.toThrow(AuthorizationError);
+    await expect(createTicket({}, session({ role: Role.MANAGER }))).rejects.toThrow(
+      AuthorizationError
+    );
   });
 
   it("accepts REQUESTER role (proceeds to Zod validation)", async () => {
@@ -76,14 +82,18 @@ describe("createTicket — role guard", () => {
 
 describe("listMyTickets — role guard", () => {
   it("throws when called by SUPPORT", async () => {
-    await expect(listMyTickets(session({ role: Role.SUPPORT }))).rejects.toThrow(AuthorizationError);
+    await expect(listMyTickets(session({ role: Role.SUPPORT }))).rejects.toThrow(
+      AuthorizationError
+    );
     expect(db.ticket.findMany).not.toHaveBeenCalled();
   });
 });
 
 describe("listDeskTickets — role guard", () => {
   it("throws when called by REQUESTER", async () => {
-    await expect(listDeskTickets({}, session({ role: Role.REQUESTER }))).rejects.toThrow(AuthorizationError);
+    await expect(listDeskTickets({}, session({ role: Role.REQUESTER }))).rejects.toThrow(
+      AuthorizationError
+    );
     expect(db.ticket.findMany).not.toHaveBeenCalled();
   });
 });
@@ -100,17 +110,17 @@ describe("getTicket", () => {
 
   it("throws when REQUESTER tries to view another user's ticket", async () => {
     vi.mocked(db.ticket.findUnique).mockResolvedValue(
-      dbTicket({ createdById: "user-other" }) as never,
+      dbTicket({ createdById: "user-other" }) as never
     );
     const s = session({ role: Role.REQUESTER, userId: "user-1" });
     await expect(getTicket("ticket-1", s)).rejects.toThrow(AuthorizationError);
   });
 
   it("throws on cross-team access", async () => {
-    vi.mocked(db.ticket.findUnique).mockResolvedValue(
-      dbTicket({ teamId: "team-b" }) as never,
+    vi.mocked(db.ticket.findUnique).mockResolvedValue(dbTicket({ teamId: "team-b" }) as never);
+    await expect(getTicket("ticket-1", session({ teamId: "team-a" }))).rejects.toThrow(
+      AuthorizationError
     );
-    await expect(getTicket("ticket-1", session({ teamId: "team-a" }))).rejects.toThrow(AuthorizationError);
   });
 
   it("builds { isInternal: false } filter for REQUESTER", async () => {
@@ -123,7 +133,7 @@ describe("getTicket", () => {
         include: expect.objectContaining({
           comments: expect.objectContaining({ where: { isInternal: false } }),
         }),
-      }),
+      })
     );
   });
 
@@ -136,7 +146,7 @@ describe("getTicket", () => {
         include: expect.objectContaining({
           comments: expect.objectContaining({ where: {} }),
         }),
-      }),
+      })
     );
   });
 
@@ -195,7 +205,7 @@ describe("assignTicket", () => {
     vi.mocked(db.ticket.update).mockResolvedValue(dbTicket() as never);
     await assignTicket("ticket-1", null, session({ role: Role.MANAGER, userId: "user-1" }));
     expect(db.ticket.update).toHaveBeenCalledWith(
-      expect.objectContaining({ data: { assigneeId: null } }),
+      expect.objectContaining({ data: { assigneeId: null } })
     );
   });
 });
@@ -207,20 +217,20 @@ describe("assignTicket", () => {
 describe("transitionStatus", () => {
   it("throws when ticket is not found", async () => {
     vi.mocked(db.ticket.findUnique).mockResolvedValue(null);
-    await expect(
-      transitionStatus("missing", TicketStatus.IN_PROGRESS, session()),
-    ).rejects.toThrow(AuthorizationError);
+    await expect(transitionStatus("missing", TicketStatus.IN_PROGRESS, session())).rejects.toThrow(
+      AuthorizationError
+    );
     expect(db.$transaction).not.toHaveBeenCalled();
   });
 
   it("SUPPORT cannot escalate IN_PROGRESS → ESCALATED", async () => {
     vi.mocked(db.ticket.findUnique).mockResolvedValue(
-      dbTicket({ status: TicketStatus.IN_PROGRESS }) as never,
+      dbTicket({ status: TicketStatus.IN_PROGRESS }) as never
     );
     const s = session({ role: Role.SUPPORT });
-    await expect(
-      transitionStatus("ticket-1", TicketStatus.ESCALATED, s),
-    ).rejects.toThrow(AuthorizationError);
+    await expect(transitionStatus("ticket-1", TicketStatus.ESCALATED, s)).rejects.toThrow(
+      AuthorizationError
+    );
     expect(db.$transaction).not.toHaveBeenCalled();
   });
 
@@ -239,18 +249,18 @@ describe("transitionStatus", () => {
     expect(db.statusEvent.create).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({
-          ticketId:   "ticket-1",
-          actorId:    "user-1",
+          ticketId: "ticket-1",
+          actorId: "user-1",
           fromStatus: TicketStatus.OPEN,
-          toStatus:   TicketStatus.IN_PROGRESS,
+          toStatus: TicketStatus.IN_PROGRESS,
         }),
-      }),
+      })
     );
   });
 
   it("MANAGER can escalate IN_PROGRESS → ESCALATED", async () => {
     vi.mocked(db.ticket.findUnique).mockResolvedValue(
-      dbTicket({ status: TicketStatus.IN_PROGRESS }) as never,
+      dbTicket({ status: TicketStatus.IN_PROGRESS }) as never
     );
     vi.mocked(db.$transaction).mockResolvedValue([{}, {}] as never);
     await transitionStatus("ticket-1", TicketStatus.ESCALATED, session({ role: Role.MANAGER }));
@@ -265,14 +275,18 @@ describe("transitionStatus", () => {
 describe("postComment", () => {
   it("throws when ticket is not found", async () => {
     vi.mocked(db.ticket.findUnique).mockResolvedValue(null);
-    await expect(postComment("missing", "hello", false, session())).rejects.toThrow(AuthorizationError);
+    await expect(postComment("missing", "hello", false, session())).rejects.toThrow(
+      AuthorizationError
+    );
     expect(db.comment.create).not.toHaveBeenCalled();
   });
 
   it("REQUESTER cannot post an internal note", async () => {
     vi.mocked(db.ticket.findUnique).mockResolvedValue(dbTicket() as never);
     const s = session({ role: Role.REQUESTER, userId: "user-1" });
-    await expect(postComment("ticket-1", "secret note", true, s)).rejects.toThrow(AuthorizationError);
+    await expect(postComment("ticket-1", "secret note", true, s)).rejects.toThrow(
+      AuthorizationError
+    );
     expect(db.comment.create).not.toHaveBeenCalled();
   });
 
@@ -284,13 +298,13 @@ describe("postComment", () => {
     expect(db.comment.create).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({ isInternal: false, authorId: "user-1" }),
-      }),
+      })
     );
   });
 
   it("REQUESTER cannot comment on another user's ticket", async () => {
     vi.mocked(db.ticket.findUnique).mockResolvedValue(
-      dbTicket({ createdById: "user-other" }) as never,
+      dbTicket({ createdById: "user-other" }) as never
     );
     const s = session({ role: Role.REQUESTER, userId: "user-1" });
     await expect(postComment("ticket-1", "hello", false, s)).rejects.toThrow(AuthorizationError);
@@ -303,7 +317,7 @@ describe("postComment", () => {
     expect(db.comment.create).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({ isInternal: true }),
-      }),
+      })
     );
   });
 

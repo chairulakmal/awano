@@ -20,22 +20,26 @@ export default async function AdminCategoriesPage() {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-zinc-100">
-                <th className="text-left px-5 py-3 text-xs font-medium text-zinc-400 uppercase tracking-wide">Name</th>
-                <th className="text-left px-5 py-3 text-xs font-medium text-zinc-400 uppercase tracking-wide">Slug</th>
-                <th className="text-right px-5 py-3 text-xs font-medium text-zinc-400 uppercase tracking-wide">Tickets</th>
+                <th className="text-left px-5 py-3 text-xs font-medium text-zinc-400 uppercase tracking-wide">
+                  Name
+                </th>
+                <th className="text-left px-5 py-3 text-xs font-medium text-zinc-400 uppercase tracking-wide">
+                  Slug
+                </th>
+                <th className="text-right px-5 py-3 text-xs font-medium text-zinc-400 uppercase tracking-wide">
+                  Tickets
+                </th>
                 <th className="px-5 py-3" />
               </tr>
             </thead>
             <tbody className="divide-y divide-zinc-50">
-              {categories.map(cat => (
+              {categories.map((cat) => (
                 <tr key={cat.id} className="hover:bg-zinc-50 transition-colors">
                   <td className="px-5 py-3 font-medium text-zinc-800">{cat.name}</td>
                   <td className="px-5 py-3 text-zinc-400 font-mono text-xs">{cat.slug}</td>
                   <td className="px-5 py-3 text-right text-zinc-500">{cat._count.tickets}</td>
                   <td className="px-5 py-3 text-right">
-                    {cat._count.tickets === 0 && (
-                      <DeleteCategoryForm categoryId={cat.id} />
-                    )}
+                    {cat._count.tickets === 0 && <DeleteCategoryForm categoryId={cat.id} />}
                   </td>
                 </tr>
               ))}
@@ -45,7 +49,9 @@ export default async function AdminCategoriesPage() {
       </div>
 
       <div className="rounded-xl shadow-card bg-white px-5 py-5">
-        <h2 className="text-xs font-medium text-zinc-500 uppercase tracking-wide mb-4">New category</h2>
+        <h2 className="text-xs font-medium text-zinc-500 uppercase tracking-wide mb-4">
+          New category
+        </h2>
         <NewCategoryForm />
       </div>
     </div>

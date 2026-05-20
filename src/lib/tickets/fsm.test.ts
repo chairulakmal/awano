@@ -9,60 +9,62 @@ import { AuthorizationError } from "@/lib/auth/assertions";
 
 describe("assertTransition — valid transitions", () => {
   it("OPEN → IN_PROGRESS as SUPPORT", () => {
-    expect(() => assertTransition(TicketStatus.OPEN, TicketStatus.IN_PROGRESS, Role.SUPPORT)).not.toThrow();
+    expect(() =>
+      assertTransition(TicketStatus.OPEN, TicketStatus.IN_PROGRESS, Role.SUPPORT)
+    ).not.toThrow();
   });
 
   it("IN_PROGRESS → WAITING_ON_REQUESTER as SUPPORT", () => {
     expect(() =>
-      assertTransition(TicketStatus.IN_PROGRESS, TicketStatus.WAITING_ON_REQUESTER, Role.SUPPORT),
+      assertTransition(TicketStatus.IN_PROGRESS, TicketStatus.WAITING_ON_REQUESTER, Role.SUPPORT)
     ).not.toThrow();
   });
 
   it("IN_PROGRESS → ESCALATED as MANAGER", () => {
     expect(() =>
-      assertTransition(TicketStatus.IN_PROGRESS, TicketStatus.ESCALATED, Role.MANAGER),
+      assertTransition(TicketStatus.IN_PROGRESS, TicketStatus.ESCALATED, Role.MANAGER)
     ).not.toThrow();
   });
 
   it("IN_PROGRESS → ESCALATED as ADMIN (ADMIN rank > MANAGER)", () => {
     expect(() =>
-      assertTransition(TicketStatus.IN_PROGRESS, TicketStatus.ESCALATED, Role.ADMIN),
+      assertTransition(TicketStatus.IN_PROGRESS, TicketStatus.ESCALATED, Role.ADMIN)
     ).not.toThrow();
   });
 
   it("IN_PROGRESS → RESOLVED as SUPPORT", () => {
     expect(() =>
-      assertTransition(TicketStatus.IN_PROGRESS, TicketStatus.RESOLVED, Role.SUPPORT),
+      assertTransition(TicketStatus.IN_PROGRESS, TicketStatus.RESOLVED, Role.SUPPORT)
     ).not.toThrow();
   });
 
   it("WAITING_ON_REQUESTER → IN_PROGRESS as SUPPORT", () => {
     expect(() =>
-      assertTransition(TicketStatus.WAITING_ON_REQUESTER, TicketStatus.IN_PROGRESS, Role.SUPPORT),
+      assertTransition(TicketStatus.WAITING_ON_REQUESTER, TicketStatus.IN_PROGRESS, Role.SUPPORT)
     ).not.toThrow();
   });
 
   it("ESCALATED → IN_PROGRESS as MANAGER", () => {
     expect(() =>
-      assertTransition(TicketStatus.ESCALATED, TicketStatus.IN_PROGRESS, Role.MANAGER),
+      assertTransition(TicketStatus.ESCALATED, TicketStatus.IN_PROGRESS, Role.MANAGER)
     ).not.toThrow();
   });
 
   it("RESOLVED → CLOSED as SUPPORT", () => {
     expect(() =>
-      assertTransition(TicketStatus.RESOLVED, TicketStatus.CLOSED, Role.SUPPORT),
+      assertTransition(TicketStatus.RESOLVED, TicketStatus.CLOSED, Role.SUPPORT)
     ).not.toThrow();
   });
 
   it("RESOLVED → IN_PROGRESS (reopen) as MANAGER", () => {
     expect(() =>
-      assertTransition(TicketStatus.RESOLVED, TicketStatus.IN_PROGRESS, Role.MANAGER),
+      assertTransition(TicketStatus.RESOLVED, TicketStatus.IN_PROGRESS, Role.MANAGER)
     ).not.toThrow();
   });
 
   it("CLOSED → OPEN (reopen) as MANAGER", () => {
     expect(() =>
-      assertTransition(TicketStatus.CLOSED, TicketStatus.OPEN, Role.MANAGER),
+      assertTransition(TicketStatus.CLOSED, TicketStatus.OPEN, Role.MANAGER)
     ).not.toThrow();
   });
 });
@@ -70,83 +72,83 @@ describe("assertTransition — valid transitions", () => {
 describe("assertTransition — insufficient role", () => {
   it("SUPPORT cannot escalate IN_PROGRESS → ESCALATED", () => {
     expect(() =>
-      assertTransition(TicketStatus.IN_PROGRESS, TicketStatus.ESCALATED, Role.SUPPORT),
+      assertTransition(TicketStatus.IN_PROGRESS, TicketStatus.ESCALATED, Role.SUPPORT)
     ).toThrow(AuthorizationError);
   });
 
   it("SUPPORT cannot de-escalate ESCALATED → IN_PROGRESS", () => {
     expect(() =>
-      assertTransition(TicketStatus.ESCALATED, TicketStatus.IN_PROGRESS, Role.SUPPORT),
+      assertTransition(TicketStatus.ESCALATED, TicketStatus.IN_PROGRESS, Role.SUPPORT)
     ).toThrow(AuthorizationError);
   });
 
   it("SUPPORT cannot reopen a RESOLVED ticket", () => {
     expect(() =>
-      assertTransition(TicketStatus.RESOLVED, TicketStatus.IN_PROGRESS, Role.SUPPORT),
+      assertTransition(TicketStatus.RESOLVED, TicketStatus.IN_PROGRESS, Role.SUPPORT)
     ).toThrow(AuthorizationError);
   });
 
   it("SUPPORT cannot reopen a CLOSED ticket", () => {
-    expect(() =>
-      assertTransition(TicketStatus.CLOSED, TicketStatus.OPEN, Role.SUPPORT),
-    ).toThrow(AuthorizationError);
+    expect(() => assertTransition(TicketStatus.CLOSED, TicketStatus.OPEN, Role.SUPPORT)).toThrow(
+      AuthorizationError
+    );
   });
 
   it("REQUESTER cannot perform any transition", () => {
     expect(() =>
-      assertTransition(TicketStatus.OPEN, TicketStatus.IN_PROGRESS, Role.REQUESTER),
+      assertTransition(TicketStatus.OPEN, TicketStatus.IN_PROGRESS, Role.REQUESTER)
     ).toThrow(AuthorizationError);
   });
 });
 
 describe("assertTransition — nonexistent transitions", () => {
   it("OPEN → RESOLVED has no path", () => {
-    expect(() =>
-      assertTransition(TicketStatus.OPEN, TicketStatus.RESOLVED, Role.SUPER),
-    ).toThrow(AuthorizationError);
+    expect(() => assertTransition(TicketStatus.OPEN, TicketStatus.RESOLVED, Role.SUPER)).toThrow(
+      AuthorizationError
+    );
   });
 
   it("CLOSED → IN_PROGRESS has no path", () => {
     expect(() =>
-      assertTransition(TicketStatus.CLOSED, TicketStatus.IN_PROGRESS, Role.SUPER),
+      assertTransition(TicketStatus.CLOSED, TicketStatus.IN_PROGRESS, Role.SUPER)
     ).toThrow(AuthorizationError);
   });
 
   it("OPEN → OPEN (self-loop) has no path", () => {
-    expect(() =>
-      assertTransition(TicketStatus.OPEN, TicketStatus.OPEN, Role.SUPER),
-    ).toThrow(AuthorizationError);
+    expect(() => assertTransition(TicketStatus.OPEN, TicketStatus.OPEN, Role.SUPER)).toThrow(
+      AuthorizationError
+    );
   });
 
   it("OPEN → ESCALATED has no path", () => {
-    expect(() =>
-      assertTransition(TicketStatus.OPEN, TicketStatus.ESCALATED, Role.SUPER),
-    ).toThrow(AuthorizationError);
+    expect(() => assertTransition(TicketStatus.OPEN, TicketStatus.ESCALATED, Role.SUPER)).toThrow(
+      AuthorizationError
+    );
   });
 
   it("ESCALATED → CLOSED has no path", () => {
-    expect(() =>
-      assertTransition(TicketStatus.ESCALATED, TicketStatus.CLOSED, Role.SUPER),
-    ).toThrow(AuthorizationError);
+    expect(() => assertTransition(TicketStatus.ESCALATED, TicketStatus.CLOSED, Role.SUPER)).toThrow(
+      AuthorizationError
+    );
   });
 
   it("WAITING_ON_REQUESTER → RESOLVED has no path", () => {
     expect(() =>
-      assertTransition(TicketStatus.WAITING_ON_REQUESTER, TicketStatus.RESOLVED, Role.SUPER),
+      assertTransition(TicketStatus.WAITING_ON_REQUESTER, TicketStatus.RESOLVED, Role.SUPER)
     ).toThrow(AuthorizationError);
   });
 });
 
 describe("assertTransition — error message content", () => {
   it("nonexistent transition error names both states", () => {
-    expect(() =>
-      assertTransition(TicketStatus.OPEN, TicketStatus.CLOSED, Role.SUPER),
-    ).toThrow(/OPEN.*CLOSED|CLOSED.*OPEN/);
+    expect(() => assertTransition(TicketStatus.OPEN, TicketStatus.CLOSED, Role.SUPER)).toThrow(
+      /OPEN.*CLOSED|CLOSED.*OPEN/
+    );
   });
 
   it("insufficient-role error names the required role", () => {
     expect(() =>
-      assertTransition(TicketStatus.IN_PROGRESS, TicketStatus.ESCALATED, Role.SUPPORT),
+      assertTransition(TicketStatus.IN_PROGRESS, TicketStatus.ESCALATED, Role.SUPPORT)
     ).toThrow(/MANAGER/);
   });
 });
@@ -154,19 +156,19 @@ describe("assertTransition — error message content", () => {
 describe("assertTransition — ADMIN role (rank above MANAGER)", () => {
   it("ADMIN can de-escalate ESCALATED → IN_PROGRESS", () => {
     expect(() =>
-      assertTransition(TicketStatus.ESCALATED, TicketStatus.IN_PROGRESS, Role.ADMIN),
+      assertTransition(TicketStatus.ESCALATED, TicketStatus.IN_PROGRESS, Role.ADMIN)
     ).not.toThrow();
   });
 
   it("ADMIN can reopen CLOSED → OPEN", () => {
     expect(() =>
-      assertTransition(TicketStatus.CLOSED, TicketStatus.OPEN, Role.ADMIN),
+      assertTransition(TicketStatus.CLOSED, TicketStatus.OPEN, Role.ADMIN)
     ).not.toThrow();
   });
 
   it("ADMIN can reopen RESOLVED → IN_PROGRESS", () => {
     expect(() =>
-      assertTransition(TicketStatus.RESOLVED, TicketStatus.IN_PROGRESS, Role.ADMIN),
+      assertTransition(TicketStatus.RESOLVED, TicketStatus.IN_PROGRESS, Role.ADMIN)
     ).not.toThrow();
   });
 });
@@ -177,7 +179,9 @@ describe("assertTransition — ADMIN role (rank above MANAGER)", () => {
 
 describe("getAllowedTransitions", () => {
   it("SUPPORT from OPEN can only go to IN_PROGRESS", () => {
-    expect(getAllowedTransitions(TicketStatus.OPEN, Role.SUPPORT)).toEqual([TicketStatus.IN_PROGRESS]);
+    expect(getAllowedTransitions(TicketStatus.OPEN, Role.SUPPORT)).toEqual([
+      TicketStatus.IN_PROGRESS,
+    ]);
   });
 
   it("REQUESTER from OPEN sees no transitions", () => {

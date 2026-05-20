@@ -6,28 +6,24 @@ import { CommentForm } from "./CommentForm";
 import type { TicketStatus } from "@/generated/prisma/enums";
 
 const STATUS_LABEL: Record<TicketStatus, string> = {
-  OPEN:                 "Open",
-  IN_PROGRESS:          "In progress",
+  OPEN: "Open",
+  IN_PROGRESS: "In progress",
   WAITING_ON_REQUESTER: "Waiting on you",
-  ESCALATED:            "Escalated",
-  RESOLVED:             "Resolved",
-  CLOSED:               "Closed",
+  ESCALATED: "Escalated",
+  RESOLVED: "Resolved",
+  CLOSED: "Closed",
 };
 
 const STATUS_CLASS: Record<TicketStatus, string> = {
-  OPEN:                 "bg-zinc-100 text-zinc-600",
-  IN_PROGRESS:          "bg-blue-50 text-blue-700",
+  OPEN: "bg-zinc-100 text-zinc-600",
+  IN_PROGRESS: "bg-blue-50 text-blue-700",
   WAITING_ON_REQUESTER: "bg-amber-50 text-amber-700",
-  ESCALATED:            "bg-red-50 text-red-700",
-  RESOLVED:             "bg-green-50 text-green-700",
-  CLOSED:               "bg-zinc-100 text-zinc-400",
+  ESCALATED: "bg-red-50 text-red-700",
+  RESOLVED: "bg-green-50 text-green-700",
+  CLOSED: "bg-zinc-100 text-zinc-400",
 };
 
-export default async function TicketDetailPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
+export default async function TicketDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const session = await auth();
   const payload = assertAuthenticated(session);

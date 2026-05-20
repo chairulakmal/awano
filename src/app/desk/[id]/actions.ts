@@ -9,22 +9,22 @@ import { transitionStatus, assignTicket, postComment, setPriority } from "@/lib/
 import { TicketStatus, TicketPriority } from "@/generated/prisma/enums";
 
 export async function transitionStatusAction(formData: FormData): Promise<void> {
-  const session  = await auth();
-  const payload  = assertAuthenticated(session);
+  const session = await auth();
+  const payload = assertAuthenticated(session);
   const ticketId = z.string().min(1).parse(formData.get("ticketId"));
-  const to       = z.nativeEnum(TicketStatus).parse(formData.get("toStatus"));
+  const to = z.nativeEnum(TicketStatus).parse(formData.get("toStatus"));
   await transitionStatus(ticketId, to, payload);
   revalidatePath(`/desk/${ticketId}`);
 }
 
 export async function assignTicketAction(
   _prevState: string | null,
-  formData: FormData,
+  formData: FormData
 ): Promise<string | null> {
-  const session  = await auth();
-  const payload  = assertAuthenticated(session);
+  const session = await auth();
+  const payload = assertAuthenticated(session);
   const ticketId = z.string().min(1).parse(formData.get("ticketId"));
-  const raw      = formData.get("assigneeId");
+  const raw = formData.get("assigneeId");
   const assigneeId = !raw || raw === "" ? null : z.string().cuid().parse(raw);
 
   try {
@@ -39,10 +39,10 @@ export async function assignTicketAction(
 
 export async function setPriorityAction(
   _prevState: string | null,
-  formData: FormData,
+  formData: FormData
 ): Promise<string | null> {
-  const session  = await auth();
-  const payload  = assertAuthenticated(session);
+  const session = await auth();
+  const payload = assertAuthenticated(session);
   const ticketId = z.string().min(1).parse(formData.get("ticketId"));
   const priority = z.nativeEnum(TicketPriority).parse(formData.get("priority"));
 
@@ -58,12 +58,12 @@ export async function setPriorityAction(
 
 export async function postDeskCommentAction(
   _prevState: string | null,
-  formData: FormData,
+  formData: FormData
 ): Promise<string | null> {
-  const session    = await auth();
-  const payload    = assertAuthenticated(session);
-  const ticketId   = z.string().min(1).parse(formData.get("ticketId"));
-  const body       = z.string().min(1).parse(formData.get("body"));
+  const session = await auth();
+  const payload = assertAuthenticated(session);
+  const ticketId = z.string().min(1).parse(formData.get("ticketId"));
+  const body = z.string().min(1).parse(formData.get("body"));
   const isInternal = formData.get("isInternal") === "true";
 
   try {

@@ -4,15 +4,15 @@ import { useActionState, useState } from "react";
 import { createUserAction } from "./actions";
 
 const ROLE_OPTIONS = [
-  { value: "SUPPORT",   label: "Support" },
-  { value: "MANAGER",   label: "Manager" },
-  { value: "ADMIN",     label: "Admin" },
+  { value: "SUPPORT", label: "Support" },
+  { value: "MANAGER", label: "Manager" },
+  { value: "ADMIN", label: "Admin" },
   { value: "REQUESTER", label: "Requester" },
 ];
 
 const REQUESTER_TYPE_OPTIONS = [
-  { value: "CUSTOMER",    label: "Customer" },
-  { value: "RECRUITER",   label: "Recruiter" },
+  { value: "CUSTOMER", label: "Customer" },
+  { value: "RECRUITER", label: "Recruiter" },
   { value: "FIELD_AGENT", label: "Field agent" },
 ];
 
@@ -66,7 +66,9 @@ export function NewUserForm({ teamId }: { teamId: string }) {
           className="w-full rounded-lg ring-input px-3.5 py-2 text-sm text-zinc-900 outline-none transition bg-white"
         >
           {ROLE_OPTIONS.map(({ value, label }) => (
-            <option key={value} value={value}>{label}</option>
+            <option key={value} value={value}>
+              {label}
+            </option>
           ))}
         </select>
       </div>
@@ -79,7 +81,9 @@ export function NewUserForm({ teamId }: { teamId: string }) {
             className="w-full rounded-lg ring-input px-3.5 py-2 text-sm text-zinc-900 outline-none transition bg-white"
           >
             {REQUESTER_TYPE_OPTIONS.map(({ value, label }) => (
-              <option key={value} value={value}>{label}</option>
+              <option key={value} value={value}>
+                {label}
+              </option>
             ))}
           </select>
         </div>

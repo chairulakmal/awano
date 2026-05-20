@@ -14,7 +14,7 @@ export default async function globalSetup() {
       `SELECT u.id FROM "User" u
        JOIN "Team" t ON t.id = u."teamId"
        WHERE u.email = $1 AND t.slug = $2`,
-      ["support@awano.demo", "demo"],
+      ["support@awano.demo", "demo"]
     );
     const supportId = rows[0]?.id ?? null;
 
@@ -22,37 +22,37 @@ export default async function globalSetup() {
     await pool.query(
       `UPDATE "Ticket"
        SET status = 'OPEN'::"TicketStatus", "assigneeId" = NULL
-       WHERE id = 'seed-ticket-a1'`,
+       WHERE id = 'seed-ticket-a1'`
     );
     await pool.query(
       `UPDATE "Ticket"
        SET status = 'IN_PROGRESS'::"TicketStatus", "assigneeId" = $1
        WHERE id = 'seed-ticket-a2'`,
-      [supportId],
+      [supportId]
     );
     await pool.query(
       `UPDATE "Ticket"
        SET status = 'RESOLVED'::"TicketStatus"
-       WHERE id = 'seed-ticket-a3'`,
+       WHERE id = 'seed-ticket-a3'`
     );
 
     // Remove comments added by previous test runs
     await pool.query(
       `DELETE FROM "Comment"
-       WHERE "ticketId" IN ('seed-ticket-a1', 'seed-ticket-a2', 'seed-ticket-a3')`,
+       WHERE "ticketId" IN ('seed-ticket-a1', 'seed-ticket-a2', 'seed-ticket-a3')`
     );
 
     // Remove tickets created by test runs (keep only the 4 seed tickets)
     await pool.query(
       `DELETE FROM "Ticket"
-       WHERE id NOT IN ('seed-ticket-a1', 'seed-ticket-a2', 'seed-ticket-a3', 'seed-ticket-b1')`,
+       WHERE id NOT IN ('seed-ticket-a1', 'seed-ticket-a2', 'seed-ticket-a3', 'seed-ticket-b1')`
     );
 
     // Remove test status events from seed tickets (preserve the original seed event)
     await pool.query(
       `DELETE FROM "StatusEvent"
        WHERE id <> 'seed-event-a1'
-         AND "ticketId" IN ('seed-ticket-a1', 'seed-ticket-a2', 'seed-ticket-a3')`,
+         AND "ticketId" IN ('seed-ticket-a1', 'seed-ticket-a2', 'seed-ticket-a3')`
     );
   } finally {
     await pool.end();

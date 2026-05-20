@@ -8,7 +8,7 @@ import { createTicket } from "@/lib/tickets/service";
 
 export async function createTicketAction(
   _prevState: string | null,
-  formData: FormData,
+  formData: FormData
 ): Promise<string | null> {
   const session = await auth();
   const payload = assertAuthenticated(session);
@@ -18,10 +18,10 @@ export async function createTicketAction(
     const ticket = await createTicket(
       {
         categoryId: formData.get("categoryId"),
-        subject:    formData.get("subject"),
-        body:       formData.get("body"),
+        subject: formData.get("subject"),
+        body: formData.get("body"),
       },
-      payload,
+      payload
     );
     ticketId = ticket.id;
   } catch (err) {

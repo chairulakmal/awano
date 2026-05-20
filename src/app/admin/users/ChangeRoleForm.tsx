@@ -6,9 +6,9 @@ import type { Role } from "@/generated/prisma/enums";
 
 const ROLES: { value: Role; label: string }[] = [
   { value: "REQUESTER", label: "Requester" },
-  { value: "SUPPORT",   label: "Support" },
-  { value: "MANAGER",   label: "Manager" },
-  { value: "ADMIN",     label: "Admin" },
+  { value: "SUPPORT", label: "Support" },
+  { value: "MANAGER", label: "Manager" },
+  { value: "ADMIN", label: "Admin" },
 ];
 
 export function ChangeRoleForm({
@@ -25,7 +25,7 @@ export function ChangeRoleForm({
   if (isSelf) {
     return (
       <span className="text-xs text-zinc-400 italic">
-        {ROLES.find(r => r.value === currentRole)?.label ?? currentRole}
+        {ROLES.find((r) => r.value === currentRole)?.label ?? currentRole}
       </span>
     );
   }
@@ -38,8 +38,10 @@ export function ChangeRoleForm({
         defaultValue={currentRole}
         className="rounded-md ring-input px-2 py-1 text-xs text-zinc-900 outline-none transition"
       >
-        {ROLES.map(r => (
-          <option key={r.value} value={r.value}>{r.label}</option>
+        {ROLES.map((r) => (
+          <option key={r.value} value={r.value}>
+            {r.label}
+          </option>
         ))}
       </select>
       <button

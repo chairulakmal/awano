@@ -75,13 +75,19 @@ describe("assertAuthenticated", () => {
 
   it("throws 401 when session has no user id", () => {
     expect(() =>
-      assertAuthenticated({ user: { id: "", role: Role.SUPPORT, teamId: "team-a" }, expires: "" } as never),
+      assertAuthenticated({
+        user: { id: "", role: Role.SUPPORT, teamId: "team-a" },
+        expires: "",
+      } as never)
     ).toThrow(AuthenticationError);
   });
 
   it("throws 401 when session has no role", () => {
     expect(() =>
-      assertAuthenticated({ user: { id: "user-1", role: null, teamId: "team-a" }, expires: "" } as never),
+      assertAuthenticated({
+        user: { id: "user-1", role: null, teamId: "team-a" },
+        expires: "",
+      } as never)
     ).toThrow(AuthenticationError);
   });
 

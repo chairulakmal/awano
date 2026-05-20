@@ -37,9 +37,11 @@ body {
  */
 .hero-bg {
   background-image:
-    radial-gradient(circle, rgba(0, 0, 0, 0.10) 1px, transparent 1px),
+    radial-gradient(circle, rgba(0, 0, 0, 0.1) 1px, transparent 1px),
     linear-gradient(to bottom, #fffbeb, #fafafa);
-  background-size: 24px 24px, 100% 100%;
+  background-size:
+    24px 24px,
+    100% 100%;
 }
 
 /* ─── Shared border / ring styles ─────────────────────────────────────────── */
@@ -71,7 +73,7 @@ body {
  * .ring-ghost   — ghost/secondary button border at rest.
  */
 .ring-ghost {
-  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.10);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
 }
 
 .ring-ghost:hover {

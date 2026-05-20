@@ -16,9 +16,7 @@ export async function Header() {
 
       {user ? (
         <div className="flex items-center gap-5">
-          <span className="text-sm text-zinc-500">
-            {user.name ?? user.email}
-          </span>
+          <span className="text-sm text-zinc-500">{user.name ?? user.email}</span>
           <form
             action={async () => {
               "use server";
