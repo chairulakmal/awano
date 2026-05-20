@@ -30,6 +30,13 @@ export default auth((req) => {
     return NextResponse.next();
   }
 
+  // Root — authenticated users go straight to their workspace
+  if (path === "/") {
+    if (isAuthenticated) {
+      return NextResponse.redirect(new URL(roleHome(role), nextUrl));
+    }
+  }
+
   // /desk/* — Support, Manager, Admin
   if (path.startsWith("/desk")) {
     if (!isAuthenticated || !role || !DESK_ROLES.includes(role)) {
