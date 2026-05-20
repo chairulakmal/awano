@@ -1,10 +1,11 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { z } from "zod";
 import { auth } from "@/auth";
 import { assertAuthenticated } from "@/lib/auth/assertions";
 import { changeUserRole } from "@/lib/users/service";
-import type { Role } from "@/generated/prisma/enums";
+import { Role } from "@/generated/prisma/enums";
 
 export async function changeRoleAction(
   _prevState: string | null,
@@ -13,8 +14,8 @@ export async function changeRoleAction(
   try {
     const session = await auth();
     const payload = assertAuthenticated(session);
-    const userId = formData.get("userId") as string;
-    const role   = formData.get("role") as Role;
+    const userId = z.string().cuid().parse(formData.get("userId"));
+    const role   = z.nativeEnum(Role).parse(formData.get("role"));
     await changeUserRole(userId, role, payload);
     revalidatePath("/admin/users");
     return null;
