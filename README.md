@@ -4,7 +4,7 @@ A full-stack, multi-tenant support desk built to demonstrate production-grade Ne
 role-based access control, a finite state machine for ticket workflows, tenant isolation enforced at
 every database query, and an audit trail on every status change.
 
-> Try it: [`/login?team=demo`](http://localhost:3000/login?team=demo) — credentials below.
+> Try it: [`/login?team=demo`](https://awano.chairulakmal.com/login?team=demo) — credentials below.
 
 ---
 
@@ -77,6 +77,22 @@ requires Manager+, `/super/*` requires Super.
 
 ---
 
+## Security
+
+The multi-tenant boundary is enforced in the service layer, not the UI. Key properties:
+
+| Property | Implementation |
+| --- | --- |
+| **Cross-team isolation** | Every tenant-scoped query includes `teamId` in the `WHERE` clause. `assertSameTeam()` is called on any fetch-by-ID path as a second check. |
+| **Session is the authority** | On every mutation, `teamId`, `userId`, and `role` come from the server-side JWT — never from `FormData` or the request body. |
+| **Input validation** | Zod schemas at every server action boundary. Enums are validated with `z.nativeEnum()` so invalid status/priority values are rejected before reaching the DB. |
+| **Internal comments** | The service layer strips `isInternal: true` comments from any response to a `REQUESTER` session — the UI cannot opt out of this. |
+| **Route guards** | `src/proxy.ts` enforces role minimums at the edge: `/desk/*` → Support+, `/admin/*` → Manager+, `/super/*` → Super only. |
+
+A self-audit of the codebase found one defence-in-depth gap: the top-assignees lookup in `getDashboardMetrics` fetched users by ID without an explicit `teamId` filter (safe in practice because the IDs came from a team-scoped query, but an implicit dependency). The filter was added to `src/lib/admin/service.ts` to make the isolation unconditional.
+
+---
+
 ## Running locally
 
 **Prerequisites:** Node.js, Docker
@@ -113,7 +129,7 @@ npm run test:coverage   # Run with V8 coverage report
 
 ## Demo accounts
 
-Log in at [`/login?team=demo`](http://localhost:3000/login?team=demo) — password for all accounts:
+Log in at [`/login?team=demo`](https://awano.chairulakmal.com/login?team=demo) — password for all accounts:
 **`oretachinomachida`**
 
 | Email                  | Role      | Requester type |
