@@ -1,7 +1,6 @@
 # Awano — Build Plan
 
-**Current state (2026-05-20):** Service foundation complete — FSM and ticket service are in place.
-Requester routes are next.
+**Current state (2026-05-20):** Desk routes complete. Admin routes are next.
 
 ---
 
@@ -22,12 +21,28 @@ Requester routes are next.
 - [x] `src/lib/tickets/fsm.ts` — `assertTransition` + `getAllowedTransitions`; pure, no Prisma; role rank table drives both functions
 - [x] `src/lib/tickets/service.ts` — `createTicket`, `listMyTickets`, `listDeskTickets`, `getTicket`, `assignTicket`, `transitionStatus`, `postComment`; each follows Zod → assert auth → Prisma; `transitionStatus` wraps ticket update + `StatusEvent` in a single transaction
 
+### Requester routes — 2026-05-20
+
+- [x] `src/app/tickets/layout.tsx` — shared layout with Header
+- [x] `src/app/tickets/page.tsx` — My tickets list with status badges
+- [x] `src/app/tickets/new/page.tsx` + `NewTicketForm.tsx` + `actions.ts` — create ticket flow
+- [x] `src/app/tickets/[id]/page.tsx` + `CommentForm.tsx` + `actions.ts` — thread view + reply form
+
+### Desk routes — 2026-05-20
+
+- [x] `src/lib/users/service.ts` — `listTeamMembers` for assignee dropdown
+- [x] `src/lib/tickets/service.ts` — added `setPriority`; `null` assigneeId filter for unassigned tab
+- [x] `src/app/desk/layout.tsx` — wider layout (max-w-5xl)
+- [x] `src/app/desk/page.tsx` — tabbed inbox (Unassigned · Mine · Open · Escalated) via `?view=` param
+- [x] `src/app/desk/[id]/page.tsx` — 2-column detail: body + thread + reply form / status + assignee + priority + timeline
+- [x] `src/app/desk/[id]/StatusForm.tsx` — status transitions with `useOptimistic` + `useTransition`
+- [x] `src/app/desk/[id]/AssignForm.tsx` + `PriorityForm.tsx` + `DeskCommentForm.tsx` — sidebar controls; internal note toggle
+
 ---
 
-## What to build next: Requester routes
+## What to build next: Admin routes
 
-Service layer is done. Start with requester routes — simplest RBAC path and a good smoke test for
-auth and the service layer end-to-end.
+Desk routes complete and exercising FSM + audit trail. Admin routes are next.
 
 ---
 
@@ -35,12 +50,10 @@ auth and the service layer end-to-end.
 
 | #   | What                                                                   | Why first                                          |
 | --- | ---------------------------------------------------------------------- | -------------------------------------------------- |
-| 1   | Requester routes (`/tickets`, `/tickets/new`, `/tickets/[id]`)         | Simplest RBAC path; good smoke test for auth       |
-| 2   | Desk routes (`/desk`, `/desk/[id]`)                                    | Core support workflow; exercises FSM + StatusEvent |
-| 3   | Admin routes (`/admin/users`, `/admin/categories`, `/admin/dashboard`) | Manager-only; lower priority                       |
-| 4   | Super routes (`/super/teams`, `/super/teams/[id]`)                     | Needed for provisioning but not for demo           |
-| 5   | Vitest unit tests (FSM, assertions, service functions)                 | Spec requires; unblock after service layer exists  |
-| 6   | Playwright E2E                                                         | Last; requires all routes working                  |
+| 1   | Admin routes (`/admin/users`, `/admin/categories`, `/admin/dashboard`) | Manager-only; lower priority                       |
+| 2   | Super routes (`/super/teams`, `/super/teams/[id]`)                     | Needed for provisioning but not for demo           |
+| 3   | Vitest unit tests (FSM, assertions, service functions)                 | Spec requires; unblock after service layer exists  |
+| 4   | Playwright E2E                                                         | Last; requires all routes working                  |
 
 ---
 

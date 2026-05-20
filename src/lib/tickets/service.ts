@@ -22,7 +22,7 @@ const CreateTicketSchema = z.object({
 
 const ListDeskSchema = z.object({
   status:     z.nativeEnum(TicketStatus).optional(),
-  assigneeId: z.string().cuid().optional(),
+  assigneeId: z.union([z.string().cuid(), z.null()]).optional(), // null = unassigned filter
   page:       z.number().int().positive().default(1),
   pageSize:   z.number().int().positive().max(100).default(25),
 });
@@ -137,6 +137,20 @@ export async function transitionStatus(
     }),
   ]);
   return updated;
+}
+
+export async function setPriority(
+  id: string,
+  priority: TicketPriority,
+  session: SessionPayload,
+) {
+  const ticket = await db.ticket.findUnique({
+    where:  { id },
+    select: { teamId: true, createdById: true },
+  });
+  if (!ticket) throw new AuthorizationError("Ticket not found");
+  assertCanUpdateTicket(session, ticket);
+  return db.ticket.update({ where: { id }, data: { priority } });
 }
 
 export async function postComment(
