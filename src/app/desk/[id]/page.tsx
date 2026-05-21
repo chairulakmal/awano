@@ -166,6 +166,7 @@ export default async function DeskTicketPage({ params }: { params: Promise<{ id:
               ticketId={ticket.id}
               currentAssigneeId={ticket.assigneeId}
               members={members}
+              canEdit={["MANAGER", "ADMIN", "SUPER"].includes(payload.role)}
             />
           </div>
 
