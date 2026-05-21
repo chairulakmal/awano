@@ -7,10 +7,9 @@ export async function login(page: Page, email: string, team: string) {
   await page.fill('input[name="email"]', email);
   await page.fill('input[name="password"]', PASSWORD);
   await page.getByRole("button", { name: "Sign in" }).click();
-  // "Sign out" button confirms the session cookie was accepted.
-  await expect(page.getByRole("button", { name: /sign out/i })).toBeVisible({ timeout: 15_000 });
-  // Confirms the proxy redirected away from /login.
+  // UserMenu trigger (aria-haspopup) is always visible when a session is active.
   // Catches regressions of trustHost: without it, Auth.js falls back to pages.signIn
   // and the user lands back on /login despite a valid session.
+  await expect(page.locator('button[aria-haspopup="true"]')).toBeVisible({ timeout: 15_000 });
   await expect(page).not.toHaveURL(/\/login/);
 }

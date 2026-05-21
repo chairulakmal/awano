@@ -65,6 +65,13 @@ export const proxy = auth((req) => {
     }
   }
 
+  // /profile — any authenticated user
+  if (path.startsWith("/profile")) {
+    if (!isAuthenticated) {
+      return NextResponse.redirect(new URL("/login", nextUrl));
+    }
+  }
+
   return NextResponse.next();
 });
 
