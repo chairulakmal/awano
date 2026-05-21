@@ -5,7 +5,7 @@
 bare sign-out button. Password change security hardening complete (bcrypt cost 12, session
 invalidation, rate limiting, security headers). Unit tests complete (158 passing). Playwright E2E
 suite written (4 specs). Auth.js URLSearchParams bug fixed. Deployed on Railway. Branch → PR → main
-workflow active; direct pushes to `main` blocked by GitHub branch protection.
+workflow active; direct pushes to `main` blocked by GitHub ruleset branch protection.
 
 ---
 
@@ -109,13 +109,14 @@ workflow active; direct pushes to `main` blocked by GitHub branch protection.
 - [x] `src/lib/users/service.ts` — added `changeMyPassword`; verifies current password with bcrypt
       before hashing and saving the new one; uses `session.userId` as the identity anchor
 - [x] `src/app/profile/actions.ts` — `changePasswordAction`; Zod schema: `min(15)` on new password,
-      `refine` confirms match; returns `{ ok, message }` so the form can show both success and errors
+      `refine` confirms match; returns `{ ok, message }` so the form can show both success and
+      errors
 - [x] `src/app/profile/ChangePasswordForm.tsx` — `useActionState`; clears inputs on success;
       auto-closes modal after 1.4 s via `onSuccess` callback
 - [x] `src/app/profile/ChangePasswordModal.tsx` — div-based modal with `shadow-panel`; ESC key +
       outside-click close; "Change password" button lives in the Security card on `/profile`
-- [x] `src/app/profile/page.tsx` — initials avatar (role-coloured), read-only Account card
-      (name / email / role), Security card with modal trigger; note directing name/email changes to admin
+- [x] `src/app/profile/page.tsx` — initials avatar (role-coloured), read-only Account card (name /
+      email / role), Security card with modal trigger; note directing name/email changes to admin
 - [x] `src/proxy.ts` — added `/profile` guard; redirects unauthenticated users to `/login`
 - [x] `src/components/UserMenu.tsx` — client dropdown: avatar + name + animated chevron; dropdown
       shows identity header, "Profile settings" link, divider, "Sign out" form; closes on ESC /
@@ -130,21 +131,26 @@ workflow active; direct pushes to `main` blocked by GitHub branch protection.
 
 Triggered by a dedicated security review of the password change flow. Six findings addressed:
 
-| # | Severity | Finding | Fix |
-|---|----------|---------|-----|
-| 1 | High | bcrypt cost factor was 10; spec requires ≥ 12 | `bcrypt.hash(newPassword, 12)` in `service.ts` |
-| 2 | High | Stateless JWT not invalidated after password change | `ChangePasswordForm` calls `signOut({ callbackUrl: "/login" })` from `next-auth/react` after 1.4 s success flash |
-| 3 | High | No rate limiting on `changePasswordAction` | In-process sliding-window counter: 5 attempts / 15 min keyed on `userId`; reset on success |
-| 4 | Medium | No HSTS or security headers | `headers()` added to `next.config.ts`: HSTS (2 yr), `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy` |
-| 5 | Low | `"User not found"` vs `"Current password is incorrect"` leaked distinct states | Both branches throw `"Invalid credentials"`; `service.test.ts` updated accordingly |
-| 6 | Low | Backdrop / ESC / ✕ close discards unsaved input silently | `ChangePasswordModal` tracks `isDirty` via `onDirtyChange` prop from `ChangePasswordForm`; all close paths call `window.confirm("Discard changes?")` when dirty |
+| #   | Severity | Finding                                                                        | Fix                                                                                                                                                             |
+| --- | -------- | ------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | High     | bcrypt cost factor was 10; spec requires ≥ 12                                  | `bcrypt.hash(newPassword, 12)` in `service.ts`                                                                                                                  |
+| 2   | High     | Stateless JWT not invalidated after password change                            | `ChangePasswordForm` calls `signOut({ callbackUrl: "/login" })` from `next-auth/react` after 1.4 s success flash                                                |
+| 3   | High     | No rate limiting on `changePasswordAction`                                     | In-process sliding-window counter: 5 attempts / 15 min keyed on `userId`; reset on success                                                                      |
+| 4   | Medium   | No HSTS or security headers                                                    | `headers()` added to `next.config.ts`: HSTS (2 yr), `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy`                               |
+| 5   | Low      | `"User not found"` vs `"Current password is incorrect"` leaked distinct states | Both branches throw `"Invalid credentials"`; `service.test.ts` updated accordingly                                                                              |
+| 6   | Low      | Backdrop / ESC / ✕ close discards unsaved input silently                       | `ChangePasswordModal` tracks `isDirty` via `onDirtyChange` prop from `ChangePasswordForm`; all close paths call `window.confirm("Discard changes?")` when dirty |
 
-- [x] `src/lib/users/service.ts` — bcrypt cost 10 → 12; error messages consolidated to `"Invalid credentials"`
-- [x] `src/app/profile/actions.ts` — in-process rate limiter added; success message updated to `"Password updated. Signing you out…"`
-- [x] `src/app/profile/ChangePasswordForm.tsx` — removed `onSuccess` prop; calls `signOut` after 1.4 s on success; added `onDirtyChange` prop; `<form onChange>` marks dirty
-- [x] `src/app/profile/ChangePasswordModal.tsx` — tracks `isDirty`; all close paths guarded with `window.confirm` when dirty; resets dirty on open
+- [x] `src/lib/users/service.ts` — bcrypt cost 10 → 12; error messages consolidated to
+      `"Invalid credentials"`
+- [x] `src/app/profile/actions.ts` — in-process rate limiter added; success message updated to
+      `"Password updated. Signing you out…"`
+- [x] `src/app/profile/ChangePasswordForm.tsx` — removed `onSuccess` prop; calls `signOut` after 1.4
+      s on success; added `onDirtyChange` prop; `<form onChange>` marks dirty
+- [x] `src/app/profile/ChangePasswordModal.tsx` — tracks `isDirty`; all close paths guarded with
+      `window.confirm` when dirty; resets dirty on open
 - [x] `next.config.ts` — `headers()` export with 4 security response headers
-- [x] `src/lib/users/service.test.ts` — updated error message assertion (`/invalid credentials/i`); updated bcrypt cost assertion (12)
+- [x] `src/lib/users/service.test.ts` — updated error message assertion (`/invalid credentials/i`);
+      updated bcrypt cost assertion (12)
 
 ### Vitest unit tests — 2026-05-20
 
@@ -205,10 +211,10 @@ surface post-deploy.
 
 **~~3 — Profile / settings page (S)~~** ✓ done  
 Password change only at `/profile`. Name and email are admin-managed — email is the tenant-scoped
-identity anchor (`@@unique([teamId, email])`) and changing it is a credential operation, not a display
-preference. Password form lives in a modal (deliberate friction to prevent accidental submission).
-15-character minimum, no complexity rules (NIST SP 800-63B). `UserMenu` dropdown in the header
-replaces the bare name link + sign-out button.
+identity anchor (`@@unique([teamId, email])`) and changing it is a credential operation, not a
+display preference. Password form lives in a modal (deliberate friction to prevent accidental
+submission). 15-character minimum, no complexity rules (NIST SP 800-63B). `UserMenu` dropdown in the
+header replaces the bare name link + sign-out button.
 
 **4 — Login rate limiting (S)**  
 Per-IP and per-email attempt counter on the credentials sign-in path. In Next.js 16 the natural home

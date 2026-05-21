@@ -162,9 +162,9 @@ describe("changeUserRole — success path", () => {
 describe("changeMyPassword — user not found", () => {
   it("throws AuthorizationError when findUnique returns null", async () => {
     vi.mocked(db.user.findUnique).mockResolvedValue(null);
-    await expect(
-      changeMyPassword("old-pass", "new-pass-fifteen-chars", session())
-    ).rejects.toThrow(AuthorizationError);
+    await expect(changeMyPassword("old-pass", "new-pass-fifteen-chars", session())).rejects.toThrow(
+      AuthorizationError
+    );
     expect(bcrypt.compare).not.toHaveBeenCalled();
     expect(db.user.update).not.toHaveBeenCalled();
   });
@@ -206,7 +206,11 @@ describe("changeMyPassword — success", () => {
     vi.mocked(bcrypt.hash).mockResolvedValue("hashed-new-pass" as never);
     vi.mocked(db.user.update).mockResolvedValue({} as never);
 
-    await changeMyPassword("correct-pass", "new-pass-fifteen-chars", session({ userId: "user-42" }));
+    await changeMyPassword(
+      "correct-pass",
+      "new-pass-fifteen-chars",
+      session({ userId: "user-42" })
+    );
 
     expect(db.user.findUnique).toHaveBeenCalledWith(
       expect.objectContaining({ where: { id: "user-42" } })

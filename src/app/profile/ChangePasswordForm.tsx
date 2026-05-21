@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect, useState } from "react";
+import { useActionState, useEffect } from "react";
 import { signOut } from "next-auth/react";
 import { changePasswordAction } from "./actions";
 
@@ -10,23 +10,16 @@ export function ChangePasswordForm({
   onDirtyChange?: (dirty: boolean) => void;
 }) {
   const [state, formAction, pending] = useActionState(changePasswordAction, null);
-  const [formKey, setFormKey] = useState(0);
 
   useEffect(() => {
     if (!state?.ok) return;
     onDirtyChange?.(false);
-    setFormKey((k) => k + 1);
     const timer = setTimeout(() => signOut({ callbackUrl: "/login" }), 1400);
     return () => clearTimeout(timer);
   }, [state, onDirtyChange]);
 
   return (
-    <form
-      key={formKey}
-      action={formAction}
-      onChange={() => onDirtyChange?.(true)}
-      className="space-y-4"
-    >
+    <form action={formAction} onChange={() => onDirtyChange?.(true)} className="space-y-4">
       <div className="space-y-1">
         <label htmlFor="currentPassword" className="block text-sm font-medium text-zinc-700">
           Current password

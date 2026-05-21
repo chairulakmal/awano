@@ -54,7 +54,6 @@ export default async function ProfilePage() {
     <div className="min-h-screen bg-zinc-50">
       <Header />
       <main className="max-w-lg mx-auto px-6 py-10">
-
         {/* Avatar + identity header */}
         <div className="flex items-center gap-4 mb-8">
           <div
@@ -66,9 +65,7 @@ export default async function ProfilePage() {
             <h1 className="text-xl font-semibold text-zinc-900 truncate">
               {user.name ?? user.email}
             </h1>
-            {user.name && (
-              <p className="text-sm text-zinc-400 truncate">{user.email}</p>
-            )}
+            {user.name && <p className="text-sm text-zinc-400 truncate">{user.email}</p>}
             <span
               className={`mt-1 inline-block text-xs font-medium px-2 py-0.5 rounded-full ${ROLE_BADGE[user.role]}`}
             >
@@ -85,7 +82,9 @@ export default async function ProfilePage() {
           <dl className="divide-y divide-zinc-50 text-sm">
             <div className="flex justify-between py-2.5 first:pt-0 last:pb-0">
               <dt className="text-zinc-500">Name</dt>
-              <dd className="font-medium text-zinc-800">{user.name ?? <span className="text-zinc-400 italic">—</span>}</dd>
+              <dd className="font-medium text-zinc-800">
+                {user.name ?? <span className="text-zinc-400 italic">—</span>}
+              </dd>
             </div>
             <div className="flex justify-between py-2.5 first:pt-0 last:pb-0">
               <dt className="text-zinc-500">Email</dt>
@@ -114,7 +113,6 @@ export default async function ProfilePage() {
             <ChangePasswordModal />
           </div>
         </div>
-
       </main>
     </div>
   );

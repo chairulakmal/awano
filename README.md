@@ -7,9 +7,7 @@ and an immutable audit trail on every status change.
 [![CI](https://github.com/chairulakmal/awano/actions/workflows/ci.yml/badge.svg)](https://github.com/chairulakmal/awano/actions/workflows/ci.yml)
 &nbsp;
 ![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript&logoColor=white)
-&nbsp;
-![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=next.js&logoColor=white)
-&nbsp;
+&nbsp; ![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=next.js&logoColor=white) &nbsp;
 ![Tests](https://img.shields.io/badge/unit_tests-158_passing-22c55e)
 
 ---
@@ -18,22 +16,22 @@ and an immutable audit trail on every status change.
 
 [`awano.chairulakmal.com/login?team=demo`](https://awano.chairulakmal.com/login?team=demo)
 
-Log in as `support@awano.demo` / `oretachinomachida` to see the agent desk, or use any account
-from the [demo accounts table](#demo-accounts) below to explore a different role.
+Log in as `support@awano.demo` / `oretachinomachida` to see the agent desk, or use any account from
+the [demo accounts table](#demo-accounts) below to explore a different role.
 
 ---
 
 ## Stack
 
-| Layer      | Choice                                                     | Why                                                         |
-| ---------- | ---------------------------------------------------------- | ----------------------------------------------------------- |
-| Framework  | Next.js 16 — App Router, Server Components, Server Actions | Colocate mutations with UI; no separate API layer needed    |
-| Language   | TypeScript `strict: true`                                  | Compiler catches missing `teamId` filters before runtime    |
-| ORM        | Prisma 7 → PostgreSQL                                      | Typed query results; compound indexes on `(teamId, status)` |
-| Auth       | Auth.js v5 — Credentials, stateless JWT, `httpOnly` cookie | No session table; CSRF handled; cookie inaccessible to JS   |
-| Validation | Zod on every server boundary                               | Validated types flow through the rest of the function       |
+| Layer      | Choice                                                     | Why                                                                                                     |
+| ---------- | ---------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| Framework  | Next.js 16 — App Router, Server Components, Server Actions | Colocate mutations with UI; no separate API layer needed                                                |
+| Language   | TypeScript `strict: true`                                  | Compiler catches missing `teamId` filters before runtime                                                |
+| ORM        | Prisma 7 → PostgreSQL                                      | Typed query results; compound indexes on `(teamId, status)`                                             |
+| Auth       | Auth.js v5 — Credentials, stateless JWT, `httpOnly` cookie | No session table; CSRF handled; cookie inaccessible to JS                                               |
+| Validation | Zod on every server boundary                               | Validated types flow through the rest of the function                                                   |
 | Testing    | Vitest (unit) · Playwright (E2E)                           | Vitest mocks Prisma — tests focus on business logic; Playwright runs full user journeys against Railway |
-| Deployment | Railway — persistent container + managed PostgreSQL        | No cold starts; app and DB on one platform                  |
+| Deployment | Railway — persistent container + managed PostgreSQL        | No cold starts; app and DB on one platform                                                              |
 
 ---
 
@@ -44,28 +42,27 @@ from the [demo accounts table](#demo-accounts) below to explore a different role
 `src/lib/tickets/fsm.ts`. `assertTransition()` throws on invalid pairs or insufficient role; on
 success a `StatusEvent` row is appended for an immutable audit trail.
 
-**Atomicity on the audit trail.** Each status transition writes two records — the updated ticket
-and a new `StatusEvent` — inside a single Prisma `$transaction`. If either write fails both roll
-back, so a ticket can never appear to jump states with no recorded cause.
+**Atomicity on the audit trail.** Each status transition writes two records — the updated ticket and
+a new `StatusEvent` — inside a single Prisma `$transaction`. If either write fails both roll back,
+so a ticket can never appear to jump states with no recorded cause.
 
 **Authorization as typed assertions.** Business rules live in explicit typed functions
-(`assertAuthenticated`, `assertRole`, `assertSameTeam`, `assertCanViewTicket`) called at the top
-of every server action before any DB work begins. A missing assertion is a visible gap in the
-code, not a silent omission.
+(`assertAuthenticated`, `assertRole`, `assertSameTeam`, `assertCanViewTicket`) called at the top of
+every server action before any DB work begins. A missing assertion is a visible gap in the code, not
+a silent omission.
 
 **`teamId` never comes from the client.** On every mutation, `teamId`, `userId`, and `role` are
 derived from the server-side session — the Zod schema at each server action accepts only what the
 client legitimately controls. This prevents privilege escalation regardless of what a client sends.
 
 **Service layer keeps business logic testable.** The pattern is
-`Server Action → service.ts → Prisma` with no Prisma calls outside the service layer. Business
-rules are unit-tested in Vitest with a mocked DB client — no database or Next.js infrastructure
-needed.
+`Server Action → service.ts → Prisma` with no Prisma calls outside the service layer. Business rules
+are unit-tested in Vitest with a mocked DB client — no database or Next.js infrastructure needed.
 
-**Diagnosing a reverse-proxy auth bug in production.** After deploying to Railway, every
-successful login redirected back to the login form. Railway terminates TLS at its load balancer, so
-without `trustHost: true` Auth.js couldn't resolve the real HTTPS origin from forwarded headers and
-fell back to the sign-in page after every login. One-line fix; finding the root cause required
+**Diagnosing a reverse-proxy auth bug in production.** After deploying to Railway, every successful
+login redirected back to the login form. Railway terminates TLS at its load balancer, so without
+`trustHost: true` Auth.js couldn't resolve the real HTTPS origin from forwarded headers and fell
+back to the sign-in page after every login. One-line fix; finding the root cause required
 understanding how Auth.js validates redirect URLs behind a reverse proxy.
 
 **Optimistic UI for status transitions.** Clicking a status button applies the change immediately
@@ -74,14 +71,14 @@ because the agent's role has changed since page load — the UI reverts automati
 remains the source of truth.
 
 **Password policy informed by NIST, not convention.** The password change form enforces a
-15-character minimum and nothing else. NIST SP 800-63B states length is a stronger entropy
-predictor than character-set diversity, and that complexity rules push users toward predictable
-substitutions like `Password1!`.
+15-character minimum and nothing else. NIST SP 800-63B states length is a stronger entropy predictor
+than character-set diversity, and that complexity rules push users toward predictable substitutions
+like `Password1!`.
 
 **Revoking a stateless JWT without a session table.** After a password change the old JWT is still
-technically valid. Rather than adding a `passwordChangedAt` column and checking it on every
-request, the client calls `signOut({ callbackUrl: "/login" })` from `next-auth/react` after the
-success flash — clearing the `httpOnly` cookie with no schema migration needed.
+technically valid. Rather than adding a `passwordChangedAt` column and checking it on every request,
+the client calls `signOut({ callbackUrl: "/login" })` from `next-auth/react` after the success flash
+— clearing the `httpOnly` cookie with no schema migration needed.
 
 **Client/server component boundary in the header.** The `Header` component calls `auth()` and
 renders entirely on the server with no client JS. Interactive parts (dropdown state, keyboard and
@@ -130,8 +127,8 @@ The multi-tenant boundary is enforced in the service layer, not the UI.
 | **Internal comments**                   | The service layer strips `isInternal: true` comments from any response to a `REQUESTER` session — the UI cannot opt out of this.                              |
 | **Route guards**                        | `src/proxy.ts` enforces role minimums at the edge: `/desk/*` → Support+, `/admin/*` → Manager+, `/super/*` → Super only.                                      |
 | **Session eviction on password change** | `signOut({ callbackUrl: "/login" })` called client-side after a successful password change — clears the `httpOnly` cookie immediately.                        |
-| **Password change rate limiting**       | In-process sliding-window counter: 5 attempts per 15-minute window keyed on `userId`. Blocks before bcrypt work begins. Reset on success.                    |
-| **Security headers**                    | `Strict-Transport-Security`, `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy` applied to all responses via `next.config.ts`.    |
+| **Password change rate limiting**       | In-process sliding-window counter: 5 attempts per 15-minute window keyed on `userId`. Blocks before bcrypt work begins. Reset on success.                     |
+| **Security headers**                    | `Strict-Transport-Security`, `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy` applied to all responses via `next.config.ts`.     |
 
 A self-audit found one defence-in-depth gap: the top-assignees query in `getDashboardMetrics`
 fetched users by ID without an explicit `teamId` filter (safe in practice because the IDs came from
