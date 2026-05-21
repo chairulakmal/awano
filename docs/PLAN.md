@@ -5,10 +5,11 @@
 bare sign-out button. Password change security hardening complete (bcrypt cost 12, session
 invalidation, rate limiting, security headers). Login rate limiting complete (5 attempts / 15 min
 per email). Cursor-based pagination on both `listDeskTickets` and `listMyTickets` with client-side
-"Load more". Ticket search on `subject`/`body` via `ILIKE` with debounced sidebar input. Unit tests
-complete (166 passing). Playwright E2E suite: 7 specs. Auth.js URLSearchParams bug fixed. Deployed
-on Railway. Branch → PR → main workflow active; direct pushes to `main` blocked by GitHub ruleset
-branch protection.
+"Load more". Ticket search on `subject`/`body` via `ILIKE` with debounced sidebar input. File
+attachments on tickets and comments (`bytea`, 1 MB limit, server-side MIME allowlist, thumbnail
+rendering). Unit tests complete (169 passing). Playwright E2E suite: 7 specs. Auth.js URLSearchParams
+bug fixed. Deployed on Railway. Branch → PR → main workflow active; direct pushes to `main` blocked
+by GitHub ruleset branch protection.
 
 ---
 
@@ -228,6 +229,30 @@ Triggered by a dedicated security review of the password change flow. Six findin
 - [x] `.gitignore` — added `/playwright-report` and `/test-results` (build artifacts; not for the
       repo)
 
+### File attachments — 2026-05-21
+
+- [x] `prisma/schema.prisma` — `Attachment` model: `id`, `ticketId`, `commentId?`, `filename`,
+      `mimeType`, `sizeBytes`, `data Bytes`, `createdAt`; relations to `Ticket` and `Comment`
+- [x] `src/lib/attachments/service.ts` — `addAttachment` (size guard + MIME allowlist + ticket auth
+      check + DB write) and `getAttachment` (ticket auth check); `MAX_BYTES = 1_000_000`; server-side
+      `ALLOWED_MIME_TYPES` allowlist (`image/jpeg`, `image/png`, `image/webp`, `application/pdf`) to
+      prevent XSS via `Content-Type` spoofing on the serve route
+- [x] `src/app/api/attachments/[id]/route.ts` — authenticated GET; returns `data` bytes with stored
+      `Content-Type`, `Content-Disposition: inline`, `Cache-Control: private, max-age=3600`
+- [x] `src/lib/attachments/compress.ts` — browser-only Canvas API compression; binary-search quality
+      (0.05–0.92), up to 4 resolution passes; outputs WebP (Chrome/Edge/Firefox) or JPEG (Safari);
+      950 KB target to stay under the 1 MB server limit
+- [x] `src/components/FilePicker.tsx` — uncontrolled file input; validates with `validateFile()`,
+      compresses with `compressImage()`; clears on form reset
+- [x] `src/components/AttachmentList.tsx` — renders image thumbnails (`<img h-24>`) and PDF/file
+      download links; `eslint-disable` for `@next/next/no-img-element` (valid — dynamic attachment
+      content can't use `<Image>`)
+- [x] `next.config.ts` — `serverActions.bodySizeLimit: '3mb'` raised from default 1 MB to allow
+      browser-compressed uploads (pre-compression source may be up to ~2 MB)
+- [x] `src/lib/attachments/service.test.ts` — 15 tests: MIME allowlist (3 tests), size guard (2),
+      ticket-not-found, cross-team isolation (2), SUPER bypass, field persistence (2),
+      `getAttachment` not-found / cross-team / teams-match / REQUESTER own vs other
+
 ---
 
 ## What to build next
@@ -246,7 +271,7 @@ Ordered by urgency and value. XS/S/M is rough engineering effort.
 | ~~4~~ | ~~**Login rate limiting**~~        | ~~Brute-force protection on the credentials endpoint~~          | ~~S~~  |
 | ~~5~~ | ~~**Cursor-based pagination**~~    | ~~Ticket lists currently load unbounded rows~~                  | ~~M~~  |
 | ~~6~~ | ~~**Ticket search**~~              | ~~No way to find a ticket without scrolling the full list~~     | ~~M~~  |
-| 7     | **File attachments (bytea)**       | Requesters can't share screenshots or documents with support    | M      |
+| ~~7~~ | ~~**File attachments (bytea)**~~   | ~~Requesters can't share screenshots or documents with support~~ | ~~M~~  |
 
 ### Detail
 

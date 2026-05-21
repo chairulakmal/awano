@@ -7,6 +7,15 @@ import {
 
 const MAX_BYTES = 1_000_000; // 1 MB hard limit — enforced independently of client-side compression
 
+// Server-side allowlist — matches compress.ts accepted types plus WebP (compression output).
+// Rejects arbitrary MIME types that could be rendered as HTML by browsers and enable XSS.
+const ALLOWED_MIME_TYPES = new Set([
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "application/pdf",
+]);
+
 export async function addAttachment(
   input: {
     ticketId: string;
@@ -17,6 +26,10 @@ export async function addAttachment(
   },
   session: SessionPayload
 ) {
+  if (!ALLOWED_MIME_TYPES.has(input.mimeType)) {
+    throw new Error("Unsupported file type.");
+  }
+
   if (input.data.length > MAX_BYTES) {
     throw new Error("Attachment exceeds 1 MB limit.");
   }
