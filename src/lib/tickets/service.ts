@@ -75,16 +75,22 @@ export async function listDeskTickets(filters: unknown, session: SessionPayload)
 }
 
 export async function getTicket(id: string, session: SessionPayload) {
+  const attachmentMeta = { select: { id: true, filename: true, mimeType: true, sizeBytes: true } };
+
   const ticket = await db.ticket.findUnique({
     where: { id },
     include: {
       category: true,
       createdBy: { select: { id: true, name: true, email: true } },
       assignee: { select: { id: true, name: true, email: true } },
+      attachments: { ...attachmentMeta, where: { commentId: null }, orderBy: { createdAt: "asc" } },
       comments: {
         where: session.role === "REQUESTER" ? { isInternal: false } : {},
         orderBy: { createdAt: "asc" },
-        include: { author: { select: { id: true, name: true, role: true } } },
+        include: {
+          author: { select: { id: true, name: true, role: true } },
+          attachments: { ...attachmentMeta, orderBy: { createdAt: "asc" } },
+        },
       },
       statusEvents: {
         orderBy: { createdAt: "asc" },

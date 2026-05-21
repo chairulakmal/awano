@@ -6,6 +6,7 @@ import { z } from "zod";
 import { auth } from "@/auth";
 import { assertAuthenticated } from "@/lib/auth/assertions";
 import { transitionStatus, assignTicket, postComment, setPriority } from "@/lib/tickets/service";
+import { addAttachment } from "@/lib/attachments/service";
 import { TicketStatus, TicketPriority } from "@/generated/prisma/enums";
 
 export async function transitionStatusAction(formData: FormData): Promise<void> {
@@ -66,12 +67,29 @@ export async function postDeskCommentAction(
   const body = z.string().min(1).parse(formData.get("body"));
   const isInternal = formData.get("isInternal") === "true";
 
+  let commentId: string;
   try {
-    await postComment(ticketId, body, isInternal, payload);
-    revalidatePath(`/desk/${ticketId}`);
+    const comment = await postComment(ticketId, body, isInternal, payload);
+    commentId = comment.id;
   } catch (err) {
     unstable_rethrow(err);
     return "Failed to post comment.";
   }
+
+  const files = formData.getAll("attachments") as File[];
+  for (const file of files) {
+    if (!(file instanceof File) || file.size === 0) continue;
+    try {
+      const buffer = new Uint8Array(await file.arrayBuffer());
+      await addAttachment(
+        { ticketId, commentId, filename: file.name, mimeType: file.type, data: buffer },
+        payload
+      );
+    } catch {
+      // Attachment failure does not roll back the comment
+    }
+  }
+
+  revalidatePath(`/desk/${ticketId}`);
   return null;
 }
