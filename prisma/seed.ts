@@ -13,7 +13,6 @@ async function upsertTeam(slug: string, name: string) {
   return db.team.upsert({ where: { slug }, update: {}, create: { slug, name } });
 }
 
-
 async function upsertUser(
   teamId: string,
   email: string,
@@ -52,9 +51,30 @@ async function main() {
   // -------------------------------------------------------------------------
   const teamA = await upsertTeam("demo", "Awano Demo");
 
-  const customerA = await upsertUser(teamA.id, "customer@awano.demo", hash, "REQUESTER", "Alice Customer", "CUSTOMER");
-  const recruiterA = await upsertUser(teamA.id, "recruiter@awano.demo", hash, "REQUESTER", "Bob Recruiter", "RECRUITER");
-  const agentA = await upsertUser(teamA.id, "agent@awano.demo", hash, "REQUESTER", "Carol Agent", "FIELD_AGENT");
+  const customerA = await upsertUser(
+    teamA.id,
+    "customer@awano.demo",
+    hash,
+    "REQUESTER",
+    "Alice Customer",
+    "CUSTOMER"
+  );
+  const recruiterA = await upsertUser(
+    teamA.id,
+    "recruiter@awano.demo",
+    hash,
+    "REQUESTER",
+    "Bob Recruiter",
+    "RECRUITER"
+  );
+  const agentA = await upsertUser(
+    teamA.id,
+    "agent@awano.demo",
+    hash,
+    "REQUESTER",
+    "Carol Agent",
+    "FIELD_AGENT"
+  );
   const supportA = await upsertUser(teamA.id, "support@awano.demo", hash, "SUPPORT", "Dan Support");
   const managerA = await upsertUser(teamA.id, "manager@awano.demo", hash, "MANAGER", "Eve Manager");
 
@@ -99,7 +119,9 @@ async function main() {
 
   console.log("✓ Seeded: 1 super, 2 teams, users, 18 tickets (tokutei ginou scenarios)");
   console.log(`  Password for all accounts: ${DEMO_PASSWORD}`);
-  console.log("  Team demo: rahmat@awano.demo | nguyen@awano.demo | support@awano.demo | manager@awano.demo");
+  console.log(
+    "  Team demo: rahmat@awano.demo | nguyen@awano.demo | support@awano.demo | manager@awano.demo"
+  );
   console.log("  Team beta: kyaw@beta.demo | lan@beta.demo | mahtwe@beta.demo | support@beta.demo");
   console.log("  Super: super@awano.demo (no team slug needed)");
 }

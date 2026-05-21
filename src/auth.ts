@@ -8,10 +8,7 @@ import { authConfig } from "@/auth.config";
 const credentialsSchema = z.object({
   // Auth.js serialises missing fields via URLSearchParams, turning JS `undefined`
   // into the string "undefined". Normalise any falsy-or-"undefined" value to undefined.
-  team: z.preprocess(
-    (v) => (!v || v === "undefined" ? undefined : v),
-    z.string().optional()
-  ),
+  team: z.preprocess((v) => (!v || v === "undefined" ? undefined : v), z.string().optional()),
   email: z.string().email(),
   password: z.string().min(1),
 });
