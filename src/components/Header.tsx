@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { auth, signOut } from "@/auth";
+import { auth } from "@/auth";
+import { UserMenu } from "./UserMenu";
 
 export async function Header() {
   const session = await auth();
@@ -15,22 +16,7 @@ export async function Header() {
       </Link>
 
       {user ? (
-        <div className="flex items-center gap-5">
-          <span className="text-sm text-zinc-500">{user.name ?? user.email}</span>
-          <form
-            action={async () => {
-              "use server";
-              await signOut({ redirectTo: "/" });
-            }}
-          >
-            <button
-              type="submit"
-              className="text-sm font-medium text-zinc-500 hover:text-zinc-900 transition-colors"
-            >
-              Sign out →
-            </button>
-          </form>
-        </div>
+        <UserMenu name={user.name} email={user.email!} role={user.role} />
       ) : (
         <Link
           href="/login?team=demo"

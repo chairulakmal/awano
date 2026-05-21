@@ -1,3 +1,4 @@
+import bcrypt from "bcryptjs";
 import { db } from "@/lib/db";
 import {
   assertRole,
@@ -28,6 +29,22 @@ export async function listTeamUsers(session: SessionPayload) {
     select: { id: true, name: true, email: true, role: true, requesterType: true, createdAt: true },
     orderBy: [{ role: "asc" }, { name: "asc" }],
   });
+}
+
+export async function changeMyPassword(
+  currentPassword: string,
+  newPassword: string,
+  session: SessionPayload
+) {
+  const user = await db.user.findUnique({
+    where: { id: session.userId },
+    select: { passwordHash: true },
+  });
+  if (!user?.passwordHash) throw new AuthorizationError("Invalid credentials");
+  const valid = await bcrypt.compare(currentPassword, user.passwordHash);
+  if (!valid) throw new AuthorizationError("Invalid credentials");
+  const hash = await bcrypt.hash(newPassword, 12);
+  await db.user.update({ where: { id: session.userId }, data: { passwordHash: hash } });
 }
 
 export async function changeUserRole(userId: string, newRole: Role, session: SessionPayload) {

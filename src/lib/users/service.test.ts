@@ -12,8 +12,16 @@ vi.mock("@/lib/db", () => ({
   },
 }));
 
+vi.mock("bcryptjs", () => ({
+  default: {
+    compare: vi.fn(),
+    hash: vi.fn(),
+  },
+}));
+
 import { db } from "@/lib/db";
-import { listTeamMembers, listTeamUsers, changeUserRole } from "./service";
+import bcrypt from "bcryptjs";
+import { listTeamMembers, listTeamUsers, changeUserRole, changeMyPassword } from "./service";
 
 function session(overrides: Partial<SessionPayload> = {}): SessionPayload {
   return { userId: "admin-1", teamId: "team-a", role: Role.ADMIN, ...overrides };
@@ -143,6 +151,72 @@ describe("changeUserRole — success path", () => {
     vi.mocked(db.user.findUnique).mockResolvedValue(null);
     await expect(changeUserRole("user-x", Role.SUPPORT, session())).rejects.toThrow(
       AuthorizationError
+    );
+  });
+});
+
+// ---------------------------------------------------------------------------
+// changeMyPassword
+// ---------------------------------------------------------------------------
+
+describe("changeMyPassword — user not found", () => {
+  it("throws AuthorizationError when findUnique returns null", async () => {
+    vi.mocked(db.user.findUnique).mockResolvedValue(null);
+    await expect(changeMyPassword("old-pass", "new-pass-fifteen-chars", session())).rejects.toThrow(
+      AuthorizationError
+    );
+    expect(bcrypt.compare).not.toHaveBeenCalled();
+    expect(db.user.update).not.toHaveBeenCalled();
+  });
+});
+
+describe("changeMyPassword — wrong current password", () => {
+  it("throws AuthorizationError when bcrypt.compare returns false", async () => {
+    vi.mocked(db.user.findUnique).mockResolvedValue({ passwordHash: "stored-hash" } as never);
+    vi.mocked(bcrypt.compare).mockResolvedValue(false as never);
+    await expect(
+      changeMyPassword("wrong-pass", "new-pass-fifteen-chars", session())
+    ).rejects.toThrow(/invalid credentials/i);
+    expect(db.user.update).not.toHaveBeenCalled();
+  });
+});
+
+describe("changeMyPassword — success", () => {
+  it("hashes the new password and saves it", async () => {
+    vi.mocked(db.user.findUnique).mockResolvedValue({ passwordHash: "stored-hash" } as never);
+    vi.mocked(bcrypt.compare).mockResolvedValue(true as never);
+    vi.mocked(bcrypt.hash).mockResolvedValue("hashed-new-pass" as never);
+    vi.mocked(db.user.update).mockResolvedValue({} as never);
+
+    await changeMyPassword("correct-pass", "new-pass-fifteen-chars", session());
+
+    expect(bcrypt.compare).toHaveBeenCalledWith("correct-pass", "stored-hash");
+    expect(bcrypt.hash).toHaveBeenCalledWith("new-pass-fifteen-chars", 12);
+    expect(db.user.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { id: "admin-1" },
+        data: { passwordHash: "hashed-new-pass" },
+      })
+    );
+  });
+
+  it("looks up the user by session.userId, not a caller-supplied id", async () => {
+    vi.mocked(db.user.findUnique).mockResolvedValue({ passwordHash: "stored-hash" } as never);
+    vi.mocked(bcrypt.compare).mockResolvedValue(true as never);
+    vi.mocked(bcrypt.hash).mockResolvedValue("hashed-new-pass" as never);
+    vi.mocked(db.user.update).mockResolvedValue({} as never);
+
+    await changeMyPassword(
+      "correct-pass",
+      "new-pass-fifteen-chars",
+      session({ userId: "user-42" })
+    );
+
+    expect(db.user.findUnique).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: "user-42" } })
+    );
+    expect(db.user.update).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: "user-42" } })
     );
   });
 });
