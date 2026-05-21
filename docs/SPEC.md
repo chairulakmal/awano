@@ -55,8 +55,18 @@ actions. A super admin provisions isolated team workspaces.
 - All queries on tenant-scoped models include `teamId` in the `WHERE` clause.
 - Requesters: own tickets only; `isInternal: true` comments never returned.
 - `ESCALATED` transition and reopening `CLOSED` tickets: `MANAGER+` only.
-- Role changes and user deactivation: `MANAGER+` within the team.
+- Role changes: `MANAGER+` within the team; each role may only assign roles up to its own ceiling (see table below); actors may only modify users whose current role does not exceed their own ceiling — a Manager cannot demote or reassign an Admin.
 - Team creation and first-user provisioning: `SUPER` only.
+
+**Role assignment ceilings** (`changeUserRole`):
+
+| Actor   | May assign up to |
+| ------- | ---------------- |
+| Manager | Support          |
+| Admin   | Manager          |
+| Super   | Admin            |
+
+**Requester promotion path** — only a `FIELD_AGENT` requester may be promoted to `SUPPORT`. A `CUSTOMER` or `RECRUITER` must first have their `requesterType` changed to `FIELD_AGENT` before the role change to `SUPPORT` is permitted.
 
 ---
 
@@ -257,6 +267,11 @@ All queries are team-scoped. Page is a Server Component.
 | `changeMyPassword` with wrong current password   | Throws before DB write                        |
 | `changeMyPassword` success                       | Verifies bcrypt compare + hash + update args  |
 | `changeMyPassword` identity                      | `userId` taken from session, not caller input |
+| `changeUserRole` — Manager assigns MANAGER+      | Throws (ceiling enforced)                     |
+| `changeUserRole` — Admin assigns ADMIN+          | Throws (ceiling enforced)                     |
+| `changeUserRole` — Manager modifies Admin row    | Throws (target rank exceeds actor ceiling)    |
+| `changeUserRole` — CUSTOMER promoted to SUPPORT  | Throws (must become FIELD_AGENT first)        |
+| `changeUserRole` — FIELD_AGENT promoted to SUPPORT | Succeeds                                    |
 
 ### E2E (Playwright)
 
@@ -267,7 +282,9 @@ All queries are team-scoped. Page is a Server Component.
 | Manager: escalate → close → reopen                      | Permission gates        |
 | Team B support: attempt to access Team A ticket         | Returns 403 / redirects |
 | Login: rate limit after too many failed attempts        | Brute-force protection  |
-| Support: search nonsense query → no results; clear → results restore | Desk search            |
+| Support: search nonsense query → no results; clear → results restore | Desk search  |
+
+`e2e/global-setup.ts` resets seed tickets to known states before every run and resets seed user roles (`support@awano.demo` → `SUPPORT`) so that manual role-change testing against the dev server cannot corrupt subsequent E2E runs.
 
 ---
 

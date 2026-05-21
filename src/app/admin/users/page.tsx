@@ -82,7 +82,9 @@ export default async function AdminUsersPage() {
                   <ChangeRoleForm
                     userId={user.id}
                     currentRole={user.role}
+                    currentRequesterType={user.requesterType}
                     isSelf={user.id === payload.userId}
+                    sessionRole={payload.role}
                   />
                 </td>
               </tr>

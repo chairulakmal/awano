@@ -70,13 +70,13 @@ describe("listTeamUsers — role guard", () => {
 describe("changeUserRole — role guard", () => {
   it("throws when called by REQUESTER", async () => {
     await expect(
-      changeUserRole("user-x", Role.SUPPORT, session({ role: Role.REQUESTER }))
+      changeUserRole("user-x", Role.SUPPORT, null, session({ role: Role.REQUESTER }))
     ).rejects.toThrow(AuthorizationError);
   });
 
   it("throws when called by SUPPORT", async () => {
     await expect(
-      changeUserRole("user-x", Role.SUPPORT, session({ role: Role.SUPPORT }))
+      changeUserRole("user-x", Role.SUPPORT, null, session({ role: Role.SUPPORT }))
     ).rejects.toThrow(AuthorizationError);
   });
 });
@@ -84,22 +84,88 @@ describe("changeUserRole — role guard", () => {
 describe("changeUserRole — self-edit guard", () => {
   it("throws when the actor tries to change their own role", async () => {
     const s = session({ userId: "admin-1" });
-    await expect(changeUserRole("admin-1", Role.SUPPORT, s)).rejects.toThrow(AuthorizationError);
+    await expect(changeUserRole("admin-1", Role.SUPPORT, null, s)).rejects.toThrow(AuthorizationError);
     expect(db.user.findUnique).not.toHaveBeenCalled();
   });
 
   it("error message mentions cannot change own role", async () => {
     const s = session({ userId: "admin-1" });
-    await expect(changeUserRole("admin-1", Role.SUPPORT, s)).rejects.toThrow(/own role/i);
+    await expect(changeUserRole("admin-1", Role.SUPPORT, null, s)).rejects.toThrow(/own role/i);
   });
 });
 
 describe("changeUserRole — SUPER role guard", () => {
   it("throws when trying to assign the SUPER role", async () => {
-    await expect(changeUserRole("user-x", Role.SUPER, session())).rejects.toThrow(
+    await expect(changeUserRole("user-x", Role.SUPER, null, session())).rejects.toThrow(
       AuthorizationError
     );
     expect(db.user.findUnique).not.toHaveBeenCalled();
+  });
+});
+
+describe("changeUserRole — role escalation guard", () => {
+  it("throws when MANAGER tries to assign MANAGER", async () => {
+    await expect(
+      changeUserRole("user-x", Role.MANAGER, null, session({ role: Role.MANAGER }))
+    ).rejects.toThrow(AuthorizationError);
+    expect(db.user.findUnique).not.toHaveBeenCalled();
+  });
+
+  it("throws when ADMIN tries to assign ADMIN", async () => {
+    await expect(
+      changeUserRole("user-x", Role.ADMIN, null, session({ role: Role.ADMIN }))
+    ).rejects.toThrow(AuthorizationError);
+    expect(db.user.findUnique).not.toHaveBeenCalled();
+  });
+
+  it("allows ADMIN to assign MANAGER", async () => {
+    vi.mocked(db.user.findUnique).mockResolvedValue({
+      teamId: "team-a",
+      role: Role.SUPPORT,
+      requesterType: null,
+    } as never);
+    vi.mocked(db.user.update).mockResolvedValue({} as never);
+    await expect(
+      changeUserRole("user-x", Role.MANAGER, null, session({ role: Role.ADMIN }))
+    ).resolves.not.toThrow();
+  });
+});
+
+describe("changeUserRole — target rank guard", () => {
+  it("throws when MANAGER tries to demote an ADMIN", async () => {
+    vi.mocked(db.user.findUnique).mockResolvedValue({
+      teamId: "team-a",
+      role: Role.ADMIN,
+      requesterType: null,
+    } as never);
+    await expect(
+      changeUserRole("user-x", Role.SUPPORT, null, session({ role: Role.MANAGER }))
+    ).rejects.toThrow(AuthorizationError);
+    expect(db.user.update).not.toHaveBeenCalled();
+  });
+
+  it("throws when MANAGER tries to demote a MANAGER", async () => {
+    vi.mocked(db.user.findUnique).mockResolvedValue({
+      teamId: "team-a",
+      role: Role.MANAGER,
+      requesterType: null,
+    } as never);
+    await expect(
+      changeUserRole("user-x", Role.SUPPORT, null, session({ role: Role.MANAGER }))
+    ).rejects.toThrow(AuthorizationError);
+    expect(db.user.update).not.toHaveBeenCalled();
+  });
+
+  it("throws when ADMIN tries to modify another ADMIN", async () => {
+    vi.mocked(db.user.findUnique).mockResolvedValue({
+      teamId: "team-a",
+      role: Role.ADMIN,
+      requesterType: null,
+    } as never);
+    await expect(
+      changeUserRole("user-x", Role.MANAGER, null, session({ role: Role.ADMIN }))
+    ).rejects.toThrow(AuthorizationError);
+    expect(db.user.update).not.toHaveBeenCalled();
   });
 });
 
@@ -111,20 +177,58 @@ describe("changeUserRole — cross-team guard", () => {
       requesterType: null,
     } as never);
     const s = session({ teamId: "team-a" });
-    await expect(changeUserRole("user-x", Role.SUPPORT, s)).rejects.toThrow(AuthorizationError);
+    await expect(changeUserRole("user-x", Role.SUPPORT, null, s)).rejects.toThrow(AuthorizationError);
     expect(db.user.update).not.toHaveBeenCalled();
   });
 });
 
-describe("changeUserRole — success path", () => {
-  it("updates the user's role and clears requesterType for non-REQUESTER", async () => {
+describe("changeUserRole — promotion path", () => {
+  it("throws when promoting CUSTOMER requester directly to SUPPORT", async () => {
     vi.mocked(db.user.findUnique).mockResolvedValue({
       teamId: "team-a",
       role: Role.REQUESTER,
       requesterType: "CUSTOMER",
     } as never);
+    await expect(
+      changeUserRole("user-x", Role.SUPPORT, null, session())
+    ).rejects.toThrow(AuthorizationError);
+    expect(db.user.update).not.toHaveBeenCalled();
+  });
+
+  it("throws when promoting RECRUITER requester directly to SUPPORT", async () => {
+    vi.mocked(db.user.findUnique).mockResolvedValue({
+      teamId: "team-a",
+      role: Role.REQUESTER,
+      requesterType: "RECRUITER",
+    } as never);
+    await expect(
+      changeUserRole("user-x", Role.SUPPORT, null, session())
+    ).rejects.toThrow(AuthorizationError);
+    expect(db.user.update).not.toHaveBeenCalled();
+  });
+
+  it("allows FIELD_AGENT requester to be promoted to SUPPORT", async () => {
+    vi.mocked(db.user.findUnique).mockResolvedValue({
+      teamId: "team-a",
+      role: Role.REQUESTER,
+      requesterType: "FIELD_AGENT",
+    } as never);
     vi.mocked(db.user.update).mockResolvedValue({} as never);
-    await changeUserRole("user-x", Role.SUPPORT, session({ teamId: "team-a" }));
+    await expect(
+      changeUserRole("user-x", Role.SUPPORT, null, session())
+    ).resolves.not.toThrow();
+  });
+});
+
+describe("changeUserRole — success path", () => {
+  it("promotes FIELD_AGENT requester to SUPPORT and clears requesterType", async () => {
+    vi.mocked(db.user.findUnique).mockResolvedValue({
+      teamId: "team-a",
+      role: Role.REQUESTER,
+      requesterType: "FIELD_AGENT",
+    } as never);
+    vi.mocked(db.user.update).mockResolvedValue({} as never);
+    await changeUserRole("user-x", Role.SUPPORT, null, session({ teamId: "team-a" }));
     expect(db.user.update).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({ role: Role.SUPPORT, requesterType: null }),
@@ -132,14 +236,29 @@ describe("changeUserRole — success path", () => {
     );
   });
 
-  it("preserves requesterType (defaults CUSTOMER) when new role is REQUESTER", async () => {
+  it("uses explicit requesterType when changing requester type", async () => {
+    vi.mocked(db.user.findUnique).mockResolvedValue({
+      teamId: "team-a",
+      role: Role.REQUESTER,
+      requesterType: "CUSTOMER",
+    } as never);
+    vi.mocked(db.user.update).mockResolvedValue({} as never);
+    await changeUserRole("user-x", Role.REQUESTER, "FIELD_AGENT", session({ teamId: "team-a" }));
+    expect(db.user.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ role: Role.REQUESTER, requesterType: "FIELD_AGENT" }),
+      })
+    );
+  });
+
+  it("defaults requesterType to CUSTOMER when demoting to REQUESTER without explicit type", async () => {
     vi.mocked(db.user.findUnique).mockResolvedValue({
       teamId: "team-a",
       role: Role.SUPPORT,
       requesterType: null,
     } as never);
     vi.mocked(db.user.update).mockResolvedValue({} as never);
-    await changeUserRole("user-x", Role.REQUESTER, session({ teamId: "team-a" }));
+    await changeUserRole("user-x", Role.REQUESTER, null, session({ teamId: "team-a" }));
     expect(db.user.update).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({ role: Role.REQUESTER, requesterType: "CUSTOMER" }),
@@ -149,7 +268,7 @@ describe("changeUserRole — success path", () => {
 
   it("throws when target user is not found", async () => {
     vi.mocked(db.user.findUnique).mockResolvedValue(null);
-    await expect(changeUserRole("user-x", Role.SUPPORT, session())).rejects.toThrow(
+    await expect(changeUserRole("user-x", Role.SUPPORT, null, session())).rejects.toThrow(
       AuthorizationError
     );
   });
