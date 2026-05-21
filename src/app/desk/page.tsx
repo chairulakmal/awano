@@ -20,17 +20,26 @@ function getFilters(view: string, userId: string) {
 export default async function DeskPage({
   searchParams,
 }: {
-  searchParams: Promise<{ view?: string }>;
+  searchParams: Promise<{ view?: string; q?: string }>;
 }) {
-  const { view = "unassigned" } = await searchParams;
+  const { view = "unassigned", q } = await searchParams;
   const session = await auth();
   const payload = assertAuthenticated(session);
-  const { items, nextCursor } = await listDeskTickets(getFilters(view, payload.userId), payload);
+  const { items, nextCursor } = await listDeskTickets(
+    { ...getFilters(view, payload.userId), ...(q ? { q } : {}) },
+    payload
+  );
 
   return (
     <div>
       <h1 className="text-2xl font-semibold text-zinc-900 mb-6">Inbox</h1>
-      <DeskTicketList key={view} initialItems={items} initialCursor={nextCursor} view={view} />
+      <DeskTicketList
+        key={`${view}|${q ?? ""}`}
+        initialItems={items}
+        initialCursor={nextCursor}
+        view={view}
+        query={q}
+      />
     </div>
   );
 }

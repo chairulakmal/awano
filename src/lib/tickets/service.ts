@@ -30,6 +30,7 @@ const ListDeskSchema = z.object({
   assigneeId: z.union([z.string().cuid(), z.null()]).optional(), // null = unassigned filter
   cursor: z.string().optional(),
   limit: z.number().int().positive().max(100).default(25),
+  q: z.string().optional(),
 });
 
 // ---------------------------------------------------------------------------
@@ -67,12 +68,20 @@ export async function listMyTickets(input: unknown, session: SessionPayload) {
 
 export async function listDeskTickets(filters: unknown, session: SessionPayload) {
   assertRole(session, ["SUPPORT", "MANAGER", "ADMIN"]);
-  const { status, assigneeId, cursor, limit } = ListDeskSchema.parse(filters);
+  const { status, assigneeId, cursor, limit, q } = ListDeskSchema.parse(filters);
   const rows = await db.ticket.findMany({
     where: {
       teamId: session.teamId!,
       ...(status !== undefined ? { status } : {}),
       ...(assigneeId !== undefined ? { assigneeId } : {}),
+      ...(q
+        ? {
+            OR: [
+              { subject: { contains: q, mode: "insensitive" } },
+              { body: { contains: q, mode: "insensitive" } },
+            ],
+          }
+        : {}),
     },
     orderBy: { createdAt: "desc" },
     include: {

@@ -43,10 +43,12 @@ export function DeskTicketList({
   initialItems,
   initialCursor,
   view,
+  query,
 }: {
   initialItems: DeskTicket[];
   initialCursor: string | null;
   view: string;
+  query?: string;
 }) {
   const [items, setItems] = useState(initialItems);
   const [cursor, setCursor] = useState(initialCursor);
@@ -55,7 +57,7 @@ export function DeskTicketList({
   function handleLoadMore() {
     if (!cursor) return;
     startTransition(async () => {
-      const result = await loadMoreDeskTickets(cursor, view);
+      const result = await loadMoreDeskTickets(cursor, view, query);
       setItems((prev) => [...prev, ...result.items]);
       setCursor(result.nextCursor);
     });

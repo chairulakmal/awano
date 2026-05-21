@@ -5,9 +5,10 @@
 bare sign-out button. Password change security hardening complete (bcrypt cost 12, session
 invalidation, rate limiting, security headers). Login rate limiting complete (5 attempts / 15 min
 per email). Cursor-based pagination on both `listDeskTickets` and `listMyTickets` with client-side
-"Load more". Unit tests complete (164 passing). Playwright E2E suite: 5 specs. Auth.js
-URLSearchParams bug fixed. Deployed on Railway. Branch → PR → main workflow active; direct pushes to
-`main` blocked by GitHub ruleset branch protection.
+"Load more". Ticket search on `subject`/`body` via `ILIKE` with debounced sidebar input. Unit tests
+complete (166 passing). Playwright E2E suite: 7 specs. Auth.js URLSearchParams bug fixed. Deployed
+on Railway. Branch → PR → main workflow active; direct pushes to `main` blocked by GitHub ruleset
+branch protection.
 
 ---
 
@@ -187,8 +188,8 @@ Triggered by a dedicated security review of the password change flow. Six findin
 
 ### Cursor-based pagination — 2026-05-21
 
-- [x] `src/lib/tickets/service.ts` — replaced offset `page`/`pageSize` with `cursor`/`limit` in
-      both `listDeskTickets` and `listMyTickets`; both now return `{ items, nextCursor }`; fetches
+- [x] `src/lib/tickets/service.ts` — replaced offset `page`/`pageSize` with `cursor`/`limit` in both
+      `listDeskTickets` and `listMyTickets`; both now return `{ items, nextCursor }`; fetches
       `limit + 1` rows — if the extra row is present, slices to `limit` and sets `nextCursor` to the
       last item's `id`; offset-based `skip`/`take` removed to avoid stale-page issues on concurrent
       inserts/deletes
@@ -203,7 +204,29 @@ Triggered by a dedicated security review of the password change flow. Six findin
 - [x] `src/app/tickets/TicketList.tsx` — same client component pattern for the requester list
 - [x] `src/app/tickets/page.tsx` — updated to use new `listMyTickets` signature and `TicketList`
 - [x] `src/lib/tickets/service.test.ts` — 6 new tests covering `nextCursor: null` for short result
-      sets, cursor slicing to `limit`, and `cursor`/`skip:1` passthrough to `findMany`; total now 164
+      sets, cursor slicing to `limit`, and `cursor`/`skip:1` passthrough to `findMany`; total now
+      164
+
+### Ticket search — 2026-05-21
+
+- [x] `src/lib/tickets/service.ts` — `q` param added to `ListDeskSchema`; `OR: [{ subject ILIKE },
+      { body ILIKE }]` filter spread into `where` only when `q` is present; always scoped to
+      `teamId`
+- [x] `src/app/desk/actions.ts` — `loadMoreDeskTickets` accepts optional `query` param and forwards
+      it as `q` so subsequent cursor pages respect the active search
+- [x] `src/app/desk/DeskTicketList.tsx` — accepts `query` prop; passes it to `loadMoreDeskTickets`
+      on "Load more"
+- [x] `src/app/desk/page.tsx` — reads `q` from `searchParams`; passes to service and
+      `DeskTicketList`; `key` now includes `q` so the list resets when search changes
+- [x] `src/components/DeskSidebar.tsx` — uncontrolled search input; 300 ms debounce via `useRef`
+      timer; `router.push` updates URL with `?q=`; `key={currentQ}` on the input resets it when the
+      committed URL query changes; nav links preserve `q` across view switches
+- [x] `src/lib/tickets/service.test.ts` — 2 new tests: OR filter present when `q` given; OR filter
+      absent when `q` absent; total now 166
+- [x] `e2e/search.spec.ts` — 2 tests: nonsense query shows "No tickets here"; clearing input
+      restores results; total E2E specs now 7
+- [x] `.gitignore` — added `/playwright-report` and `/test-results` (build artifacts; not for the
+      repo)
 
 ---
 
@@ -222,7 +245,7 @@ Ordered by urgency and value. XS/S/M is rough engineering effort.
 | ~~3~~ | ~~**Profile / settings page**~~    | ~~Missing user-facing feature; required for password changes~~  | ~~S~~  |
 | ~~4~~ | ~~**Login rate limiting**~~        | ~~Brute-force protection on the credentials endpoint~~          | ~~S~~  |
 | ~~5~~ | ~~**Cursor-based pagination**~~    | ~~Ticket lists currently load unbounded rows~~                  | ~~M~~  |
-| 6     | **Ticket search**                  | No way to find a ticket without scrolling the full list         | M      |
+| ~~6~~ | ~~**Ticket search**~~              | ~~No way to find a ticket without scrolling the full list~~     | ~~M~~  |
 | 7     | **File attachments (bytea)**       | Requesters can't share screenshots or documents with support    | M      |
 
 ### Detail

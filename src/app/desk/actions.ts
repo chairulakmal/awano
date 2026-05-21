@@ -18,8 +18,11 @@ function viewToFilters(view: string, userId: string) {
   }
 }
 
-export async function loadMoreDeskTickets(cursor: string, view: string) {
+export async function loadMoreDeskTickets(cursor: string, view: string, query?: string) {
   const session = await auth();
   const payload = assertAuthenticated(session);
-  return listDeskTickets({ ...viewToFilters(view, payload.userId), cursor }, payload);
+  return listDeskTickets(
+    { ...viewToFilters(view, payload.userId), cursor, ...(query ? { q: query } : {}) },
+    payload
+  );
 }
