@@ -8,7 +8,7 @@ and an immutable audit trail on every status change.
 &nbsp;
 ![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript&logoColor=white)
 &nbsp; ![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=next.js&logoColor=white) &nbsp;
-![Tests](https://img.shields.io/badge/unit_tests-158_passing-22c55e)
+![Tests](https://img.shields.io/badge/unit_tests-164_passing-22c55e)
 
 ---
 
@@ -80,6 +80,12 @@ technically valid. Rather than adding a `passwordChangedAt` column and checking 
 the client calls `signOut({ callbackUrl: "/login" })` from `next-auth/react` after the success flash
 — clearing the `httpOnly` cookie with no schema migration needed.
 
+**Cursor-based pagination with client-side "Load more".** Ticket lists fetch `limit + 1` rows; if
+the extra row exists there are more pages and `nextCursor` is set to the last returned id. The desk
+page is a Server Component that renders the first page; a `DeskTicketList` client component appends
+subsequent pages to local state via a `loadMoreDeskTickets` server action. Offset-based `skip` is
+avoided because it produces incorrect results when rows are inserted or deleted between pages.
+
 **Client/server component boundary in the header.** The `Header` component calls `auth()` and
 renders entirely on the server with no client JS. Interactive parts (dropdown state, keyboard and
 pointer handlers) are isolated in a `UserMenu` client component that receives only `name`, `email`,
@@ -148,7 +154,7 @@ Coverage: FSM transitions, all authorization assertion paths, and every service 
 users, categories, admin metrics).
 
 ```bash
-npm test                # 158 unit tests
+npm test                # 164 unit tests
 npm run test:watch      # Re-run on file change
 npm run test:coverage   # V8 coverage report
 npx playwright test     # E2E (requires dev server or Railway URL)

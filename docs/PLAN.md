@@ -4,7 +4,8 @@
 `/profile` (password change only; name/email admin-managed). `UserMenu` dropdown in header replaces
 bare sign-out button. Password change security hardening complete (bcrypt cost 12, session
 invalidation, rate limiting, security headers). Login rate limiting complete (5 attempts / 15 min
-per email). Unit tests complete (158 passing). Playwright E2E suite: 5 specs. Auth.js
+per email). Cursor-based pagination on both `listDeskTickets` and `listMyTickets` with client-side
+"Load more". Unit tests complete (164 passing). Playwright E2E suite: 5 specs. Auth.js
 URLSearchParams bug fixed. Deployed on Railway. Branch → PR → main workflow active; direct pushes to
 `main` blocked by GitHub ruleset branch protection.
 
@@ -184,6 +185,26 @@ Triggered by a dedicated security review of the password change flow. Six findin
       email (no real account locked); verifies the final response is the rate-limit message; handles
       re-runs within the same window gracefully
 
+### Cursor-based pagination — 2026-05-21
+
+- [x] `src/lib/tickets/service.ts` — replaced offset `page`/`pageSize` with `cursor`/`limit` in
+      both `listDeskTickets` and `listMyTickets`; both now return `{ items, nextCursor }`; fetches
+      `limit + 1` rows — if the extra row is present, slices to `limit` and sets `nextCursor` to the
+      last item's `id`; offset-based `skip`/`take` removed to avoid stale-page issues on concurrent
+      inserts/deletes
+- [x] `src/app/desk/actions.ts` — `loadMoreDeskTickets` server action; re-derives session and
+      `viewToFilters` on each call so the cursor fetch is as authorised as the initial render
+- [x] `src/app/desk/DeskTicketList.tsx` — client component; receives `initialItems`/`initialCursor`
+      from the server component; appends pages to local state on "Load more"; resets on view change
+      via `key={view}`
+- [x] `src/app/desk/page.tsx` — simplified to fetch first page and pass `items`/`nextCursor`/`view`
+      to `DeskTicketList`
+- [x] `src/app/tickets/actions.ts` — `loadMoreMyTickets` server action
+- [x] `src/app/tickets/TicketList.tsx` — same client component pattern for the requester list
+- [x] `src/app/tickets/page.tsx` — updated to use new `listMyTickets` signature and `TicketList`
+- [x] `src/lib/tickets/service.test.ts` — 6 new tests covering `nextCursor: null` for short result
+      sets, cursor slicing to `limit`, and `cursor`/`skip:1` passthrough to `findMany`; total now 164
+
 ---
 
 ## What to build next
@@ -200,7 +221,7 @@ Ordered by urgency and value. XS/S/M is rough engineering effort.
 | ~~2~~ | ~~**GitHub Actions CI pipeline**~~ | ~~Catch regressions on every push, not just at deploy time~~    | ~~S~~  |
 | ~~3~~ | ~~**Profile / settings page**~~    | ~~Missing user-facing feature; required for password changes~~  | ~~S~~  |
 | ~~4~~ | ~~**Login rate limiting**~~        | ~~Brute-force protection on the credentials endpoint~~          | ~~S~~  |
-| 5     | **Cursor-based pagination**        | Ticket lists currently load unbounded rows                      | M      |
+| ~~5~~ | ~~**Cursor-based pagination**~~    | ~~Ticket lists currently load unbounded rows~~                  | ~~M~~  |
 | 6     | **Ticket search**                  | No way to find a ticket without scrolling the full list         | M      |
 | 7     | **File attachments (bytea)**       | Requesters can't share screenshots or documents with support    | M      |
 
