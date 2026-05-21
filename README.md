@@ -119,16 +119,17 @@ Route guards are enforced in `src/proxy.ts` (Next.js 16's replacement for `middl
 
 The multi-tenant boundary is enforced in the service layer, not the UI.
 
-| Property                                | Implementation                                                                                                                                                |
-| --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Cross-tenant isolation**              | Every tenant-scoped query includes `teamId` in the `WHERE` clause. `assertSameTeam()` is called on any fetch-by-ID path as a second check.                    |
-| **Session is the authority**            | On every mutation, `teamId`, `userId`, and `role` come from the server-side JWT — never from `FormData` or the request body.                                  |
-| **Input validation**                    | Zod schemas at every server action boundary. Enums are validated with `z.nativeEnum()` so invalid status/priority values are rejected before reaching the DB. |
-| **Internal comments**                   | The service layer strips `isInternal: true` comments from any response to a `REQUESTER` session — the UI cannot opt out of this.                              |
-| **Route guards**                        | `src/proxy.ts` enforces role minimums at the edge: `/desk/*` → Support+, `/admin/*` → Manager+, `/super/*` → Super only.                                      |
-| **Session eviction on password change** | `signOut({ callbackUrl: "/login" })` called client-side after a successful password change — clears the `httpOnly` cookie immediately.                        |
-| **Password change rate limiting**       | In-process sliding-window counter: 5 attempts per 15-minute window keyed on `userId`. Blocks before bcrypt work begins. Reset on success.                     |
-| **Security headers**                    | `Strict-Transport-Security`, `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy` applied to all responses via `next.config.ts`.     |
+| Property                                | Implementation                                                                                                                                                          |
+| --------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Cross-tenant isolation**              | Every tenant-scoped query includes `teamId` in the `WHERE` clause. `assertSameTeam()` is called on any fetch-by-ID path as a second check.                              |
+| **Session is the authority**            | On every mutation, `teamId`, `userId`, and `role` come from the server-side JWT — never from `FormData` or the request body.                                            |
+| **Input validation**                    | Zod schemas at every server action boundary. Enums are validated with `z.nativeEnum()` so invalid status/priority values are rejected before reaching the DB.           |
+| **Internal comments**                   | The service layer strips `isInternal: true` comments from any response to a `REQUESTER` session — the UI cannot opt out of this.                                        |
+| **Route guards**                        | `src/proxy.ts` enforces role minimums at the edge: `/desk/*` → Support+, `/admin/*` → Manager+, `/super/*` → Super only.                                                |
+| **Session eviction on password change** | `signOut({ callbackUrl: "/login" })` called client-side after a successful password change — clears the `httpOnly` cookie immediately.                                  |
+| **Login rate limiting**                 | In-process sliding-window counter: 5 attempts per 15-minute window keyed on email address. Blocks before `signIn()` is called — bcrypt never runs on a blocked request. |
+| **Password change rate limiting**       | Same pattern, keyed on `userId`. Blocks before bcrypt work begins. Reset on success.                                                                                    |
+| **Security headers**                    | `Strict-Transport-Security`, `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy` applied to all responses via `next.config.ts`.               |
 
 A self-audit found one defence-in-depth gap: the top-assignees query in `getDashboardMetrics`
 fetched users by ID without an explicit `teamId` filter (safe in practice because the IDs came from

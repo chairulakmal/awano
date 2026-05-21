@@ -82,10 +82,60 @@ describe("createTicket — role guard", () => {
 
 describe("listMyTickets — role guard", () => {
   it("throws when called by SUPPORT", async () => {
-    await expect(listMyTickets(session({ role: Role.SUPPORT }))).rejects.toThrow(
+    await expect(listMyTickets({}, session({ role: Role.SUPPORT }))).rejects.toThrow(
       AuthorizationError
     );
     expect(db.ticket.findMany).not.toHaveBeenCalled();
+  });
+});
+
+describe("listMyTickets — cursor pagination", () => {
+  it("returns { items, nextCursor: null } when fewer than limit rows returned", async () => {
+    vi.mocked(db.ticket.findMany).mockResolvedValue([dbTicket()] as never);
+    const result = await listMyTickets({}, session({ role: Role.REQUESTER }));
+    expect(result.nextCursor).toBeNull();
+    expect(result.items).toHaveLength(1);
+  });
+
+  it("returns nextCursor and slices to limit when limit+1 rows returned", async () => {
+    const rows = Array.from({ length: 26 }, (_, i) => dbTicket({ id: `t-${i}` }));
+    vi.mocked(db.ticket.findMany).mockResolvedValue(rows as never);
+    const result = await listMyTickets({ limit: 25 }, session({ role: Role.REQUESTER }));
+    expect(result.items).toHaveLength(25);
+    expect(result.nextCursor).toBe("t-24");
+  });
+
+  it("passes cursor and skip:1 to findMany when cursor provided", async () => {
+    vi.mocked(db.ticket.findMany).mockResolvedValue([dbTicket()] as never);
+    await listMyTickets({ cursor: "ticket-1" }, session({ role: Role.REQUESTER }));
+    expect(db.ticket.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ cursor: { id: "ticket-1" }, skip: 1 })
+    );
+  });
+});
+
+describe("listDeskTickets — cursor pagination", () => {
+  it("returns { items, nextCursor: null } when fewer than limit rows returned", async () => {
+    vi.mocked(db.ticket.findMany).mockResolvedValue([dbTicket()] as never);
+    const result = await listDeskTickets({}, session());
+    expect(result.nextCursor).toBeNull();
+    expect(result.items).toHaveLength(1);
+  });
+
+  it("returns nextCursor and slices to limit when limit+1 rows returned", async () => {
+    const rows = Array.from({ length: 26 }, (_, i) => dbTicket({ id: `t-${i}` }));
+    vi.mocked(db.ticket.findMany).mockResolvedValue(rows as never);
+    const result = await listDeskTickets({ limit: 25 }, session());
+    expect(result.items).toHaveLength(25);
+    expect(result.nextCursor).toBe("t-24");
+  });
+
+  it("passes cursor and skip:1 to findMany when cursor provided", async () => {
+    vi.mocked(db.ticket.findMany).mockResolvedValue([dbTicket()] as never);
+    await listDeskTickets({ cursor: "ticket-1" }, session());
+    expect(db.ticket.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ cursor: { id: "ticket-1" }, skip: 1 })
+    );
   });
 });
 
