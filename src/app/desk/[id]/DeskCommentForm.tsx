@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useRef, useEffect, useState, useTransition } from "react";
+import { useActionState, useRef, useEffect, useTransition } from "react";
 import { postDeskCommentAction } from "./actions";
 import { FilePicker } from "@/components/FilePicker";
 
@@ -8,19 +8,16 @@ export function DeskCommentForm({ ticketId }: { ticketId: string }) {
   const [error, formAction, pending] = useActionState(postDeskCommentAction, null);
   const [, startTransition] = useTransition();
   const ref = useRef<HTMLFormElement>(null);
-  const [pendingFiles, setPendingFiles] = useState<File[]>([]);
+  const pendingFiles = useRef<File[]>([]);
 
   useEffect(() => {
-    if (!pending && !error) {
-      ref.current?.reset();
-      setPendingFiles([]);
-    }
+    if (!pending && !error) ref.current?.reset(); // FilePicker clears itself via form reset event
   }, [pending, error]);
 
   async function handleSubmit(e: React.SyntheticEvent<HTMLFormElement>) {
     e.preventDefault();
     const fd = new FormData(e.currentTarget);
-    for (const file of pendingFiles) {
+    for (const file of pendingFiles.current) {
       fd.append("attachments", file, file.name);
     }
     startTransition(() => formAction(fd));
@@ -36,7 +33,11 @@ export function DeskCommentForm({ ticketId }: { ticketId: string }) {
         placeholder="Write a reply or internal note…"
         className="w-full rounded-lg ring-input px-3.5 py-2.5 text-sm text-zinc-900 placeholder:text-zinc-400 outline-none transition resize-none"
       />
-      <FilePicker onFiles={setPendingFiles} />
+      <FilePicker
+        onFiles={(files) => {
+          pendingFiles.current = files;
+        }}
+      />
       {error && (
         <p className="rounded-lg bg-red-50 border border-red-100 px-3.5 py-2.5 text-sm text-red-600">
           {error}

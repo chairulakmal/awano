@@ -31,11 +31,7 @@ export function AttachmentList({ attachments }: { attachments: Attachment[] }) {
               title={a.filename}
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={url}
-                alt={a.filename}
-                className="h-24 w-auto max-w-[160px] object-cover"
-              />
+              <img src={url} alt={a.filename} className="h-24 w-auto max-w-[160px] object-cover" />
             </a>
           );
         }

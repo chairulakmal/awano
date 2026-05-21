@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useRef, useState, useTransition } from "react";
+import { useActionState, useRef, useTransition } from "react";
 import { createTicketAction } from "./actions";
 import { FilePicker } from "@/components/FilePicker";
 
@@ -10,12 +10,12 @@ export function NewTicketForm({ categories }: { categories: Category[] }) {
   const [error, formAction, pending] = useActionState(createTicketAction, null);
   const [, startTransition] = useTransition();
   const formRef = useRef<HTMLFormElement>(null);
-  const [pendingFiles, setPendingFiles] = useState<File[]>([]);
+  const pendingFiles = useRef<File[]>([]);
 
   async function handleSubmit(e: React.SyntheticEvent<HTMLFormElement>) {
     e.preventDefault();
     const fd = new FormData(e.currentTarget);
-    for (const file of pendingFiles) {
+    for (const file of pendingFiles.current) {
       fd.append("attachments", file, file.name);
     }
     startTransition(() => formAction(fd));
@@ -77,7 +77,11 @@ export function NewTicketForm({ categories }: { categories: Category[] }) {
       <div className="flex flex-col gap-1.5">
         <span className="text-sm font-medium text-zinc-700">Attachments</span>
         <p className="text-xs text-zinc-400">PNG, JPG up to 2 MB · PDF up to 1 MB</p>
-        <FilePicker onFiles={setPendingFiles} />
+        <FilePicker
+          onFiles={(files) => {
+            pendingFiles.current = files;
+          }}
+        />
       </div>
 
       {error && (

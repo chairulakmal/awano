@@ -1,10 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { ACCEPT_ATTR, validateFile, compressImage } from "@/lib/attachments/compress";
 
 type Props = {
-  /** Called with the processed (compressed) files, or null to clear */
   onFiles: (files: File[]) => void;
 };
 
@@ -12,6 +11,20 @@ export function FilePicker({ onFiles }: Props) {
   const [names, setNames] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [processing, setProcessing] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  // Clear display state when the parent <form> fires its reset event so
+  // the parent's useEffect only needs to call form.reset() — no setState needed there.
+  useEffect(() => {
+    const form = inputRef.current?.form;
+    if (!form) return;
+    const handleReset = () => {
+      setNames([]);
+      setError(null);
+    };
+    form.addEventListener("reset", handleReset);
+    return () => form.removeEventListener("reset", handleReset);
+  }, []);
 
   async function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     setError(null);
@@ -70,6 +83,7 @@ export function FilePicker({ onFiles }: Props) {
         </svg>
         {processing ? "Processing…" : names.length > 0 ? names.join(", ") : "Attach files"}
         <input
+          ref={inputRef}
           type="file"
           accept={ACCEPT_ATTR}
           multiple
@@ -80,7 +94,9 @@ export function FilePicker({ onFiles }: Props) {
       </label>
       {error && <p className="text-xs text-red-600">{error}</p>}
       {!error && names.length > 0 && (
-        <p className="text-xs text-zinc-400">{names.length} file{names.length > 1 ? "s" : ""} ready</p>
+        <p className="text-xs text-zinc-400">
+          {names.length} file{names.length > 1 ? "s" : ""} ready
+        </p>
       )}
     </div>
   );

@@ -2,10 +2,7 @@ import { auth } from "@/auth";
 import { assertAuthenticated, AuthorizationError } from "@/lib/auth/assertions";
 import { getAttachment } from "@/lib/attachments/service";
 
-export async function GET(
-  _req: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const session = await auth();
 

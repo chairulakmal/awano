@@ -184,8 +184,8 @@ as `bytea` in a new `Attachment` model (ticketId, filename, mimeType, sizeBytes,
 ticket creation form and the comment form; render thumbnails for images in the thread view. Revisit
 with Cloudflare R2 if per-ticket storage cost becomes significant.
 
-**Required config:** set `serverActions.bodySizeLimit: '3mb'` in `next.config` before implementing
-— the default 1 MB limit silently rejects multipart uploads before the action runs.
+**Required config:** set `serverActions.bodySizeLimit: '3mb'` in `next.config` before implementing —
+the default 1 MB limit silently rejects multipart uploads before the action runs.
 
 ---
 

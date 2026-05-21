@@ -24,6 +24,10 @@ function session(overrides: Partial<SessionPayload> = {}): SessionPayload {
   return { userId: "user-1", teamId: "team-a", role: Role.SUPPORT, ...overrides };
 }
 
+// Prisma mock return values are partial stubs — cast to silence strict type checking.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const stub = (value: unknown) => value as any;
+
 const TEAM_A_TICKET = { teamId: "team-a", createdById: "user-1" };
 const TEAM_B_TICKET = { teamId: "team-b", createdById: "user-9" };
 
@@ -50,34 +54,29 @@ beforeEach(() => {
 
 describe("addAttachment — size guard", () => {
   it("throws when file exceeds 1 MB", async () => {
-    vi.mocked(db.ticket.findUnique).mockResolvedValue(TEAM_A_TICKET);
+    vi.mocked(db.ticket.findUnique).mockResolvedValue(stub(TEAM_A_TICKET));
 
-    await expect(
-      addAttachment(attachmentInput({ data: BIG_FILE }), session())
-    ).rejects.toThrow("1 MB");
+    await expect(addAttachment(attachmentInput({ data: BIG_FILE }), session())).rejects.toThrow(
+      "1 MB"
+    );
 
     expect(db.attachment.create).not.toHaveBeenCalled();
   });
 
-  it("accepts a file at the limit boundary (under 1 MB)", async () => {
-    vi.mocked(db.ticket.findUnique).mockResolvedValue(TEAM_A_TICKET);
-    vi.mocked(db.attachment.create).mockResolvedValue({ id: "att-1" });
+  it("accepts a file under 1 MB", async () => {
+    vi.mocked(db.ticket.findUnique).mockResolvedValue(stub(TEAM_A_TICKET));
+    vi.mocked(db.attachment.create).mockResolvedValue(stub({ id: "att-1" }));
 
-    await expect(
-      addAttachment(attachmentInput(), session())
-    ).resolves.not.toThrow();
-
+    await expect(addAttachment(attachmentInput(), session())).resolves.not.toThrow();
     expect(db.attachment.create).toHaveBeenCalledOnce();
   });
 });
 
 describe("addAttachment — ticket not found", () => {
   it("throws AuthorizationError when ticket does not exist", async () => {
-    vi.mocked(db.ticket.findUnique).mockResolvedValue(null);
+    vi.mocked(db.ticket.findUnique).mockResolvedValue(stub(null));
 
-    await expect(
-      addAttachment(attachmentInput(), session())
-    ).rejects.toThrow(AuthorizationError);
+    await expect(addAttachment(attachmentInput(), session())).rejects.toThrow(AuthorizationError);
 
     expect(db.attachment.create).not.toHaveBeenCalled();
   });
@@ -85,18 +84,18 @@ describe("addAttachment — ticket not found", () => {
 
 describe("addAttachment — cross-team isolation", () => {
   it("throws when session team does not match ticket team", async () => {
-    vi.mocked(db.ticket.findUnique).mockResolvedValue(TEAM_B_TICKET);
+    vi.mocked(db.ticket.findUnique).mockResolvedValue(stub(TEAM_B_TICKET));
 
-    await expect(
-      addAttachment(attachmentInput(), session({ teamId: "team-a" }))
-    ).rejects.toThrow(AuthorizationError);
+    await expect(addAttachment(attachmentInput(), session({ teamId: "team-a" }))).rejects.toThrow(
+      AuthorizationError
+    );
 
     expect(db.attachment.create).not.toHaveBeenCalled();
   });
 
   it("allows SUPER to attach to any team's ticket", async () => {
-    vi.mocked(db.ticket.findUnique).mockResolvedValue(TEAM_B_TICKET);
-    vi.mocked(db.attachment.create).mockResolvedValue({ id: "att-2" });
+    vi.mocked(db.ticket.findUnique).mockResolvedValue(stub(TEAM_B_TICKET));
+    vi.mocked(db.attachment.create).mockResolvedValue(stub({ id: "att-2" }));
 
     await expect(
       addAttachment(attachmentInput(), session({ role: Role.SUPER, teamId: null }))
@@ -106,13 +105,10 @@ describe("addAttachment — cross-team isolation", () => {
 
 describe("addAttachment — persists correct fields", () => {
   it("writes filename, mimeType, sizeBytes, and data to DB", async () => {
-    vi.mocked(db.ticket.findUnique).mockResolvedValue(TEAM_A_TICKET);
-    vi.mocked(db.attachment.create).mockResolvedValue({ id: "att-3" });
+    vi.mocked(db.ticket.findUnique).mockResolvedValue(stub(TEAM_A_TICKET));
+    vi.mocked(db.attachment.create).mockResolvedValue(stub({ id: "att-3" }));
 
-    await addAttachment(
-      attachmentInput({ commentId: "comment-1" }),
-      session()
-    );
+    await addAttachment(attachmentInput({ commentId: "comment-1" }), session());
 
     expect(db.attachment.create).toHaveBeenCalledWith({
       data: {
@@ -127,8 +123,8 @@ describe("addAttachment — persists correct fields", () => {
   });
 
   it("omits commentId when not provided (ticket-level attachment)", async () => {
-    vi.mocked(db.ticket.findUnique).mockResolvedValue(TEAM_A_TICKET);
-    vi.mocked(db.attachment.create).mockResolvedValue({ id: "att-4" });
+    vi.mocked(db.ticket.findUnique).mockResolvedValue(stub(TEAM_A_TICKET));
+    vi.mocked(db.attachment.create).mockResolvedValue(stub({ id: "att-4" }));
 
     await addAttachment(attachmentInput(), session());
 
@@ -143,50 +139,43 @@ describe("addAttachment — persists correct fields", () => {
 
 describe("getAttachment — not found", () => {
   it("throws AuthorizationError when attachment does not exist", async () => {
-    vi.mocked(db.attachment.findUnique).mockResolvedValue(null);
+    vi.mocked(db.attachment.findUnique).mockResolvedValue(stub(null));
 
-    await expect(getAttachment("att-missing", session())).rejects.toThrow(
-      AuthorizationError
-    );
+    await expect(getAttachment("att-missing", session())).rejects.toThrow(AuthorizationError);
   });
 });
 
 describe("getAttachment — cross-team isolation", () => {
   it("throws when session team does not match the attachment's ticket team", async () => {
-    vi.mocked(db.attachment.findUnique).mockResolvedValue({
-      id: "att-5",
-      ticket: TEAM_B_TICKET,
-    });
+    vi.mocked(db.attachment.findUnique).mockResolvedValue(
+      stub({ id: "att-5", ticket: TEAM_B_TICKET })
+    );
 
-    await expect(
-      getAttachment("att-5", session({ teamId: "team-a" }))
-    ).rejects.toThrow(AuthorizationError);
+    await expect(getAttachment("att-5", session({ teamId: "team-a" }))).rejects.toThrow(
+      AuthorizationError
+    );
   });
 
   it("returns attachment when teams match", async () => {
     const attachment = { id: "att-6", ticket: TEAM_A_TICKET };
-    vi.mocked(db.attachment.findUnique).mockResolvedValue(attachment);
+    vi.mocked(db.attachment.findUnique).mockResolvedValue(stub(attachment));
 
     await expect(getAttachment("att-6", session())).resolves.toEqual(attachment);
   });
 
   it("REQUESTER can fetch their own ticket's attachment", async () => {
-    const attachment = {
-      id: "att-7",
-      ticket: { teamId: "team-a", createdById: "user-1" },
-    };
-    vi.mocked(db.attachment.findUnique).mockResolvedValue(attachment);
+    const attachment = { id: "att-7", ticket: { teamId: "team-a", createdById: "user-1" } };
+    vi.mocked(db.attachment.findUnique).mockResolvedValue(stub(attachment));
 
-    await expect(
-      getAttachment("att-7", session({ role: Role.REQUESTER }))
-    ).resolves.toEqual(attachment);
+    await expect(getAttachment("att-7", session({ role: Role.REQUESTER }))).resolves.toEqual(
+      attachment
+    );
   });
 
   it("REQUESTER cannot fetch another requester's ticket attachment", async () => {
-    vi.mocked(db.attachment.findUnique).mockResolvedValue({
-      id: "att-8",
-      ticket: { teamId: "team-a", createdById: "user-other" },
-    });
+    vi.mocked(db.attachment.findUnique).mockResolvedValue(
+      stub({ id: "att-8", ticket: { teamId: "team-a", createdById: "user-other" } })
+    );
 
     await expect(
       getAttachment("att-8", session({ role: Role.REQUESTER, userId: "user-1" }))

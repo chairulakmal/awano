@@ -77,8 +77,8 @@ Auth.js v5 Credentials provider. Session payload: `userId`, `teamId`, `role`, `r
 Next.js 16 renamed `middleware.ts` → `proxy.ts`. Do **not** create `middleware.ts` — it is ignored.
 
 - The exported function must be named `proxy` (not `middleware`).
-- Use the `NextProxy` type for the function signature, or import `NextRequest` / `NextResponse`
-  from `next/server` as before.
+- Use the `NextProxy` type for the function signature, or import `NextRequest` / `NextResponse` from
+  `next/server` as before.
 - A `config.matcher` array still controls which paths the proxy runs on.
 - Proxy runs in the **Node.js runtime** by default (not Edge) in v16.
 
