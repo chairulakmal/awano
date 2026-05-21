@@ -1,14 +1,5 @@
-import { test, expect, type Page } from "@playwright/test";
-
-const PASSWORD = "oretachinomachida";
-
-async function login(page: Page, email: string, team: string) {
-  await page.goto(`/login?team=${team}`);
-  await page.fill('input[name="email"]', email);
-  await page.fill('input[name="password"]', PASSWORD);
-  await page.getByRole("button", { name: "Sign in" }).click();
-  await expect(page.getByRole("button", { name: /sign out/i })).toBeVisible({ timeout: 15_000 });
-}
+import { test, expect } from "@playwright/test";
+import { login } from "./helpers";
 
 test.describe("Cross-team isolation", () => {
   test("Team B support cannot view Team A ticket", async ({ page }) => {
@@ -26,7 +17,7 @@ test.describe("Cross-team isolation", () => {
     // No redirect to login — this is an isolation failure, not an auth failure
     expect(page.url()).not.toContain("/login");
 
-    // The Team A ticket subject is not rendered
-    await expect(page.getByText("Cannot log in to my account")).not.toBeVisible();
+    // The Team A ticket subject is not rendered anywhere on the page
+    await expect(page.getByText("在留カード renewal — expires in 12 days")).not.toBeVisible();
   });
 });
