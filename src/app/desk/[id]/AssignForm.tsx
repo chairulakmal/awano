@@ -9,12 +9,25 @@ export function AssignForm({
   ticketId,
   currentAssigneeId,
   members,
+  canEdit,
 }: {
   ticketId: string;
   currentAssigneeId: string | null;
   members: Member[];
+  canEdit: boolean;
 }) {
   const [error, formAction, pending] = useActionState(assignTicketAction, null);
+
+  const currentMember = members.find((m) => m.id === currentAssigneeId);
+
+  if (!canEdit) {
+    return (
+      <div className="space-y-3">
+        <span className="text-xs font-medium text-zinc-500 uppercase tracking-wide">Assignee</span>
+        <p className="text-sm text-zinc-700">{currentMember ? (currentMember.name ?? currentMember.email) : "Unassigned"}</p>
+      </div>
+    );
+  }
 
   return (
     <form key={currentAssigneeId} action={formAction} className="space-y-3">
