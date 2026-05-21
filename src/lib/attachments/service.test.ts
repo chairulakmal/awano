@@ -52,6 +52,35 @@ beforeEach(() => {
 // addAttachment
 // ---------------------------------------------------------------------------
 
+describe("addAttachment — MIME type guard", () => {
+  it("throws when mimeType is not in the allowlist", async () => {
+    await expect(
+      addAttachment(attachmentInput({ mimeType: "text/html" }), session())
+    ).rejects.toThrow("Unsupported file type.");
+
+    expect(db.ticket.findUnique).not.toHaveBeenCalled();
+    expect(db.attachment.create).not.toHaveBeenCalled();
+  });
+
+  it("throws for application/octet-stream", async () => {
+    await expect(
+      addAttachment(attachmentInput({ mimeType: "application/octet-stream" }), session())
+    ).rejects.toThrow("Unsupported file type.");
+  });
+
+  it("accepts image/jpeg, image/png, image/webp, application/pdf", async () => {
+    vi.mocked(db.ticket.findUnique).mockResolvedValue(stub(TEAM_A_TICKET));
+    vi.mocked(db.attachment.create).mockResolvedValue(stub({ id: "att-0" }));
+
+    for (const mimeType of ["image/jpeg", "image/png", "image/webp", "application/pdf"]) {
+      vi.clearAllMocks();
+      vi.mocked(db.ticket.findUnique).mockResolvedValue(stub(TEAM_A_TICKET));
+      vi.mocked(db.attachment.create).mockResolvedValue(stub({ id: "att-0" }));
+      await expect(addAttachment(attachmentInput({ mimeType }), session())).resolves.not.toThrow();
+    }
+  });
+});
+
 describe("addAttachment — size guard", () => {
   it("throws when file exceeds 1 MB", async () => {
     vi.mocked(db.ticket.findUnique).mockResolvedValue(stub(TEAM_A_TICKET));

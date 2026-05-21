@@ -69,6 +69,7 @@ Category   (id, teamId, name, slug, createdAt)
 Ticket     (id, teamId, createdById, assigneeId?, categoryId, subject, body, status, priority, createdAt, updatedAt)
 Comment    (id, ticketId, authorId, body, isInternal, createdAt)
 StatusEvent(id, ticketId, actorId, fromStatus?, toStatus, note?, createdAt)
+Attachment (id, ticketId, commentId?, filename, mimeType, sizeBytes, data Bytes, createdAt)
 ```
 
 **Constraints**
@@ -236,6 +237,7 @@ All queries are team-scoped. Page is a Server Component.
 | Optimistic UI        | Status transitions in `/desk/[id]` use `useOptimistic`                                                                                                   |
 | Pagination           | Cursor-based (`cursor` + `limit`); `listDeskTickets` and `listMyTickets` return `{ items, nextCursor }`; default page size 25; max 100                   |
 | File uploads         | `serverActions.bodySizeLimit: '3mb'` in `next.config` — default 1 MB silently rejects multipart uploads before the action runs (Next.js 16)              |
+| Attachment MIME      | Server-side allowlist `{ image/jpeg, image/png, image/webp, application/pdf }` in `addAttachment` — prevents XSS via stored MIME type on the attachment serve route |
 
 ---
 
@@ -336,6 +338,7 @@ Login: `/login?team=demo`. Demo password documented in `README.md`.
 | Brute-force against login endpoint                       | In-process rate limiter (5 / 15 min per email) in `loginAction`; blocks before `signIn` so bcrypt CPU is not spent on blocked requests |
 | Brute-force against password change endpoint             | In-process rate limiter (5 / 15 min per `userId`) in `changePasswordAction`                                                            |
 | Clickjacking / MIME sniffing / downgrade attacks         | `X-Frame-Options: DENY`, `X-Content-Type-Options`, `Strict-Transport-Security` set globally                                            |
+| XSS via stored attachment MIME type                      | `addAttachment` validates `mimeType` against a server-side allowlist before the DB write; arbitrary types (e.g. `text/html`) are rejected                 |
 | Prisma client path (`src/generated/prisma`) not in scope | `tsconfig.json` path alias; enforced in CI build                                                                                       |
 | Auth.js v5 API diverges from v4 expectations             | Read `node_modules/next/dist/docs/` before implementing                                                                                |
 
@@ -393,3 +396,4 @@ Login: `/login?team=demo`. Demo password documented in `README.md`.
 | In-process rate limiter on `loginAction`; email as key                       | Keying on `email.toLowerCase()` rather than IP is pragmatic for the credentials endpoint — the email is always submitted in the form regardless of auth outcome. A Map-based sliding-window counter (5 attempts / 15-minute window) is sufficient for a single Railway replica. Blocking before `signIn()` is called ensures bcrypt CPU work is never spent on blocked requests. Consistent approach and same data structure as the password-change rate limiter. Swap for Upstash Redis if horizontal scaling becomes relevant (see Open Question #6).                                                                                                                                             |
 | Cursor-based pagination over offset-based                                    | `listDeskTickets` and `listMyTickets` fetch `limit + 1` rows and return `{ items, nextCursor }`. If the extra row is present, `nextCursor` is set to the last returned ticket id. Offset-based `skip` is avoided because it returns incorrect results when rows are inserted or deleted between page fetches — a cursor anchors to a known row regardless of concurrent writes. The desk page is a Server Component for the first page; a `DeskTicketList` client component appends pages via a `loadMoreDeskTickets` server action, keeping the initial render fully server-rendered.                                                                                                              |
 | Ticket search via `ILIKE`; debounced sidebar input                           | `q` is an optional param on `listDeskTickets`; when present it adds `OR: [{ subject ILIKE ? }, { body ILIKE ? }]` to the `where` clause. Always scoped to `teamId` so cross-tenant leakage is impossible. The sidebar input is uncontrolled with a 300 ms debounce — `router.push` fires after typing stops, avoiding a server round-trip on every keystroke. `key={currentQ}` on the input resets it when the committed URL query changes. Full-text search (PostgreSQL `tsvector`) is a non-goal for v1; `ILIKE` is sufficient for the demo scale and requires no schema change. |
+| File attachments stored as `bytea`; server-side MIME allowlist               | Attachment bytes stored in Postgres `bytea` — no external storage account needed for v1. Revisit with Cloudflare R2 if per-ticket storage cost grows. The `/api/attachments/[id]` route sets `Content-Type` from the stored `mimeType`, so storing an arbitrary type (e.g. `text/html`) would allow a browser to render the response inline and execute injected script — a classic stored XSS vector. Mitigation: `addAttachment` validates `mimeType` against a hard-coded allowlist `{ image/jpeg, image/png, image/webp, application/pdf }` before the DB write. Client-side file type validation in `FilePicker` is defence-in-depth only; the server check is the authoritative gate. Browser-side compression (Canvas API, 950 KB target) keeps uploads under the 1 MB server limit while preserving visual quality. |

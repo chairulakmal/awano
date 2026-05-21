@@ -8,7 +8,7 @@ and an immutable audit trail on every status change.
 &nbsp;
 ![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript&logoColor=white)
 &nbsp; ![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=next.js&logoColor=white) &nbsp;
-![Tests](https://img.shields.io/badge/unit_tests-166_passing-22c55e)
+![Tests](https://img.shields.io/badge/unit_tests-169_passing-22c55e)
 
 ---
 
@@ -136,6 +136,7 @@ The multi-tenant boundary is enforced in the service layer, not the UI.
 | **Login rate limiting**                 | In-process sliding-window counter: 5 attempts per 15-minute window keyed on email address. Blocks before `signIn()` is called — bcrypt never runs on a blocked request. |
 | **Password change rate limiting**       | Same pattern, keyed on `userId`. Blocks before bcrypt work begins. Reset on success.                                                                                    |
 | **Security headers**                    | `Strict-Transport-Security`, `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy` applied to all responses via `next.config.ts`.               |
+| **Attachment MIME allowlist**           | `addAttachment` rejects any MIME type not in `{ image/jpeg, image/png, image/webp, application/pdf }` before the DB write — prevents XSS via `Content-Type` spoofing on the `/api/attachments/[id]` serve route. |
 
 A self-audit found one defence-in-depth gap: the top-assignees query in `getDashboardMetrics`
 fetched users by ID without an explicit `teamId` filter (safe in practice because the IDs came from
@@ -154,7 +155,7 @@ Coverage: FSM transitions, all authorization assertion paths, and every service 
 users, categories, admin metrics).
 
 ```bash
-npm test                # 166 unit tests
+npm test                # 169 unit tests
 npm run test:watch      # Re-run on file change
 npm run test:coverage   # V8 coverage report
 npx playwright test     # E2E (requires dev server or Railway URL)
