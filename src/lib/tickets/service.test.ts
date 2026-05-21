@@ -148,6 +148,30 @@ describe("listDeskTickets — role guard", () => {
   });
 });
 
+describe("listDeskTickets — text search", () => {
+  it("passes OR contains filter when q is provided", async () => {
+    vi.mocked(db.ticket.findMany).mockResolvedValue([dbTicket()] as never);
+    await listDeskTickets({ q: "visa" }, session());
+    expect(db.ticket.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({
+          OR: [
+            { subject: { contains: "visa", mode: "insensitive" } },
+            { body: { contains: "visa", mode: "insensitive" } },
+          ],
+        }),
+      })
+    );
+  });
+
+  it("omits OR filter when q is absent", async () => {
+    vi.mocked(db.ticket.findMany).mockResolvedValue([dbTicket()] as never);
+    await listDeskTickets({}, session());
+    const call = vi.mocked(db.ticket.findMany).mock.calls[0][0] as { where: object };
+    expect(call.where).not.toHaveProperty("OR");
+  });
+});
+
 // ---------------------------------------------------------------------------
 // getTicket
 // ---------------------------------------------------------------------------

@@ -8,7 +8,7 @@ and an immutable audit trail on every status change.
 &nbsp;
 ![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript&logoColor=white)
 &nbsp; ![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=next.js&logoColor=white) &nbsp;
-![Tests](https://img.shields.io/badge/unit_tests-164_passing-22c55e)
+![Tests](https://img.shields.io/badge/unit_tests-166_passing-22c55e)
 
 ---
 
@@ -154,7 +154,7 @@ Coverage: FSM transitions, all authorization assertion paths, and every service 
 users, categories, admin metrics).
 
 ```bash
-npm test                # 164 unit tests
+npm test                # 166 unit tests
 npm run test:watch      # Re-run on file change
 npm run test:coverage   # V8 coverage report
 npx playwright test     # E2E (requires dev server or Railway URL)
