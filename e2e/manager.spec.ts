@@ -18,7 +18,7 @@ test.describe("Manager — escalate → close → reopen", () => {
     // 2. Open seed-ticket-a2 (IN_PROGRESS — reset by globalSetup)
     await page.goto("/desk/seed-ticket-a2");
     await expect(
-      page.getByRole("heading", { name: "Need to update billing address" })
+      page.getByRole("heading", { name: "Tokutei Ginou No. 1 skills exam registration — food service (外食業)" })
     ).toBeVisible();
 
     // 3. Escalate: IN_PROGRESS → ESCALATED (MANAGER-only transition)

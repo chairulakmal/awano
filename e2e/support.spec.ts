@@ -19,7 +19,7 @@ test.describe("Support — assign · internal note · status change", () => {
 
     // 2. Open seed-ticket-a1 (OPEN, unassigned — reset by globalSetup)
     await page.goto("/desk/seed-ticket-a1");
-    await expect(page.getByRole("heading", { name: "Cannot log in to my account" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "在留カード renewal — expires in 12 days" })).toBeVisible();
 
     // 3. Assign to self (Dan Support)
     await page.selectOption('select[name="assigneeId"]', { label: "Dan Support" });
