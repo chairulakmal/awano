@@ -21,7 +21,12 @@ npx prisma migrate dev --name X  # Create + apply a new named migration
 npx prisma studio                # GUI for the database
 ```
 
-No test runner is configured yet (Vitest + Playwright planned — see `docs/SPEC.md`).
+```bash
+# Testing
+npm test              # Vitest unit tests (all mocked — no DB required)
+npm run test:watch    # Re-run on change
+npx playwright test   # E2E (requires dev server running)
+```
 
 ## Database setup
 
@@ -69,14 +74,39 @@ Auth.js v5 Credentials provider. Session payload: `userId`, `teamId`, `role`, `r
 
 ### Route guards (Next.js 16 proxy pattern)
 
-Next.js 16 does **not** use `middleware.ts`. Route protection lives in `src/proxy.ts`, which is
-the framework's replacement. Do not create a `middleware.ts` — it will be ignored.
+Next.js 16 renamed `middleware.ts` → `proxy.ts`. Do **not** create `middleware.ts` — it is ignored.
 
-Route guards in `proxy.ts`:
+- The exported function must be named `proxy` (not `middleware`).
+- Use the `NextProxy` type for the function signature, or import `NextRequest` / `NextResponse`
+  from `next/server` as before.
+- A `config.matcher` array still controls which paths the proxy runs on.
+- Proxy runs in the **Node.js runtime** by default (not Edge) in v16.
+
+Route guards in `src/proxy.ts`:
 
 - `/desk/*` → Support+
 - `/admin/*` → Manager+
 - `/super/*` → Super only
+
+### Server Actions — body size limit
+
+Server Actions default to a **1 MB** request body limit. File upload actions must increase this via
+`next.config`:
+
+```ts
+// next.config.ts
+serverActions: {
+  bodySizeLimit: '3mb', // raise when accepting 2 MB pre-compression images
+}
+```
+
+Without this, multipart uploads over 1 MB are silently rejected before the action runs.
+
+### Caching (`use cache` directive)
+
+Next.js 16 introduces a `'use cache'` directive (requires `cacheComponents: true` in `next.config`).
+It is **not** the same as `React.cache` or `unstable_cache`. Avoid adding it to server actions or
+service functions — caching belongs at the component or data-fetch layer, not the mutation layer.
 
 ### Planned route structure
 

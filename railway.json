@@ -8,9 +8,7 @@
     "runtime": "V2",
     "numReplicas": 1,
     "startCommand": "HOSTNAME=0.0.0.0 node .next/standalone/server.js",
-    "preDeployCommand": [
-      "npx prisma migrate deploy"
-    ],
+    "preDeployCommand": ["npx prisma migrate deploy"],
     "healthcheckPath": "/",
     "sleepApplication": false,
     "ipv6EgressEnabled": false,

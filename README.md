@@ -4,7 +4,7 @@ A full-stack, multi-tenant support desk built to demonstrate production-grade Ne
 role-based access control, a finite state machine for ticket workflows, tenant isolation enforced at
 every database query, and an audit trail on every status change.
 
-> Try it: [`/login?team=demo`](https://awano.chairulakmal.com/login?team=demo) — credentials below.
+> Try it: [`/login?team=demo`](https://awano.chairulakmal.com/login?team=demo) — credentials [below](./README.md#demo-accounts).
 
 ---
 
@@ -72,8 +72,8 @@ now and keeps the codebase extractable for i18n without touching business logic 
 | **Admin**     | User invites, role changes, category CRUD within a team                              |
 | **Super**     | Provision teams and users across the platform; is not part of any team               |
 
-Route prefixes enforce this at the middleware layer: `/desk/*` requires Support+, `/admin/*`
-requires Manager+, `/super/*` requires Super.
+Route prefixes are enforced in `src/proxy.ts` (Next.js 16's replacement for `middleware.ts`):
+`/desk/*` requires Support+, `/admin/*` requires Manager+, `/super/*` requires Super.
 
 ---
 
@@ -81,15 +81,33 @@ requires Manager+, `/super/*` requires Super.
 
 The multi-tenant boundary is enforced in the service layer, not the UI. Key properties:
 
-| Property | Implementation |
-| --- | --- |
-| **Cross-team isolation** | Every tenant-scoped query includes `teamId` in the `WHERE` clause. `assertSameTeam()` is called on any fetch-by-ID path as a second check. |
-| **Session is the authority** | On every mutation, `teamId`, `userId`, and `role` come from the server-side JWT — never from `FormData` or the request body. |
-| **Input validation** | Zod schemas at every server action boundary. Enums are validated with `z.nativeEnum()` so invalid status/priority values are rejected before reaching the DB. |
-| **Internal comments** | The service layer strips `isInternal: true` comments from any response to a `REQUESTER` session — the UI cannot opt out of this. |
-| **Route guards** | `src/proxy.ts` enforces role minimums at the edge: `/desk/*` → Support+, `/admin/*` → Manager+, `/super/*` → Super only. |
+| Property                     | Implementation                                                                                                                                                |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Cross-team isolation**     | Every tenant-scoped query includes `teamId` in the `WHERE` clause. `assertSameTeam()` is called on any fetch-by-ID path as a second check.                    |
+| **Session is the authority** | On every mutation, `teamId`, `userId`, and `role` come from the server-side JWT — never from `FormData` or the request body.                                  |
+| **Input validation**         | Zod schemas at every server action boundary. Enums are validated with `z.nativeEnum()` so invalid status/priority values are rejected before reaching the DB. |
+| **Internal comments**        | The service layer strips `isInternal: true` comments from any response to a `REQUESTER` session — the UI cannot opt out of this.                              |
+| **Route guards**             | `src/proxy.ts` enforces role minimums at the edge: `/desk/*` → Support+, `/admin/*` → Manager+, `/super/*` → Super only.                                      |
 
-A self-audit of the codebase found one defence-in-depth gap: the top-assignees lookup in `getDashboardMetrics` fetched users by ID without an explicit `teamId` filter (safe in practice because the IDs came from a team-scoped query, but an implicit dependency). The filter was added to `src/lib/admin/service.ts` to make the isolation unconditional.
+A self-audit of the codebase found one defence-in-depth gap: the top-assignees lookup in
+`getDashboardMetrics` fetched users by ID without an explicit `teamId` filter (safe in practice
+because the IDs came from a team-scoped query, but an implicit dependency). The filter was added to
+`src/lib/admin/service.ts` to make the isolation unconditional.
+
+---
+
+## Production deployment
+
+The app is live on Railway at [`awano.chairulakmal.com`](https://awano.chairulakmal.com).
+
+| Concern                  | Approach                                                                                                                                                          |
+| ------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Build**                | Next.js `output: "standalone"` — only the production closure is shipped; dev dependencies stay out of the container image                                         |
+| **Static assets**        | Copied from `.next/static` into `.next/standalone/.next/static` at build time so the standalone server can serve them directly                                    |
+| **Database**             | Railway managed PostgreSQL; `DATABASE_URL` injected automatically via a Railway service reference variable                                                        |
+| **Migrations**           | `npx prisma migrate deploy` runs as a `preDeployCommand` — the old container keeps serving until migrations succeed and the new container passes the health check |
+| **Container networking** | `HOSTNAME=0.0.0.0` set in the start command so the Node server binds to all interfaces, not just localhost                                                        |
+| **Config**               | `railway.json` at repo root — Railpack builder, replica count, restart policy, and region pinned to `asia-southeast1`                                             |
 
 ---
 
@@ -127,10 +145,10 @@ npm run test:coverage   # Run with V8 coverage report
 
 ---
 
-## Demo accounts
+## Demo credentials
 
-Log in at [`/login?team=demo`](https://awano.chairulakmal.com/login?team=demo) — password for all accounts:
-**`oretachinomachida`**
+Log in at [`/login?team=demo`](https://awano.chairulakmal.com/login?team=demo) — password for all
+accounts: **`oretachinomachida`**
 
 | Email                  | Role      | Requester type |
 | ---------------------- | --------- | -------------- |
