@@ -32,16 +32,10 @@ body {
 }
 
 /*
- * .hero-bg — amber-to-zinc gradient with the dot grid overlaid.
- *   Used on the hero section where a Tailwind gradient would conflict.
+ * .hero-bg — amber-to-zinc gradient for the homepage hero.
  */
 .hero-bg {
-  background-image:
-    radial-gradient(circle, rgba(0, 0, 0, 0.1) 1px, transparent 1px),
-    linear-gradient(to bottom, #fffbeb, #fafafa);
-  background-size:
-    24px 24px,
-    100% 100%;
+  background-image: linear-gradient(to bottom, #fffbeb, #fafafa);
 }
 
 /* ─── Shared border / ring styles ─────────────────────────────────────────── */
