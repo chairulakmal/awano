@@ -4,7 +4,7 @@
 | --------------------- | -------------------------------------------------------------------------------------------------------------- |
 | **Status**            | Draft                                                                                                          |
 | **Owner**             | Chairul Akmal                                                                                                  |
-| **Last updated**      | 2026-05-19                                                                                                     |
+| **Last updated**      | 2026-05-21                                                                                                     |
 | **Stack**             | Next.js 16 (App Router) · TypeScript (strict) · Prisma 7 · PostgreSQL · Auth.js v5 · Zod · Vitest · Playwright |
 | **Deployment target** | Railway                                                                                                        |
 
@@ -139,6 +139,7 @@ type Session = {
 | `/admin/*`   | `MANAGER \| ADMIN`            |
 | `/super/*`   | `SUPER`                       |
 | `/tickets/*` | `REQUESTER`                   |
+| `/profile`   | Any authenticated role        |
 
 Login URL: `/login?team={slug}`. Team slug is resolved to `teamId` server-side before credential
 verification.
@@ -185,6 +186,7 @@ Each throws a structured error on failure. Called at the top of every Server Act
 | `/super/teams`                | Super            | List / create teams                                              |
 | `/super/teams/[id]`           | Super            | Members · seed demo users · credential export                    |
 | `/super/teams/[id]/users/new` | Super            | Create user in team                                              |
+| `/profile`                    | All (auth'd)     | Change own password; read-only view of name, email, role        |
 
 ---
 
@@ -221,16 +223,18 @@ All queries are team-scoped. Page is a Server Component.
 
 ## Non-functional Requirements
 
-| Concern          | Requirement                                                                                                                                 |
-| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
-| TypeScript       | `strict: true`; no `any`; explicit return types on all Server Actions                                                                       |
-| Input validation | Zod schema on every Server Action; `teamId`/`createdById`/`role` never from client                                                          |
-| Tenant isolation | Every DB query on a tenant-scoped model includes `teamId`                                                                                   |
-| Password storage | bcrypt, cost factor ≥ 12                                                                                                                    |
-| Session          | httpOnly cookie; no sensitive data in localStorage                                                                                          |
-| Optimistic UI    | Status transitions in `/desk/[id]` use `useOptimistic`                                                                                      |
-| Pagination       | Ticket lists paginated; no unbounded queries                                                                                                |
-| File uploads     | `serverActions.bodySizeLimit: '3mb'` in `next.config` — default 1 MB silently rejects multipart uploads before the action runs (Next.js 16) |
+| Concern               | Requirement                                                                                                                                 |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| TypeScript            | `strict: true`; no `any`; explicit return types on all Server Actions                                                                       |
+| Input validation      | Zod schema on every Server Action; `teamId`/`createdById`/`role` never from client                                                          |
+| Tenant isolation      | Every DB query on a tenant-scoped model includes `teamId`                                                                                   |
+| Password storage      | bcrypt, cost factor 12                                                                                                                      |
+| Session               | httpOnly cookie; no sensitive data in localStorage; session evicted immediately on password change via client-side `signOut`                 |
+| Password change rate  | In-process sliding-window: 5 attempts per 15-minute window keyed on `userId`; reset on success                                             |
+| Security headers      | `Strict-Transport-Security` (2 yr), `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy` — applied globally in `next.config.ts` |
+| Optimistic UI         | Status transitions in `/desk/[id]` use `useOptimistic`                                                                                      |
+| Pagination            | Ticket lists paginated; no unbounded queries                                                                                                |
+| File uploads          | `serverActions.bodySizeLimit: '3mb'` in `next.config` — default 1 MB silently rejects multipart uploads before the action runs (Next.js 16) |
 
 ---
 
@@ -247,6 +251,9 @@ All queries are team-scoped. Page is a Server Component.
 | Super creates team                               | Succeeds; team row created       |
 | Invalid FSM transition                           | `assertTransition` throws        |
 | Valid FSM transition                             | Writes `StatusEvent` row         |
+| `changeMyPassword` with wrong current password   | Throws before DB write           |
+| `changeMyPassword` success                       | Verifies bcrypt compare + hash + update args |
+| `changeMyPassword` identity                      | `userId` taken from session, not caller input |
 
 ### E2E (Playwright)
 
@@ -322,6 +329,9 @@ Login: `/login?team=demo`. Demo password documented in `README.md`.
 | -------------------------------------------------------- | ------------------------------------------------------- |
 | Missing `teamId` filter leaks cross-tenant data          | Assertions + integration tests on every query path      |
 | Session JWT not validated on sensitive actions           | `assertAuthenticated` called at the top of every action |
+| Stale JWT session persists after password change         | `signOut({ callbackUrl: "/login" })` called client-side on success; cookie cleared immediately |
+| Brute-force against password change endpoint             | In-process rate limiter (5 / 15 min per `userId`) in `changePasswordAction` |
+| Clickjacking / MIME sniffing / downgrade attacks         | `X-Frame-Options: DENY`, `X-Content-Type-Options`, `Strict-Transport-Security` set globally |
 | Prisma client path (`src/generated/prisma`) not in scope | `tsconfig.json` path alias; enforced in CI build        |
 | Auth.js v5 API diverges from v4 expectations             | Read `node_modules/next/dist/docs/` before implementing |
 
@@ -368,3 +378,11 @@ Login: `/login?team=demo`. Demo password documented in `README.md`.
 | Ocaps deferred to post-v1                                                 | RBAC via session roles is sufficient for the closed-team model in v1. Ocaps adds meaningful implementation surface (token issuance, storage, revocation, expiry) only justified once external guest access or a public API is on the roadmap.                                                                                                                                                                                                                                                                                                                       |
 | i18n deferred to post-v1                                                  | The primary UI audience (support agents, managers) operates in English in the demo context. Translating UI chrome into Japanese alone does not help the actual foreign-worker requesters (Indonesian, Vietnamese, Myanmar), and supporting all relevant locales (EN, JA, ID, VI, MY) is a scope increase not justified for v1. Existing convention — all user-facing strings live in UI components, not the service layer — keeps the codebase i18n-extractable at no current cost.                                                                                 |
 | Prisma client output to `src/generated/prisma`                            | Avoids `node_modules` pollution; required by Prisma 7 `generator client` config                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| `/profile` exposes password change only; name and email are admin-managed | Email is the tenant-scoped identity anchor (`@@unique([teamId, email])`); changing it is a credential operation, not a display preference, so it belongs in the admin users panel that already exists. Inline name/email editing is not offered. This mirrors the pattern in SSO-integrated tools where the identity provider owns the record and the app is read-only for those fields. |
+| Password change placed in a modal, not inline on the profile page          | An inline form on the profile page requires only two clicks from landing on the page to submitting a password change, which invites accidental submission (mistyped confirm field, stale autofill). A modal introduces deliberate friction: the user must explicitly open it, and closing it discards all input without a side effect. This is the standard pattern in GitHub, Linear, and Notion for security-adjacent operations. |
+| Password policy: 15-character minimum, no complexity rules                | Aligns with NIST SP 800-63B guidance: length is a stronger predictor of entropy than character-set diversity. Complexity rules (uppercase + symbol requirements) push users toward predictable substitution patterns (e.g. `Password1!`) while making passphrases harder to type. A 15-character minimum with no other constraint encourages passphrases that are both high-entropy and memorable. |
+| `UserMenu` client component; `Header` remains a server component          | `Header` calls `auth()` and renders the nav — it must be a server component and emits no client JS. The interactive parts (dropdown open/close state, click and keyboard handlers) are isolated in `UserMenu`, which receives `name`, `email`, and `role` as props. This keeps the header lightweight and follows the App Router convention of pushing interactivity as far down the tree as possible. |
+| Session eviction via client-side `signOut` after password change           | Stateless JWT has no server-side revocation mechanism — there is no session table to invalidate. The alternative (storing a `passwordChangedAt` timestamp in the DB and comparing it on every JWT refresh) requires a migration and an extra DB read on every request. The pragmatic solution: call `signOut({ callbackUrl: "/login" })` from `next-auth/react` in the client component immediately after a successful password change. This clears the httpOnly cookie, terminates the session from the browser's perspective, and redirects to login — achieving the same security outcome without schema changes. |
+| In-process rate limiter on `changePasswordAction`; `userId` as key        | Keying on `userId` rather than IP address is correct for an authenticated endpoint — the actor is known. A Map-based sliding-window counter (5 attempts / 15-minute window) is sufficient for a single Railway replica and requires no external infrastructure. The counter is reset on success so a legitimate user who changed their password can immediately make another change if needed. Same guidance as Open Question #6 (login rate limiting): swap for Upstash Redis if the service scales horizontally. |
+| Security headers applied globally via `next.config.ts` `headers()`        | `Strict-Transport-Security` (2 years, `includeSubDomains`) prevents TLS-stripping on first visits after initial HTTPS contact. `X-Frame-Options: DENY` blocks the password change modal from being embedded in a cross-origin iframe (clickjacking). `X-Content-Type-Options: nosniff` prevents MIME-type confusion attacks on served files. `Referrer-Policy: strict-origin-when-cross-origin` avoids leaking full paths to third-party origins. All four are applied via a single `headers()` export with `source: "/(.*)"` — no per-route config needed. |
+| Consolidated error messages in `changeMyPassword` to `"Invalid credentials"` | The original code threw distinct messages (`"User not found"` vs `"Current password is incorrect"`). Although the endpoint is authenticated and the oracle is not exploitable in the current context, distinct messages are a defensive anti-pattern — if the function were ever reused in a less-guarded context, they would leak account existence. Both branches now throw the same message. The real-world impact to the user is negligible: they know they are authenticated, so `"Invalid credentials"` unambiguously means the current password was wrong. |
