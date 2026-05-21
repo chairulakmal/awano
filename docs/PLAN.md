@@ -16,9 +16,9 @@ Full engineering design: [SPEC.md](SPEC.md) · Full v1 build history: [PLANv1.md
 | **Ticket search** | `ILIKE` on subject and body, debounced sidebar input, scoped to `teamId` |
 | **Pagination** | Cursor-based on all ticket lists; "Load more"; offset `skip` avoided to prevent stale pages under concurrent writes |
 | **Security hardening** | HSTS, `X-Frame-Options`, rate limiting on login + password change, session eviction after password change |
-| **Admin & super** | Dashboard metrics, user/role management, category CRUD, team provisioning |
+| **Admin & super** | Dashboard metrics, user/role management (step-by-step requester promotion path; per-role assignment ceilings; actors cannot modify users above their ceiling), category CRUD, team provisioning |
 | **CI/CD** | GitHub Actions (lint → tsc → vitest → build) on every PR; Railway + pre-deploy migrations; `main` branch protection |
-| **Tests** | 169 unit tests (Prisma mocked), 7 Playwright E2E specs |
+| **Tests** | 179 unit tests (Prisma mocked), 7 Playwright E2E specs |
 
 ---
 
