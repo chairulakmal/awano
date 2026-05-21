@@ -16,7 +16,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24
           cache: npm
 
       - name: Install dependencies
@@ -35,6 +35,6 @@ jobs:
         run: npm run build
         env:
           # Build does not query the DB — dummy value satisfies Prisma's env check at import time
-          DATABASE_URL: postgresql://ci:ci@localhost:5432/ci
+          DATABASE_URL: postgresql://ci:notused@localhost:5432/ci
           AUTH_SECRET: ci-secret-not-used-at-build-time
           AUTH_URL: http://localhost:3000
