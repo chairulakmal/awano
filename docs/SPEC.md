@@ -221,15 +221,15 @@ All queries are team-scoped. Page is a Server Component.
 
 ## Non-functional Requirements
 
-| Concern          | Requirement                                                                        |
-| ---------------- | ---------------------------------------------------------------------------------- |
-| TypeScript       | `strict: true`; no `any`; explicit return types on all Server Actions              |
-| Input validation | Zod schema on every Server Action; `teamId`/`createdById`/`role` never from client |
-| Tenant isolation | Every DB query on a tenant-scoped model includes `teamId`                          |
-| Password storage | bcrypt, cost factor ≥ 12                                                           |
-| Session          | httpOnly cookie; no sensitive data in localStorage                                 |
-| Optimistic UI    | Status transitions in `/desk/[id]` use `useOptimistic`                             |
-| Pagination       | Ticket lists paginated; no unbounded queries                                       |
+| Concern          | Requirement                                                                                                                                 |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| TypeScript       | `strict: true`; no `any`; explicit return types on all Server Actions                                                                       |
+| Input validation | Zod schema on every Server Action; `teamId`/`createdById`/`role` never from client                                                          |
+| Tenant isolation | Every DB query on a tenant-scoped model includes `teamId`                                                                                   |
+| Password storage | bcrypt, cost factor ≥ 12                                                                                                                    |
+| Session          | httpOnly cookie; no sensitive data in localStorage                                                                                          |
+| Optimistic UI    | Status transitions in `/desk/[id]` use `useOptimistic`                                                                                      |
+| Pagination       | Ticket lists paginated; no unbounded queries                                                                                                |
 | File uploads     | `serverActions.bodySizeLimit: '3mb'` in `next.config` — default 1 MB silently rejects multipart uploads before the action runs (Next.js 16) |
 
 ---

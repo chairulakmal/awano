@@ -3,6 +3,7 @@ import { auth } from "@/auth";
 import { assertAuthenticated, AuthorizationError } from "@/lib/auth/assertions";
 import { getTicket } from "@/lib/tickets/service";
 import { CommentForm } from "./CommentForm";
+import { AttachmentList } from "@/components/AttachmentList";
 import type { TicketStatus } from "@/generated/prisma/enums";
 
 const STATUS_LABEL: Record<TicketStatus, string> = {
@@ -58,6 +59,7 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ i
       {/* Original body */}
       <div className="rounded-xl shadow-card bg-white px-5 py-5 mb-4">
         <p className="text-sm text-zinc-700 whitespace-pre-wrap">{ticket.body}</p>
+        <AttachmentList attachments={ticket.attachments} />
       </div>
 
       {/* Comment thread */}
@@ -74,6 +76,7 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ i
                 </span>
               </div>
               <p className="text-sm text-zinc-700 whitespace-pre-wrap">{comment.body}</p>
+              <AttachmentList attachments={comment.attachments} />
             </div>
           ))}
         </div>

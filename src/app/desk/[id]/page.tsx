@@ -9,6 +9,7 @@ import { StatusForm } from "./StatusForm";
 import { AssignForm } from "./AssignForm";
 import { PriorityForm } from "./PriorityForm";
 import { DeskCommentForm } from "./DeskCommentForm";
+import { AttachmentList } from "@/components/AttachmentList";
 import type { TicketStatus, TicketPriority } from "@/generated/prisma/enums";
 
 const STATUS_LABEL: Record<TicketStatus, string> = {
@@ -100,6 +101,7 @@ export default async function DeskTicketPage({ params }: { params: Promise<{ id:
           {/* Body */}
           <div className="rounded-xl shadow-card bg-white px-5 py-5">
             <p className="text-sm text-zinc-700 whitespace-pre-wrap">{ticket.body}</p>
+            <AttachmentList attachments={ticket.attachments} />
           </div>
 
           {/* Comment thread */}
@@ -130,6 +132,7 @@ export default async function DeskTicketPage({ params }: { params: Promise<{ id:
                     </span>
                   </div>
                   <p className="text-sm text-zinc-700 whitespace-pre-wrap">{comment.body}</p>
+                  <AttachmentList attachments={comment.attachments} />
                 </div>
               ))}
             </div>

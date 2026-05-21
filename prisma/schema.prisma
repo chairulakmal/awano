@@ -128,6 +128,7 @@ model Ticket {
 
   comments     Comment[]
   statusEvents StatusEvent[]
+  attachments  Attachment[]
 
   @@index([teamId, status])
   @@index([teamId, assigneeId])
@@ -142,10 +143,28 @@ model Comment {
   isInternal Boolean  @default(false)
   createdAt  DateTime @default(now())
 
-  ticket Ticket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
-  author User   @relation(fields: [authorId], references: [id])
+  ticket      Ticket       @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  author      User         @relation(fields: [authorId], references: [id])
+  attachments Attachment[]
 
   @@index([ticketId, createdAt])
+}
+
+/// File attached to a ticket on creation or to a specific comment
+model Attachment {
+  id        String   @id @default(cuid())
+  ticketId  String
+  commentId String?
+  filename  String
+  mimeType  String
+  sizeBytes Int
+  data      Bytes
+  createdAt DateTime @default(now())
+
+  ticket  Ticket   @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  comment Comment? @relation(fields: [commentId], references: [id], onDelete: Cascade)
+
+  @@index([ticketId])
 }
 
 /// Audit trail when ticket status changes

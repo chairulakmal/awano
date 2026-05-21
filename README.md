@@ -4,7 +4,8 @@ A full-stack, multi-tenant support desk built to demonstrate production-grade Ne
 role-based access control, a finite state machine for ticket workflows, tenant isolation enforced at
 every database query, and an audit trail on every status change.
 
-> Try it: [`/login?team=demo`](https://awano.chairulakmal.com/login?team=demo) — credentials [below](./README.md#demo-accounts).
+> Try it: [`/login?team=demo`](https://awano.chairulakmal.com/login?team=demo) — credentials
+> [below](./README.md#demo-accounts).
 
 ---
 
