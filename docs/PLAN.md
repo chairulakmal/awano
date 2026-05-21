@@ -93,11 +93,12 @@ workflow active; direct pushes to `main` blocked by GitHub branch protection.
       migrations before new container goes live; `HOSTNAME=0.0.0.0` binds to all interfaces; static
       asset copy in `buildCommand`; restart policy and `asia-southeast1` region pinned
 - [x] Railway managed PostgreSQL — `DATABASE_URL` injected via service reference variable;
-      `AUTH_SECRET` + `AUTH_URL` set in Railway dashboard
+      `AUTH_SECRET` set in Railway dashboard; `AUTH_URL` intentionally unset (see below)
 - [x] `trustHost: true` in `auth.config.ts` — Railway terminates TLS at its load balancer; without
       this flag Auth.js cannot resolve the public origin from forwarded headers and falls back to
-      `pages.signIn` after every login, redirecting users to the bare `/login` page instead of their
-      workspace
+      `pages.signIn` after every login. `AUTH_URL` must also be unset in Railway: even setting it to
+      the correct production URL causes it to override the forwarded-header detection, reproducing
+      the same redirect failure
 - [x] Live at `awano.chairulakmal.com`
 
 ### Vitest unit tests — 2026-05-20
