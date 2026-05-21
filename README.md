@@ -29,6 +29,11 @@ minimum required role. Every status change goes through `assertTransition()`, wh
 pair is invalid or the actor's role is too low. On success, a `StatusEvent` row is written for a
 full, immutable audit trail.
 
+**Atomicity on the audit trail.** Each status transition writes two records — the updated ticket
+status and a new `StatusEvent` row — inside a single Prisma `$transaction`. If either write fails
+both are rolled back. A commit that updated the ticket but missed the event would produce a corrupted
+audit trail where tickets appear to jump states with no recorded cause.
+
 **Authorization as typed assertions.** Business rules aren't scattered across route handlers —
 they're explicit typed functions (`assertAuthenticated`, `assertRole`, `assertSameTeam`,
 `assertCanViewTicket`) called at the top of every server action before any database work begins. A
@@ -39,9 +44,23 @@ derived from the server-side session. The Zod schema at each server action only 
 client legitimately controls. This prevents privilege escalation regardless of what a client sends.
 
 **Service layer keeps business logic testable.** The pattern is
-`Server Action → service.ts → Prisma`. No Prisma calls outside the service layer. This means the
-business rules (who can escalate, which transitions are valid) can be tested in Vitest against a
-real database without mocking Next.js internals.
+`Server Action → service.ts → Prisma`. No Prisma calls outside the service layer. Service functions
+are unit-tested in Vitest with a mocked DB client, so the business rules (who can escalate, which
+transitions are valid) are verified without spinning up a database or mocking Next.js internals.
+
+**Diagnosing a reverse-proxy auth bug in production.** After deploying to Railway, every successful
+login redirected back to the login form instead of the user's workspace. Railway terminates TLS at
+its load balancer, so the app receives plain HTTP internally. Without `trustHost: true` in the auth
+config, Auth.js couldn't resolve the real public HTTPS origin from Railway's forwarded headers —
+it rejected the post-login redirect as potentially cross-origin and fell back to the sign-in page.
+The fix was one line; finding the root cause required understanding how Auth.js validates redirect
+URLs when running behind a reverse proxy.
+
+**Optimistic UI for status transitions.** In the desk view, clicking a status button applies the
+change immediately using React's `useOptimistic` before the server action resolves. If the action
+fails — for example, because the agent's role has changed since the page loaded — the UI reverts
+automatically. The server remains the source of truth; the optimistic value is only a local
+projection until the round-trip completes.
 
 **User-facing strings live in components, not logic.** Labels, error messages, and status copy are
 kept in UI components rather than server actions or service functions. The convention costs nothing
@@ -58,7 +77,7 @@ now and keeps the codebase extractable for i18n without touching business logic 
 | ORM        | Prisma 7 → PostgreSQL                                      | Typed query results; compound indexes on `(teamId, status)` |
 | Auth       | Auth.js v5 — Credentials, stateless JWT, `httpOnly` cookie | No session table; CSRF handled; cookie inaccessible to JS   |
 | Validation | Zod on every server boundary                               | Validated types flow through the rest of the function       |
-| Testing    | Vitest (unit/integration) · Playwright (E2E)               | Vitest hits a real DB; Playwright tests full user journeys  |
+| Testing    | Vitest (unit) · Playwright (E2E)                           | Vitest mocks Prisma — tests focus on business logic; Playwright runs full user journeys against Railway |
 | Deployment | Railway — persistent container + managed PostgreSQL        | No cold starts; app and DB on one platform                  |
 
 ---
@@ -134,9 +153,10 @@ npx prisma studio   # Database GUI
 
 ### Running tests
 
-The unit tests cover the FSM (`assertTransition`, `getAllowedTransitions`) and authorization
-assertions (`assertAuthenticated`, `assertRole`, `assertSameTeam`, `assertCanViewTicket`,
-`assertCanUpdateTicket`). They are pure and require no database connection.
+Tests cover the FSM, authorization assertions, and all service functions (tickets, users,
+categories, attachments). Service tests mock `@/lib/db` with `vi.mock` so no database connection is
+needed — the suite runs in CI with no Postgres service container. Playwright E2E covers the full
+user journeys against the live Railway deployment.
 
 ```bash
 npm test                # Run all unit tests once

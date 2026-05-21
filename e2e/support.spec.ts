@@ -1,14 +1,5 @@
-import { test, expect, type Page } from "@playwright/test";
-
-const PASSWORD = "oretachinomachida";
-
-async function login(page: Page, email: string, team: string) {
-  await page.goto(`/login?team=${team}`);
-  await page.fill('input[name="email"]', email);
-  await page.fill('input[name="password"]', PASSWORD);
-  await page.getByRole("button", { name: "Sign in" }).click();
-  await expect(page.getByRole("button", { name: /sign out/i })).toBeVisible({ timeout: 15_000 });
-}
+import { test, expect } from "@playwright/test";
+import { login } from "./helpers";
 
 test.describe("Support — assign · internal note · status change", () => {
   test("support can assign, post internal note, and transition OPEN → IN_PROGRESS", async ({
