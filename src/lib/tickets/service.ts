@@ -20,11 +20,16 @@ const CreateTicketSchema = z.object({
   body: z.string().min(1),
 });
 
+const ListMyTicketsSchema = z.object({
+  cursor: z.string().optional(),
+  limit: z.number().int().positive().max(100).default(25),
+});
+
 const ListDeskSchema = z.object({
   status: z.nativeEnum(TicketStatus).optional(),
   assigneeId: z.union([z.string().cuid(), z.null()]).optional(), // null = unassigned filter
-  page: z.number().int().positive().default(1),
-  pageSize: z.number().int().positive().max(100).default(25),
+  cursor: z.string().optional(),
+  limit: z.number().int().positive().max(100).default(25),
 });
 
 // ---------------------------------------------------------------------------
@@ -45,19 +50,25 @@ export async function createTicket(input: unknown, session: SessionPayload) {
   });
 }
 
-export async function listMyTickets(session: SessionPayload) {
+export async function listMyTickets(input: unknown, session: SessionPayload) {
   assertRole(session, ["REQUESTER"]);
-  return db.ticket.findMany({
+  const { cursor, limit } = ListMyTicketsSchema.parse(input ?? {});
+  const rows = await db.ticket.findMany({
     where: { teamId: session.teamId!, createdById: session.userId },
     orderBy: { createdAt: "desc" },
     include: { category: true },
+    ...(cursor ? { cursor: { id: cursor }, skip: 1 } : {}),
+    take: limit + 1,
   });
+  const hasMore = rows.length > limit;
+  const items = hasMore ? rows.slice(0, limit) : rows;
+  return { items, nextCursor: hasMore ? items[items.length - 1].id : null };
 }
 
 export async function listDeskTickets(filters: unknown, session: SessionPayload) {
   assertRole(session, ["SUPPORT", "MANAGER", "ADMIN"]);
-  const { status, assigneeId, page, pageSize } = ListDeskSchema.parse(filters);
-  return db.ticket.findMany({
+  const { status, assigneeId, cursor, limit } = ListDeskSchema.parse(filters);
+  const rows = await db.ticket.findMany({
     where: {
       teamId: session.teamId!,
       ...(status !== undefined ? { status } : {}),
@@ -69,9 +80,12 @@ export async function listDeskTickets(filters: unknown, session: SessionPayload)
       createdBy: { select: { id: true, name: true, email: true } },
       assignee: { select: { id: true, name: true, email: true } },
     },
-    skip: (page - 1) * pageSize,
-    take: pageSize,
+    ...(cursor ? { cursor: { id: cursor }, skip: 1 } : {}),
+    take: limit + 1,
   });
+  const hasMore = rows.length > limit;
+  const items = hasMore ? rows.slice(0, limit) : rows;
+  return { items, nextCursor: hasMore ? items[items.length - 1].id : null };
 }
 
 export async function getTicket(id: string, session: SessionPayload) {

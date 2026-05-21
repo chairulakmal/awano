@@ -8,7 +8,7 @@ and an immutable audit trail on every status change.
 &nbsp;
 ![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript&logoColor=white)
 &nbsp; ![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=next.js&logoColor=white) &nbsp;
-![Tests](https://img.shields.io/badge/unit_tests-158_passing-22c55e)
+![Tests](https://img.shields.io/badge/unit_tests-164_passing-22c55e)
 
 ---
 
@@ -80,6 +80,12 @@ technically valid. Rather than adding a `passwordChangedAt` column and checking 
 the client calls `signOut({ callbackUrl: "/login" })` from `next-auth/react` after the success flash
 — clearing the `httpOnly` cookie with no schema migration needed.
 
+**Cursor-based pagination with client-side "Load more".** Ticket lists fetch `limit + 1` rows; if
+the extra row exists there are more pages and `nextCursor` is set to the last returned id. The desk
+page is a Server Component that renders the first page; a `DeskTicketList` client component appends
+subsequent pages to local state via a `loadMoreDeskTickets` server action. Offset-based `skip` is
+avoided because it produces incorrect results when rows are inserted or deleted between pages.
+
 **Client/server component boundary in the header.** The `Header` component calls `auth()` and
 renders entirely on the server with no client JS. Interactive parts (dropdown state, keyboard and
 pointer handlers) are isolated in a `UserMenu` client component that receives only `name`, `email`,
@@ -119,16 +125,17 @@ Route guards are enforced in `src/proxy.ts` (Next.js 16's replacement for `middl
 
 The multi-tenant boundary is enforced in the service layer, not the UI.
 
-| Property                                | Implementation                                                                                                                                                |
-| --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Cross-tenant isolation**              | Every tenant-scoped query includes `teamId` in the `WHERE` clause. `assertSameTeam()` is called on any fetch-by-ID path as a second check.                    |
-| **Session is the authority**            | On every mutation, `teamId`, `userId`, and `role` come from the server-side JWT — never from `FormData` or the request body.                                  |
-| **Input validation**                    | Zod schemas at every server action boundary. Enums are validated with `z.nativeEnum()` so invalid status/priority values are rejected before reaching the DB. |
-| **Internal comments**                   | The service layer strips `isInternal: true` comments from any response to a `REQUESTER` session — the UI cannot opt out of this.                              |
-| **Route guards**                        | `src/proxy.ts` enforces role minimums at the edge: `/desk/*` → Support+, `/admin/*` → Manager+, `/super/*` → Super only.                                      |
-| **Session eviction on password change** | `signOut({ callbackUrl: "/login" })` called client-side after a successful password change — clears the `httpOnly` cookie immediately.                        |
-| **Password change rate limiting**       | In-process sliding-window counter: 5 attempts per 15-minute window keyed on `userId`. Blocks before bcrypt work begins. Reset on success.                     |
-| **Security headers**                    | `Strict-Transport-Security`, `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy` applied to all responses via `next.config.ts`.     |
+| Property                                | Implementation                                                                                                                                                          |
+| --------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Cross-tenant isolation**              | Every tenant-scoped query includes `teamId` in the `WHERE` clause. `assertSameTeam()` is called on any fetch-by-ID path as a second check.                              |
+| **Session is the authority**            | On every mutation, `teamId`, `userId`, and `role` come from the server-side JWT — never from `FormData` or the request body.                                            |
+| **Input validation**                    | Zod schemas at every server action boundary. Enums are validated with `z.nativeEnum()` so invalid status/priority values are rejected before reaching the DB.           |
+| **Internal comments**                   | The service layer strips `isInternal: true` comments from any response to a `REQUESTER` session — the UI cannot opt out of this.                                        |
+| **Route guards**                        | `src/proxy.ts` enforces role minimums at the edge: `/desk/*` → Support+, `/admin/*` → Manager+, `/super/*` → Super only.                                                |
+| **Session eviction on password change** | `signOut({ callbackUrl: "/login" })` called client-side after a successful password change — clears the `httpOnly` cookie immediately.                                  |
+| **Login rate limiting**                 | In-process sliding-window counter: 5 attempts per 15-minute window keyed on email address. Blocks before `signIn()` is called — bcrypt never runs on a blocked request. |
+| **Password change rate limiting**       | Same pattern, keyed on `userId`. Blocks before bcrypt work begins. Reset on success.                                                                                    |
+| **Security headers**                    | `Strict-Transport-Security`, `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy` applied to all responses via `next.config.ts`.               |
 
 A self-audit found one defence-in-depth gap: the top-assignees query in `getDashboardMetrics`
 fetched users by ID without an explicit `teamId` filter (safe in practice because the IDs came from
@@ -147,7 +154,7 @@ Coverage: FSM transitions, all authorization assertion paths, and every service 
 users, categories, admin metrics).
 
 ```bash
-npm test                # 158 unit tests
+npm test                # 164 unit tests
 npm run test:watch      # Re-run on file change
 npm run test:coverage   # V8 coverage report
 npx playwright test     # E2E (requires dev server or Railway URL)
