@@ -17,7 +17,7 @@ export function AssignForm({
   const [error, formAction, pending] = useActionState(assignTicketAction, null);
 
   return (
-    <form action={formAction} className="space-y-3">
+    <form key={currentAssigneeId} action={formAction} className="space-y-3">
       <span className="text-xs font-medium text-zinc-500 uppercase tracking-wide">Assignee</span>
       <input type="hidden" name="ticketId" value={ticketId} />
       <select
