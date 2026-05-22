@@ -49,6 +49,16 @@ describe("listTeamMembers — role guard", () => {
   });
 });
 
+describe("listTeamMembers — teamId scoping", () => {
+  it("scopes query to session teamId", async () => {
+    vi.mocked(db.user.findMany).mockResolvedValue([] as never);
+    await listTeamMembers(session({ teamId: "team-a" }));
+    expect(db.user.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ teamId: "team-a" }) })
+    );
+  });
+});
+
 describe("listTeamUsers — role guard", () => {
   it("throws when called by SUPPORT", async () => {
     await expect(listTeamUsers(session({ role: Role.SUPPORT }))).rejects.toThrow(
@@ -60,6 +70,16 @@ describe("listTeamUsers — role guard", () => {
   it("allows MANAGER", async () => {
     vi.mocked(db.user.findMany).mockResolvedValue([] as never);
     await expect(listTeamUsers(session({ role: Role.MANAGER }))).resolves.toEqual([]);
+  });
+});
+
+describe("listTeamUsers — teamId scoping", () => {
+  it("scopes query to session teamId", async () => {
+    vi.mocked(db.user.findMany).mockResolvedValue([] as never);
+    await listTeamUsers(session({ teamId: "team-a" }));
+    expect(db.user.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ teamId: "team-a" }) })
+    );
   });
 });
 
