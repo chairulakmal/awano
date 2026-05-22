@@ -197,6 +197,7 @@ accounts: **`oretachinomachida`**
 | `agent@awano.demo`     | Requester | Field Agent    |
 | `support@awano.demo`   | Support   | —              |
 | `manager@awano.demo`   | Manager   | —              |
+| `admin@awano.demo`     | Admin     | —              |
 
 Super admin: `super@awano.demo` at [`/login`](https://awano.chairulakmal.com/login) (no team slug —
 Super users have no team).
