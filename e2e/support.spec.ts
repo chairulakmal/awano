@@ -5,8 +5,8 @@ test.describe("Support — assign · internal note · status change", () => {
   test("support can assign, post internal note, and transition OPEN → IN_PROGRESS", async ({
     page,
   }) => {
-    // 1. Login as support — redirects to /desk
-    await login(page, "support@awano.demo", "demo");
+    // 1. Login as manager — assign is restricted to Manager+ (PR #14)
+    await login(page, "manager@awano.demo", "demo");
 
     // 2. Open seed-ticket-a1 (OPEN, unassigned — reset by globalSetup)
     await page.goto("/desk/seed-ticket-a1");
@@ -14,7 +14,7 @@ test.describe("Support — assign · internal note · status change", () => {
       page.getByRole("heading", { name: "在留カード renewal — expires in 12 days" })
     ).toBeVisible();
 
-    // 3. Assign to self (Dan Support)
+    // 3. Assign to Dan Support (managers can assign to any team member)
     await page.selectOption('select[name="assigneeId"]', { label: "Dan Support" });
     await page.click('button:has-text("Update assignee")');
     // Verify the dropdown reflects the selected assignee after server round-trip

@@ -22,14 +22,14 @@ const CreateTicketSchema = z.object({
 
 const ListMyTicketsSchema = z.object({
   cursor: z.string().optional(),
-  limit: z.number().int().positive().max(100).default(25),
+  limit: z.number().int().positive().max(100).default(10),
 });
 
 const ListDeskSchema = z.object({
   status: z.nativeEnum(TicketStatus).optional(),
   assigneeId: z.union([z.string().cuid(), z.null()]).optional(), // null = unassigned filter
   cursor: z.string().optional(),
-  limit: z.number().int().positive().max(100).default(25),
+  limit: z.number().int().positive().max(100).default(10),
   q: z.string().optional(),
 });
 
