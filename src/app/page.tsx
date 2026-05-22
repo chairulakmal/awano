@@ -86,26 +86,26 @@ const COPY = {
 
 export default function Home() {
   return (
-    <div className="flex-1 flex flex-col text-zinc-900 font-sans">
+    <div className="flex flex-col text-zinc-900 font-sans min-h-[100dvh]">
       <Header />
 
-      {/* Hero */}
-      <section className="w-full hero-bg">
-        <div className="max-w-5xl mx-auto px-8 py-32">
-          <p className="text-xs uppercase tracking-widest text-zinc-500 font-medium mb-8">
+      {/* Hero — flex-1 so hero+features together fill the remaining viewport height */}
+      <section className="w-full hero-bg flex-1 flex items-center">
+        <div className="w-full max-w-5xl mx-auto px-6 sm:px-8 py-14 sm:py-24">
+          <p className="text-xs uppercase tracking-widest text-zinc-500 font-medium mb-6 sm:mb-8">
             {COPY.hero.eyebrow}
           </p>
 
-          <h1 className="text-5xl sm:text-6xl lg:text-7xl font-semibold tracking-tight leading-[1.06] mb-8 max-w-3xl">
+          <h1 className="text-4xl sm:text-6xl lg:text-7xl font-semibold tracking-tight leading-[1.06] mb-5 sm:mb-8 max-w-3xl">
             {COPY.hero.heading}{" "}
             <span className="text-primary">{COPY.hero.headingAccent}</span>
           </h1>
 
-          <p className="text-xl text-zinc-600 max-w-xl leading-relaxed mb-12">
+          <p className="text-base sm:text-xl text-zinc-600 max-w-xl leading-relaxed mb-8 sm:mb-12">
             {COPY.hero.body}
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-4">
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
             <Link
               href="/login?team=demo"
               className="inline-flex items-center justify-center h-12 px-8 rounded-lg bg-primary text-white text-base font-semibold hover:bg-primary-hover transition-colors shadow-sm"
@@ -135,7 +135,7 @@ export default function Home() {
 
       {/* Features */}
       <section className="bg-zinc-100">
-        <div className="max-w-5xl mx-auto px-8 py-20">
+        <div className="max-w-5xl mx-auto px-6 sm:px-8 py-14 sm:py-20">
           <p className="text-xs uppercase tracking-widest text-zinc-500 font-medium mb-10">
             {COPY.features.eyebrow}
           </p>
