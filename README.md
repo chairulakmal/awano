@@ -8,7 +8,7 @@ and an immutable audit trail on every status change.
 &nbsp;
 ![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript&logoColor=white)
 &nbsp; ![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=next.js&logoColor=white) &nbsp;
-![Tests](https://img.shields.io/badge/unit_tests-179_passing-22c55e)
+![Tests](https://img.shields.io/badge/unit_tests-230_passing-22c55e)
 
 ---
 
@@ -91,6 +91,20 @@ renders entirely on the server with no client JS. Interactive parts (dropdown st
 pointer handlers) are isolated in a `UserMenu` client component that receives only `name`, `email`,
 and `role` as props — keeping the server component tree as large as the UX permits.
 
+**Role-aware navigation with responsive collapse.** The header derives nav links from the
+server-side session role (`navLinksForRole`) and passes them to a `NavMenu` client component. On
+wide viewports the links render inline; on narrow viewports they collapse into a hamburger dropdown
+styled identically to the `UserMenu` panel. Managers see Queue + All Tickets + Dashboard; Support
+sees Queue; Requesters see My Tickets. The all-tickets view (`/admin/tickets`) adds a status
+filter bar and cursor-based pagination so managers can browse history across all statuses.
+
+**Regression caught and fixed by unit tests.** A PR that restricted assignee editing to managers
+also silently removed the ability for support staff to self-assign — violating the spec. The
+gap was surfaced by an `assignTicket` unit test added during a service-layer test audit. The fix
+restores SPEC-compliant behaviour: Support sees a dropdown filtered to themselves only; Manager+
+sees the full team list. The server-side guard was already correct; only the UI and the E2E test
+needed updating.
+
 ---
 
 ## What it does
@@ -151,14 +165,18 @@ Service tests mock `@/lib/db` with `vi.mock` so no database connection is needed
 runs in CI without a Postgres service container. Playwright E2E covers complete user journeys
 against the live Railway deployment.
 
-Coverage: FSM transitions, all authorization assertion paths, and every service function (tickets,
-users, categories, admin metrics).
+Coverage: FSM transitions, all authorization assertion paths, and every service function across all
+domains — tickets, users, categories, admin metrics, teams, and attachments. Tests include role
+guards, cross-team isolation, Zod validation branches, business rule enforcement (assign
+self-only for Support, role-ceiling checks, slug generation), and computation logic (avg response
+time, status count zero-filling).
 
 ```bash
-npm test                # 179 unit tests
-npm run test:watch      # Re-run on file change
-npm run test:coverage   # V8 coverage report
-npx playwright test     # E2E (requires dev server or Railway URL)
+npm test                    # 230 unit tests
+npm run test:watch          # Re-run on file change
+npm run test:coverage       # V8 coverage report
+npx playwright test         # E2E (requires dev server or Railway URL)
+npm run db:seed:tickets     # Seed 60 bulk tickets for pagination testing
 ```
 
 ---

@@ -1,5 +1,5 @@
 import { vi, describe, it, expect, beforeEach } from "vitest";
-import { Role, TicketStatus } from "@/generated/prisma/enums";
+import { Role, TicketStatus, TicketPriority } from "@/generated/prisma/enums";
 import { AuthorizationError, type SessionPayload } from "@/lib/auth/assertions";
 
 // ---------------------------------------------------------------------------
@@ -28,6 +28,7 @@ import {
   getTicket,
   assignTicket,
   transitionStatus,
+  setPriority,
   postComment,
 } from "./service";
 
@@ -77,6 +78,47 @@ describe("createTicket — role guard", () => {
     const s = session({ role: Role.REQUESTER });
     // Zod will throw next because input is invalid — but the role guard passed.
     await expect(createTicket({}, s)).rejects.not.toThrow(AuthorizationError);
+  });
+});
+
+describe("createTicket — Zod validation", () => {
+  const s = session({ role: Role.REQUESTER });
+
+  it("throws on missing categoryId", async () => {
+    await expect(
+      createTicket({ subject: "Hello", body: "Body" }, s)
+    ).rejects.toThrow();
+    expect(db.ticket.create).not.toHaveBeenCalled();
+  });
+
+  it("throws on empty subject", async () => {
+    await expect(
+      createTicket({ categoryId: "clxxxxxxxxxxxxxxxxxxxxxxxx", subject: "", body: "Body" }, s)
+    ).rejects.toThrow();
+    expect(db.ticket.create).not.toHaveBeenCalled();
+  });
+
+  it("throws on empty body", async () => {
+    await expect(
+      createTicket({ categoryId: "clxxxxxxxxxxxxxxxxxxxxxxxx", subject: "Hello", body: "" }, s)
+    ).rejects.toThrow();
+    expect(db.ticket.create).not.toHaveBeenCalled();
+  });
+});
+
+describe("createTicket — success path", () => {
+  it("scopes ticket to session teamId and userId", async () => {
+    const s = session({ role: Role.REQUESTER, userId: "user-1", teamId: "team-a" });
+    vi.mocked(db.ticket.create).mockResolvedValue(dbTicket() as never);
+    await createTicket(
+      { categoryId: "clxxxxxxxxxxxxxxxxxxxxxxxx", subject: "Help", body: "Details" },
+      s
+    );
+    expect(db.ticket.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ teamId: "team-a", createdById: "user-1" }),
+      })
+    );
   });
 });
 
@@ -339,6 +381,55 @@ describe("transitionStatus", () => {
     vi.mocked(db.$transaction).mockResolvedValue([{}, {}] as never);
     await transitionStatus("ticket-1", TicketStatus.ESCALATED, session({ role: Role.MANAGER }));
     expect(db.$transaction).toHaveBeenCalled();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// setPriority
+// ---------------------------------------------------------------------------
+
+describe("setPriority", () => {
+  it("throws when ticket is not found", async () => {
+    vi.mocked(db.ticket.findUnique).mockResolvedValue(null);
+    await expect(setPriority("missing", TicketPriority.HIGH, session())).rejects.toThrow(
+      AuthorizationError
+    );
+    expect(db.ticket.update).not.toHaveBeenCalled();
+  });
+
+  it("throws on cross-team ticket", async () => {
+    vi.mocked(db.ticket.findUnique).mockResolvedValue(dbTicket({ teamId: "team-b" }) as never);
+    await expect(
+      setPriority("ticket-1", TicketPriority.HIGH, session({ teamId: "team-a" }))
+    ).rejects.toThrow(AuthorizationError);
+    expect(db.ticket.update).not.toHaveBeenCalled();
+  });
+
+  it("throws when called by REQUESTER", async () => {
+    vi.mocked(db.ticket.findUnique).mockResolvedValue(dbTicket() as never);
+    const s = session({ role: Role.REQUESTER, userId: "user-1" });
+    await expect(setPriority("ticket-1", TicketPriority.HIGH, s)).rejects.toThrow(
+      AuthorizationError
+    );
+    expect(db.ticket.update).not.toHaveBeenCalled();
+  });
+
+  it("SUPPORT can set priority", async () => {
+    vi.mocked(db.ticket.findUnique).mockResolvedValue(dbTicket() as never);
+    vi.mocked(db.ticket.update).mockResolvedValue(dbTicket() as never);
+    await setPriority("ticket-1", TicketPriority.URGENT, session({ role: Role.SUPPORT }));
+    expect(db.ticket.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: { priority: TicketPriority.URGENT } })
+    );
+  });
+
+  it("passes the correct ticketId to update", async () => {
+    vi.mocked(db.ticket.findUnique).mockResolvedValue(dbTicket() as never);
+    vi.mocked(db.ticket.update).mockResolvedValue(dbTicket() as never);
+    await setPriority("ticket-1", TicketPriority.LOW, session());
+    expect(db.ticket.update).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: "ticket-1" } })
+    );
   });
 });
 

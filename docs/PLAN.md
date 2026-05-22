@@ -22,7 +22,7 @@ Full engineering design: [SPEC.md](SPEC.md) · Full v1 build history: [PLANv1.md
 
 ---
 
-## v2 — English + Japanese UI
+## v2 — English + Japanese UI & Mobile Browser Support
 
 ### Queue
 
@@ -32,7 +32,11 @@ Full engineering design: [SPEC.md](SPEC.md) · Full v1 build history: [PLANv1.md
 | 2 | **Requester routes in Japanese** — `/login`, `/tickets/*` | S |
 | 3 | **Desk and admin routes in Japanese** — `/desk/*`, `/admin/*`, `/super/*`, `/profile` | S |
 | 4 | **Locale switcher** — EN / JP toggle in the header | XS |
-| 5 | **E2E tests** — update URL structure, add locale-switch smoke test | S |
+| 5 | **IME-aware search inputs** — suppress debounce during composition on all debounced inputs | XS |
+| 6 | **Mobile layout audit** — verify all views fit narrow viewports; fix overflow, tap target size, and scrollable areas | S |
+| 7 | **Touch-friendly ticket detail** — comment form, status buttons, and attach button sized for thumb use | S |
+| 8 | **Desk sidebar on mobile** — sidebar collapses into a slide-in drawer; toggle button in the header | M |
+| 9 | **E2E tests** — update URL structure, add locale-switch smoke test, add mobile-viewport smoke tests | S |
 
 ---
 
