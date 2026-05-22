@@ -16,27 +16,31 @@ Full engineering design: [SPEC.md](SPEC.md) · Full v1 build history: [PLANv1.md
 | **Ticket search** | `ILIKE` on subject and body, debounced sidebar input, scoped to `teamId` |
 | **Pagination** | Cursor-based on all ticket lists; "Load more"; offset `skip` avoided to prevent stale pages under concurrent writes |
 | **Security hardening** | HSTS, `X-Frame-Options`, rate limiting on login + password change, session eviction after password change |
-| **Admin & super** | Dashboard metrics, user/role management (step-by-step requester promotion path; per-role assignment ceilings; actors cannot modify users above their ceiling), category CRUD, team provisioning |
+| **Admin & super** | Dashboard metrics, user/role management, category CRUD, team provisioning |
 | **CI/CD** | GitHub Actions (lint → tsc → vitest → build) on every PR; Railway + pre-deploy migrations; `main` branch protection |
-| **Tests** | 179 unit tests (Prisma mocked), 7 Playwright E2E specs |
+| **Tests** | 230 unit tests (Prisma mocked), 7 Playwright E2E specs |
 
 ---
 
 ## v2 — English + Japanese UI & Mobile Browser Support
 
-### Queue
+### What's next
 
-| # | What | Effort |
-|---|------|--------|
-| 1 | **i18n infrastructure** — `next-intl`, `[locale]` routing, locale detection, message catalogs | M |
-| 2 | **Requester routes in Japanese** — `/login`, `/tickets/*` | S |
-| 3 | **Desk and admin routes in Japanese** — `/desk/*`, `/admin/*`, `/super/*`, `/profile` | S |
-| 4 | **Locale switcher** — EN / JP toggle in the header | XS |
-| 5 | **IME-aware search inputs** — suppress debounce during composition on all debounced inputs | XS |
-| 6 | **Mobile layout audit** — verify all views fit narrow viewports; fix overflow, tap target size, and scrollable areas | S |
-| 7 | **Touch-friendly ticket detail** — comment form, status buttons, and attach button sized for thumb use | S |
-| 8 | **Desk sidebar on mobile** — sidebar collapses into a slide-in drawer; toggle button in the header | M |
-| 9 | **E2E tests** — update URL structure, add locale-switch smoke test, add mobile-viewport smoke tests | S |
+Items are ordered by priority. Start at the top.
+
+| # | What | Effort | Status |
+|---|------|--------|--------|
+| 1 | **i18n infrastructure** — `next-intl`, `[locale]` routing, locale detection, message catalogs | M | — |
+| 2 | **Requester routes in Japanese** — `/login`, `/tickets/*` | S | — |
+| 3 | **Desk and admin routes in Japanese** — `/desk/*`, `/admin/*`, `/super/*`, `/profile` | S | — |
+| 4 | **Locale switcher** — EN / JP toggle in the header | XS | — |
+| 5 | **IME-aware search inputs** — suppress debounce during composition on all debounced inputs | XS | — |
+| 6 | **Mobile layout audit** — verify all views fit narrow viewports; fix overflow, tap target size, and scroll | S | — |
+| 7 | **Ticket list on mobile** — card layout replacing the fixed-width table on `/tickets`, `/desk`, `/admin/tickets` | S | — |
+| 8 | **Users table on mobile** — stacked card layout for the manager users table on `/admin/users` | S | — |
+| 9 | **Touch-friendly ticket detail** — comment form, status buttons, and attach button sized for thumb use | S | — |
+| 10 | **Desk sidebar on mobile** — sidebar collapses into a slide-in drawer; toggle button in the header | M | — |
+| 11 | **E2E tests** — update URL structure for `[locale]` prefix; locale-switch smoke test; mobile-viewport smoke tests | S | — |
 
 ---
 
@@ -145,6 +149,59 @@ will not submit during active composition.
 
 ---
 
+### Mobile ticket list
+
+The ticket tables on `/tickets`, `/desk`, and `/admin/tickets` use fixed-width columns
+that overflow on narrow viewports. Replace them with a card layout at `sm` and below:
+
+```
+┌─────────────────────────────────┐
+│ #001 · OPEN · HIGH              │
+│ Cannot log in to the portal     │
+│ Assigned: Dan Support · 2h ago  │
+└─────────────────────────────────┘
+```
+
+- Priority and status rendered as coloured badges (same classes as desktop)
+- Subject as the primary text
+- Assignee + relative time as secondary line
+- Tap the card to navigate to the ticket detail
+- Desktop table view unchanged — card layout only at `< sm` breakpoint
+
+---
+
+### Mobile users table
+
+The users table on `/admin/users` lists name, email, role, and actions in a multi-column
+table. On narrow viewports it overflows horizontally.
+
+Replace with a stacked card at `< sm`:
+
+```
+┌─────────────────────────────────┐
+│ Dan Support                     │
+│ dan@example.com · SUPPORT       │
+│                     [Edit role] │
+└─────────────────────────────────┘
+```
+
+Desktop table layout unchanged.
+
+---
+
+### Desk sidebar on mobile
+
+The desk view renders a full-width sidebar alongside the ticket list. On mobile the
+sidebar takes the whole screen and the ticket list is hidden.
+
+Approach:
+- Add a `showSidebar` boolean in a `DeskLayout` client component wrapping both panels
+- A header-mounted toggle button (filter/menu icon) flips `showSidebar`
+- When `showSidebar` is true the sidebar slides in as a fixed overlay; the list is hidden
+- When a ticket is selected from the sidebar, `showSidebar` becomes false to reveal the detail
+
+---
+
 ### Locale switcher
 
 A `LocaleSwitcher` client component placed in `Header.tsx` alongside `UserMenu`.
@@ -158,7 +215,6 @@ export function LocaleSwitcher({ locale }: { locale: string }) {
   const pathname = usePathname();
 
   function switchTo(next: string) {
-    // Replace the current locale segment in the path
     const newPath = pathname.replace(`/${locale}`, `/${next}`);
     router.push(newPath);
   }
@@ -192,4 +248,4 @@ format.dateTime(createdAt, { dateStyle: "medium" });
 ### What stays unchanged
 
 The service layer, authorization logic, Prisma schema, and all business rules are
-locale-agnostic. i18n is entirely a UI-layer concern.
+locale-agnostic. i18n and mobile layout are entirely UI-layer concerns.

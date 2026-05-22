@@ -14,8 +14,10 @@ vi.mock("@/lib/db", () => ({
       create: vi.fn(),
       update: vi.fn(),
     },
+    category: { findUnique: vi.fn() },
     comment: { create: vi.fn() },
     statusEvent: { create: vi.fn() },
+    user: { findUnique: vi.fn() },
     $transaction: vi.fn(),
   },
 }));
@@ -106,9 +108,27 @@ describe("createTicket — Zod validation", () => {
   });
 });
 
+describe("createTicket — cross-tenant category guard", () => {
+  const s = session({ role: Role.REQUESTER, teamId: "team-a" });
+  const validInput = { categoryId: "clxxxxxxxxxxxxxxxxxxxxxxxx", subject: "Help", body: "Details" };
+
+  it("throws when category belongs to a different team", async () => {
+    vi.mocked(db.category.findUnique).mockResolvedValue({ teamId: "team-b" } as never);
+    await expect(createTicket(validInput, s)).rejects.toThrow(AuthorizationError);
+    expect(db.ticket.create).not.toHaveBeenCalled();
+  });
+
+  it("throws when category does not exist", async () => {
+    vi.mocked(db.category.findUnique).mockResolvedValue(null);
+    await expect(createTicket(validInput, s)).rejects.toThrow(AuthorizationError);
+    expect(db.ticket.create).not.toHaveBeenCalled();
+  });
+});
+
 describe("createTicket — success path", () => {
   it("scopes ticket to session teamId and userId", async () => {
     const s = session({ role: Role.REQUESTER, userId: "user-1", teamId: "team-a" });
+    vi.mocked(db.category.findUnique).mockResolvedValue({ teamId: "team-a" } as never);
     vi.mocked(db.ticket.create).mockResolvedValue(dbTicket() as never);
     await createTicket(
       { categoryId: "clxxxxxxxxxxxxxxxxxxxxxxxx", subject: "Help", body: "Details" },
@@ -286,9 +306,10 @@ describe("assignTicket", () => {
   });
 
   it("SUPPORT can assign to themselves", async () => {
-    vi.mocked(db.ticket.findUnique).mockResolvedValue(dbTicket() as never);
+    vi.mocked(db.ticket.findUnique).mockResolvedValue(dbTicket({ teamId: "team-a" }) as never);
+    vi.mocked(db.user.findUnique).mockResolvedValue({ teamId: "team-a" } as never);
     vi.mocked(db.ticket.update).mockResolvedValue(dbTicket() as never);
-    const s = session({ role: Role.SUPPORT, userId: "user-1" });
+    const s = session({ role: Role.SUPPORT, userId: "user-1", teamId: "team-a" });
     await assignTicket("ticket-1", "user-1", s); // assigneeId === userId
     expect(db.ticket.update).toHaveBeenCalled();
   });
@@ -300,10 +321,11 @@ describe("assignTicket", () => {
     expect(db.ticket.update).not.toHaveBeenCalled();
   });
 
-  it("MANAGER can assign to a different user", async () => {
-    vi.mocked(db.ticket.findUnique).mockResolvedValue(dbTicket() as never);
+  it("MANAGER can assign to a different user on the same team", async () => {
+    vi.mocked(db.ticket.findUnique).mockResolvedValue(dbTicket({ teamId: "team-a" }) as never);
+    vi.mocked(db.user.findUnique).mockResolvedValue({ teamId: "team-a" } as never);
     vi.mocked(db.ticket.update).mockResolvedValue(dbTicket() as never);
-    const s = session({ role: Role.MANAGER, userId: "user-1" });
+    const s = session({ role: Role.MANAGER, userId: "user-1", teamId: "team-a" });
     await assignTicket("ticket-1", "user-other", s);
     expect(db.ticket.update).toHaveBeenCalled();
   });
@@ -323,6 +345,22 @@ describe("assignTicket", () => {
     expect(db.ticket.update).toHaveBeenCalledWith(
       expect.objectContaining({ data: { assigneeId: null } })
     );
+  });
+
+  it("throws when assignee belongs to a different team", async () => {
+    vi.mocked(db.ticket.findUnique).mockResolvedValue(dbTicket({ teamId: "team-a" }) as never);
+    vi.mocked(db.user.findUnique).mockResolvedValue({ teamId: "team-b" } as never);
+    const s = session({ role: Role.MANAGER, userId: "user-1", teamId: "team-a" });
+    await expect(assignTicket("ticket-1", "user-other", s)).rejects.toThrow(AuthorizationError);
+    expect(db.ticket.update).not.toHaveBeenCalled();
+  });
+
+  it("throws when assignee user does not exist", async () => {
+    vi.mocked(db.ticket.findUnique).mockResolvedValue(dbTicket({ teamId: "team-a" }) as never);
+    vi.mocked(db.user.findUnique).mockResolvedValue(null);
+    const s = session({ role: Role.MANAGER, userId: "user-1", teamId: "team-a" });
+    await expect(assignTicket("ticket-1", "ghost-user", s)).rejects.toThrow(AuthorizationError);
+    expect(db.ticket.update).not.toHaveBeenCalled();
   });
 });
 

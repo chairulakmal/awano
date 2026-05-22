@@ -40,6 +40,12 @@ const ListDeskSchema = z.object({
 export async function createTicket(input: unknown, session: SessionPayload) {
   assertRole(session, ["REQUESTER"]);
   const data = CreateTicketSchema.parse(input);
+
+  const category = await db.category.findUnique({ where: { id: data.categoryId }, select: { teamId: true } });
+  if (!category || category.teamId !== session.teamId) {
+    throw new AuthorizationError("Invalid category");
+  }
+
   return db.ticket.create({
     data: {
       teamId: session.teamId!,
@@ -137,6 +143,13 @@ export async function assignTicket(id: string, assigneeId: string | null, sessio
   // Assigning to someone other than yourself requires MANAGER+
   if (assigneeId !== session.userId && !["MANAGER", "ADMIN", "SUPER"].includes(session.role)) {
     throw new AuthorizationError("Assigning to another user requires MANAGER or higher");
+  }
+
+  if (assigneeId !== null) {
+    const assignee = await db.user.findUnique({ where: { id: assigneeId }, select: { teamId: true } });
+    if (!assignee || assignee.teamId !== ticket.teamId) {
+      throw new AuthorizationError("Assignee is not a member of this team");
+    }
   }
 
   return db.ticket.update({ where: { id }, data: { assigneeId } });
