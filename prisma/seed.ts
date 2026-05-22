@@ -77,6 +77,7 @@ async function main() {
   );
   const supportA = await upsertUser(teamA.id, "support@awano.demo", hash, "SUPPORT", "Dan Support");
   const managerA = await upsertUser(teamA.id, "manager@awano.demo", hash, "MANAGER", "Eve Manager");
+  await upsertUser(teamA.id, "admin@awano.demo", hash, "ADMIN", "Fay Admin");
 
   // -------------------------------------------------------------------------
   // Team B — Beta Inc
@@ -120,9 +121,9 @@ async function main() {
   console.log("✓ Seeded: 1 super, 2 teams, users, 18 tickets (tokutei ginou scenarios)");
   console.log(`  Password for all accounts: ${DEMO_PASSWORD}`);
   console.log(
-    "  Team demo: rahmat@awano.demo | nguyen@awano.demo | support@awano.demo | manager@awano.demo"
+    "  Team demo: customer@awano.demo | recruiter@awano.demo | agent@awano.demo | support@awano.demo | manager@awano.demo | admin@awano.demo"
   );
-  console.log("  Team beta: kyaw@beta.demo | lan@beta.demo | mahtwe@beta.demo | support@beta.demo");
+  console.log("  Team beta: customer@beta.demo | support@beta.demo | manager@beta.demo");
   console.log("  Super: super@awano.demo (no team slug needed)");
 }
 

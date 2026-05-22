@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
+const description: string = "Production-grade Next.js 16 support desk: role-based access control, finite-state ticket workflow, cursor-based pagination, and cross-tenant isolation enforced at every database query.";
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -13,8 +15,20 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Awano",
-  description: "Awano is a support desk for a workforce recruitment company.",
+  title: "Awano — Multi-tenant Support Desk",
+  description,
+  openGraph: {
+    title: "Awano — Multi-tenant Support Desk",
+    description,
+    url: "https://awano.chairulakmal.com",
+    siteName: "Awano",
+    type: "website",
+  },
+  twitter: {
+    card: "summary",
+    title: "Awano — Multi-tenant Support Desk",
+    description
+  },
 };
 
 export default function RootLayout({
