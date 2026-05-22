@@ -1,6 +1,6 @@
 # Awano — Build Plan
 
-**Last updated: 2026-05-21 — v1 queue cleared.**
+**Last updated: 2026-05-22 — post-v1 improvements.**
 
 | Area | Status |
 |---|---|
@@ -9,11 +9,14 @@
 | Password change + security hardening | ✓ rate limiting, HSTS, session eviction |
 | Login rate limiting | ✓ 5 attempts / 15 min per email |
 | File attachments | ✓ bytea, 1 MB limit, MIME allowlist, thumbnails |
-| Cursor-based pagination | ✓ desk + requester lists, "Load more" |
+| Cursor-based pagination | ✓ desk + requester lists + all-tickets, "Load more" |
 | Ticket search | ✓ ILIKE on subject/body, debounced sidebar input |
+| Role-aware navigation | ✓ per-role header links, responsive hamburger on mobile |
+| Manager all-tickets view | ✓ `/admin/tickets` — all statuses, status filter, cursor pagination |
+| Assign self-only for Support | ✓ SPEC-compliant; regression caught by unit tests |
 | CI + branch protection | ✓ GitHub Actions, main branch ruleset |
 | Deployment | ✓ Railway, `awano.chairulakmal.com` |
-| Unit tests | ✓ 169 passing (6 files) |
+| Unit tests | ✓ 230 passing (8 files) |
 | E2E tests | ✓ 7 Playwright specs |
 
 ---
@@ -291,6 +294,69 @@ _`Attachment` model (bytea), 1 MB limit, server-side MIME allowlist (prevents st
 - [x] `src/lib/attachments/service.test.ts` — 15 tests: MIME allowlist (3 tests), size guard (2),
       ticket-not-found, cross-team isolation (2), SUPER bypass, field persistence (2),
       `getAttachment` not-found / cross-team / teams-match / REQUESTER own vs other
+
+### Role-aware navigation + manager all-tickets view — 2026-05-22
+
+_Per-role header links, responsive hamburger, `/admin/tickets` with full history and status filter._
+
+- [x] `src/components/Header.tsx` — `navLinksForRole(role)` derives nav links from server session;
+      passes them to `NavMenu`; Manager gets Dashboard + All Tickets + Queue; Support gets Queue;
+      Requester gets My Tickets; Admin gets Dashboard; Super gets Teams
+- [x] `src/components/NavMenu.tsx` — client component; `hidden sm:flex` for inline desktop links;
+      `sm:hidden` hamburger dropdown on mobile, styled to match `UserMenu` panel
+- [x] `src/app/admin/tickets/page.tsx` — Manager+ all-tickets page; reads `?status` and `?q` params;
+      asserts MANAGER/ADMIN/SUPER role before fetching
+- [x] `src/app/admin/tickets/actions.ts` — `loadMoreAllTickets` server action for cursor pagination;
+      re-asserts role on each call
+- [x] `src/app/admin/tickets/AllTicketList.tsx` — cursor-paginated client list; carries status/query
+      filters through to subsequent pages
+- [x] `src/app/admin/tickets/TicketStatusFilter.tsx` — status pill filters + debounced search;
+      updates URL without full navigation
+- [x] `src/app/admin/AdminNav.tsx` — added "All Tickets" tab
+- [x] `src/lib/tickets/service.ts` — default page size 25 → 10
+
+### Support self-assign fix — 2026-05-22
+
+_Regression: prior PR over-restricted `AssignForm` to Manager+ only, violating the SPEC._
+
+- [x] `src/app/desk/[id]/AssignForm.tsx` — replaced `canEdit: boolean` prop with `userId`/`role`;
+      Support sees select filtered to themselves only; Manager+ sees full team list; Requester sees
+      read-only text
+- [x] `src/app/desk/[id]/page.tsx` — passes `userId` and `role` to `AssignForm`
+- [x] `e2e/support.spec.ts` — restored to login as Support for assign step (self-assign now works)
+
+### Unit test audit — 2026-05-22
+
+_51 new tests; all service layers now have full business-rule coverage._
+
+- [x] `src/lib/tickets/service.test.ts` — added `setPriority` (role guard, cross-team, success);
+      `createTicket` Zod validation branches (missing categoryId, empty subject/body) and success
+      path (teamId/userId scoping); `TicketPriority` imported
+- [x] `src/lib/users/service.test.ts` — added teamId scoping assertions for `listTeamMembers` and
+      `listTeamUsers`
+- [x] `src/lib/admin/service.test.ts` _(new)_ — `getDashboardMetrics`: role guard (SUPPORT/REQUESTER
+      rejected; MANAGER/ADMIN allowed), teamId scoping on all queries, status count zero-filling,
+      avgResponseHours calculation (null / single ticket / average across multiple), topAssignees
+      name resolution and teamId-scoped user lookup
+- [x] `src/lib/teams/service.test.ts` _(new)_ — all 5 functions: role guards (non-SUPER rejected),
+      `createTeam` Zod validation + duplicate slug error, `getTeamDetail` not-found,
+      `createUserInTeam` Zod validation + password hashing + requesterType defaulting +
+      teamId scoping + duplicate email error, `seedDemoUsers` team-not-found + full create (5 users,
+      slug-based emails) + partial skip on P2002; total tests 179 → 230 across 8 files
+
+### E2E fixes — 2026-05-22
+
+_Three root causes fixed; all 7 specs pass cleanly._
+
+- [x] `src/components/UserMenu.tsx` — added `data-testid="user-menu-trigger"` to distinguish it from
+      the `NavMenu` hamburger button (both had `aria-haspopup="true"`)
+- [x] `e2e/helpers.ts` — updated login assertion to `[data-testid="user-menu-trigger"]`
+- [x] `src/app/login/actions.ts` — `DISABLE_RATE_LIMIT=1` env var bypasses the in-process counter
+- [x] `playwright.config.ts` — `webServer.env: { DISABLE_RATE_LIMIT: "1" }` so the dev server
+      started by Playwright never blocks test logins
+- [x] `prisma/seed-bulk-tickets.ts` _(new)_ — seeds 60 minimal tickets on team "demo" spread across
+      all statuses/priorities; stable IDs; safe to re-run
+- [x] `package.json` — added `db:seed:tickets` script
 
 ---
 

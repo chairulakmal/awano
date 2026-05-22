@@ -191,6 +191,7 @@ Each throws a structured error on failure. Called at the top of every Server Act
 | `/tickets/[id]`               | Requester        | Thread (public comments); status read-only                       |
 | `/desk`                       | Support, Manager | Inbox: Unassigned · Mine · Open · Escalated                      |
 | `/desk/[id]`                  | Support, Manager | Assign · status · priority · replies · internal notes · timeline |
+| `/admin/tickets`              | Manager, Admin   | All tickets (all statuses) — status filter + search + pagination |
 | `/admin/users`                | Manager, Admin   | Users in this team                                               |
 | `/admin/categories`           | Manager, Admin   | Categories in this team                                          |
 | `/admin/dashboard`            | Manager, Admin   | Team metrics                                                     |
@@ -245,7 +246,7 @@ All queries are team-scoped. Page is a Server Component.
 | Password change rate | In-process sliding-window: 5 attempts per 15-minute window keyed on `userId`; reset on success                                                           |
 | Security headers     | `Strict-Transport-Security` (2 yr), `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy` — applied globally in `next.config.ts` |
 | Optimistic UI        | Status transitions in `/desk/[id]` use `useOptimistic`                                                                                                   |
-| Pagination           | Cursor-based (`cursor` + `limit`); `listDeskTickets` and `listMyTickets` return `{ items, nextCursor }`; default page size 25; max 100                   |
+| Pagination           | Cursor-based (`cursor` + `limit`); `listDeskTickets` and `listMyTickets` return `{ items, nextCursor }`; default page size 10; max 100                   |
 | File uploads         | `serverActions.bodySizeLimit: '3mb'` in `next.config` — default 1 MB silently rejects multipart uploads before the action runs (Next.js 16)              |
 | Attachment MIME      | Server-side allowlist `{ image/jpeg, image/png, image/webp, application/pdf }` in `addAttachment` — prevents XSS via stored MIME type on the attachment serve route |
 
@@ -255,30 +256,52 @@ All queries are team-scoped. Page is a Server Component.
 
 ### Unit / Integration (Vitest)
 
-| Test case                                        | Assertion                                     |
-| ------------------------------------------------ | --------------------------------------------- |
-| Requester reads another requester's ticket       | Returns 403 / throws                          |
-| `isInternal: true` comment returned to requester | Fails — comment must be stripped              |
-| Support transitions ticket to `ESCALATED`        | Throws — MANAGER+ required                    |
-| Service call without `teamId` match              | Throws                                        |
-| Super creates team                               | Succeeds; team row created                    |
-| Invalid FSM transition                           | `assertTransition` throws                     |
-| Valid FSM transition                             | Writes `StatusEvent` row                      |
-| `changeMyPassword` with wrong current password   | Throws before DB write                        |
-| `changeMyPassword` success                       | Verifies bcrypt compare + hash + update args  |
-| `changeMyPassword` identity                      | `userId` taken from session, not caller input |
-| `changeUserRole` — Manager assigns MANAGER+      | Throws (ceiling enforced)                     |
-| `changeUserRole` — Admin assigns ADMIN+          | Throws (ceiling enforced)                     |
-| `changeUserRole` — Manager modifies Admin row    | Throws (target rank exceeds actor ceiling)    |
-| `changeUserRole` — CUSTOMER promoted to SUPPORT  | Throws (must become FIELD_AGENT first)        |
-| `changeUserRole` — FIELD_AGENT promoted to SUPPORT | Succeeds                                    |
+| Test case                                             | Assertion                                     |
+| ----------------------------------------------------- | --------------------------------------------- |
+| Requester reads another requester's ticket            | Returns 403 / throws                          |
+| `isInternal: true` comment returned to requester      | Fails — comment must be stripped              |
+| Support transitions ticket to `ESCALATED`             | Throws — MANAGER+ required                    |
+| Service call without `teamId` match                   | Throws                                        |
+| `assignTicket` — Support assigns to self              | Succeeds                                      |
+| `assignTicket` — Support assigns to another user      | Throws — MANAGER+ required                    |
+| `assignTicket` — Support unassigns (null)             | Throws — MANAGER+ required                    |
+| `assignTicket` — Manager assigns to any user          | Succeeds                                      |
+| `setPriority` — REQUESTER                             | Throws — SUPPORT+ required                    |
+| `setPriority` — cross-team ticket                     | Throws                                        |
+| `setPriority` — SUPPORT                               | Succeeds; correct priority written            |
+| `createTicket` — Zod validation (empty subject/body)  | Throws before DB write                        |
+| `createTicket` — success                              | teamId and userId scoped from session         |
+| Super creates team                                    | Succeeds; team row created                    |
+| `createTeam` — invalid slug characters               | Throws (Zod)                                  |
+| `createTeam` — duplicate slug                        | Throws friendly error (P2002)                 |
+| `createUserInTeam` — REQUESTER defaults to CUSTOMER   | requesterType set to CUSTOMER                 |
+| `createUserInTeam` — non-REQUESTER role               | requesterType set to null                     |
+| `createUserInTeam` — duplicate email in team          | Throws friendly error (P2002)                 |
+| `seedDemoUsers` — team not found                      | Throws                                        |
+| `seedDemoUsers` — partial skip on existing users      | Returns correct created/total counts          |
+| `getDashboardMetrics` — role guard (SUPPORT)          | Throws                                        |
+| `getDashboardMetrics` — teamId scoping               | All queries include teamId                    |
+| `getDashboardMetrics` — status zero-fill             | Missing statuses default to 0                 |
+| `getDashboardMetrics` — avgResponseHours             | Correct average computed; null when no replies |
+| `getDashboardMetrics` — topAssignees teamId scope    | User lookup scoped to session teamId          |
+| Invalid FSM transition                                | `assertTransition` throws                     |
+| Valid FSM transition                                  | Writes `StatusEvent` row                      |
+| `changeMyPassword` with wrong current password        | Throws before DB write                        |
+| `changeMyPassword` success                            | Verifies bcrypt compare + hash + update args  |
+| `changeMyPassword` identity                           | `userId` taken from session, not caller input |
+| `changeUserRole` — Manager assigns MANAGER+           | Throws (ceiling enforced)                     |
+| `changeUserRole` — Admin assigns ADMIN+               | Throws (ceiling enforced)                     |
+| `changeUserRole` — Manager modifies Admin row         | Throws (target rank exceeds actor ceiling)    |
+| `changeUserRole` — CUSTOMER promoted to SUPPORT       | Throws (must become FIELD_AGENT first)        |
+| `changeUserRole` — FIELD_AGENT promoted to SUPPORT    | Succeeds                                      |
+| `listTeamMembers` / `listTeamUsers` — teamId scoping  | Queries include teamId from session           |
 
 ### E2E (Playwright)
 
 | Flow                                                    | Verified                |
 | ------------------------------------------------------- | ----------------------- |
 | Field agent: login → create ticket → view in My tickets | Requester path          |
-| Support: login → assign → internal note → status change | Support path            |
+| Support: login → self-assign → internal note → status change | Support path, assign-self rule |
 | Manager: escalate → close → reopen                      | Permission gates        |
 | Team B support: attempt to access Team A ticket         | Returns 403 / redirects |
 | Login: rate limit after too many failed attempts        | Brute-force protection  |
