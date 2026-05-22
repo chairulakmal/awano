@@ -10,6 +10,7 @@
     "lint": "eslint",
     "format": "prettier --write .",
     "db:seed": "tsx prisma/seed.ts",
+    "db:seed:tickets": "tsx prisma/seed-bulk-tickets.ts",
     "db:reset": "prisma migrate reset --force && npm run db:seed",
     "test": "vitest run",
     "test:watch": "vitest",

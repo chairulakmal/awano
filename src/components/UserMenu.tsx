@@ -56,6 +56,7 @@ export function UserMenu({
         className="flex items-center gap-2 rounded-full py-1 pl-1 pr-2.5 hover:bg-zinc-100 transition-colors"
         aria-haspopup="true"
         aria-expanded={isOpen}
+        data-testid="user-menu-trigger"
       >
         <span
           className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-semibold ${AVATAR_BG[role]}`}

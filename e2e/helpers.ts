@@ -10,6 +10,6 @@ export async function login(page: Page, email: string, team: string) {
   // UserMenu trigger (aria-haspopup) is always visible when a session is active.
   // Catches regressions of trustHost: without it, Auth.js falls back to pages.signIn
   // and the user lands back on /login despite a valid session.
-  await expect(page.locator('button[aria-haspopup="true"]')).toBeVisible({ timeout: 15_000 });
+  await expect(page.locator('[data-testid="user-menu-trigger"]')).toBeVisible({ timeout: 15_000 });
   await expect(page).not.toHaveURL(/\/login/);
 }
