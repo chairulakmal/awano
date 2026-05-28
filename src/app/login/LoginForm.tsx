@@ -1,8 +1,60 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { loginAction } from "./actions";
+
+const DEMO_PASSWORD = "oretachinomachida";
+const DEMO_ACCOUNTS = [
+  { label: "Support", email: "support@awano.demo" },
+  { label: "Customer", email: "customer@awano.demo" },
+  { label: "Manager", email: "manager@awano.demo" },
+];
+
+function CopyButton({ text }: { text: string }) {
+  const [copied, setCopied] = useState(false);
+
+  function handleCopy() {
+    navigator.clipboard.writeText(text).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    });
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={handleCopy}
+      className="ml-2 rounded px-2 py-1 text-xs font-medium bg-amber-100 hover:bg-amber-200 text-amber-700 transition-colors shrink-0"
+    >
+      {copied ? "Copied!" : "Copy"}
+    </button>
+  );
+}
+
+function DemoCredentials() {
+  return (
+    <div className="rounded-lg bg-amber-50 border border-amber-100 px-3.5 py-3 text-xs text-amber-800 space-y-2">
+      <p className="font-semibold">Demo credentials</p>
+      {DEMO_ACCOUNTS.map(({ label, email }) => (
+        <div key={email} className="flex items-center justify-between gap-2">
+          <span className="text-amber-600">{label}:</span>
+          <div className="flex items-center min-w-0">
+            <span className="truncate font-mono">{email}</span>
+            <CopyButton text={email} />
+          </div>
+        </div>
+      ))}
+      <div className="mt-1 pt-2 border-t border-amber-100 rounded-md bg-amber-100/60 px-2.5 py-2 flex items-center justify-between gap-2">
+        <div className="flex flex-col gap-0.5">
+          <span className="text-amber-500 text-[10px] uppercase tracking-wide font-semibold">Password · all accounts</span>
+          <span className="font-mono text-amber-900">{DEMO_PASSWORD}</span>
+        </div>
+        <CopyButton text={DEMO_PASSWORD} />
+      </div>
+    </div>
+  );
+}
 
 export function LoginForm({ defaultTeam }: { defaultTeam?: string }) {
   const [error, formAction, pending] = useActionState(loginAction, null);
@@ -78,11 +130,7 @@ export function LoginForm({ defaultTeam }: { defaultTeam?: string }) {
         Replace these with real seeded credentials before sharing.
       */}
       {defaultTeam === "demo" && (
-        <div className="rounded-lg bg-amber-50 border border-amber-100 px-3.5 py-3 text-xs text-amber-800 space-y-1">
-          <p className="font-semibold">Demo credentials</p>
-          <p>support@awano.demo / oretachinomachida</p>
-          <p>customer@awano.demo / oretachinomachida</p>
-        </div>
+        <DemoCredentials />
       )}
     </form>
   );
