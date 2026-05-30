@@ -2,6 +2,7 @@
   "name": "awano",
   "version": "0.1.0",
   "private": true,
+  "license": "MIT",
   "scripts": {
     "postinstall": "prisma generate",
     "dev": "docker compose up -d && next dev",
