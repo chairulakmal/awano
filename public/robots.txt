@@ -1,0 +1,21 @@
+User-agent: *
+Allow: /login
+Allow: /llms.txt
+Disallow: /desk/
+Disallow: /tickets/
+Disallow: /admin/
+Disallow: /super/
+Disallow: /profile/
+Disallow: /api/
+
+# AI crawlers
+User-agent: GPTBot
+Allow: /login
+
+User-agent: ClaudeBot
+Allow: /login
+
+User-agent: PerplexityBot
+Allow: /login
+
+Sitemap: https://awano.chairulakmal.com/sitemap.xml
