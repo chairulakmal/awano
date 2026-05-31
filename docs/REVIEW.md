@@ -93,21 +93,10 @@ before swallowing.
 
 ### 1.2 Hardcoded demo credentials in source
 
-`src/lib/teams/service.ts`:
-
-```ts
-const DEMO_PASSWORD = "oretachinomachida";
-```
-
-`src/app/login/LoginForm.tsx`:
-
-```ts
-<p>support@awano.demo / oretachinomachida</p>
-```
-
-Credentials in source are visible in the git log forever. For a portfolio project this is low-risk,
-but the industry practice is `process.env.DEMO_PASSWORD ?? "fallback"`. The hint in `LoginForm`
-should read from that env var too.
+**Resolved.** The demo password is no longer in the frontend. `LoginForm` now renders one-click
+login buttons per role; each button calls a `demoLoginAction` server action that holds the password
+server-side only and is never shipped to the client bundle. The credentials hint UI has been removed
+entirely.
 
 ---
 
@@ -446,4 +435,4 @@ For Playwright, the following behaviors are most critical to cover end-to-end:
 | 11  | Missing test coverage for `getDashboardMetrics`, `teams/service`, `setPriority` | Low      | Open       |
 | 12  | Accessibility: no landmarks, no aria-live, no aria-busy                         | Low      | Open       |
 | 13  | `isPrismaUniqueError` duplicated across two service files                       | Low      | Open       |
-| 14  | Hardcoded demo password in source                                               | Low      | Open       |
+| 14  | Hardcoded demo password in source                                               | Low      | Resolved   |

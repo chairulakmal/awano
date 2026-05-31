@@ -16,8 +16,7 @@ and an immutable audit trail on every status change.
 
 [`awano.chairulakmal.com/login?team=demo`](https://awano.chairulakmal.com/login?team=demo)
 
-Log in as `support@awano.demo` / `oretachinomachida` to see the agent desk, or use any account from
-the [demo accounts table](#demo-accounts) below to explore a different role.
+One-click login buttons are shown on the page — pick any role to jump straight in.
 
 ---
 
@@ -205,8 +204,8 @@ npx prisma studio   # Database GUI
 
 ## Demo accounts
 
-Log in at [`/login?team=demo`](https://awano.chairulakmal.com/login?team=demo) — password for all
-accounts: **`oretachinomachida`**
+Log in at [`/login?team=demo`](https://awano.chairulakmal.com/login?team=demo) — one-click login
+buttons are shown on the page for each role.
 
 | Email                  | Role      | Requester type |
 | ---------------------- | --------- | -------------- |
