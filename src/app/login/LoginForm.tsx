@@ -1,57 +1,50 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState, useState } from "react";
-import { loginAction } from "./actions";
+import { useActionState, useState, useTransition } from "react";
+import { demoLoginAction, loginAction } from "./actions";
 
-const DEMO_PASSWORD = "oretachinomachida";
 const DEMO_ACCOUNTS = [
   { label: "Support", email: "support@awano.demo" },
-  { label: "Customer", email: "customer@awano.demo" },
   { label: "Manager", email: "manager@awano.demo" },
+  { label: "Customer", email: "customer@awano.demo" },
+  { label: "Recruiter", email: "recruiter@awano.demo" },
+  { label: "Field Agent", email: "agent@awano.demo" },
 ];
 
-function CopyButton({ text }: { text: string }) {
-  const [copied, setCopied] = useState(false);
+function DemoButtons() {
+  const [pending, startTransition] = useTransition();
+  const [pendingEmail, setPendingEmail] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
-  function handleCopy() {
-    navigator.clipboard.writeText(text).then(() => {
-      setCopied(true);
-      setTimeout(() => setCopied(false), 1500);
+  function handleDemoLogin(email: string) {
+    setPendingEmail(email);
+    startTransition(async () => {
+      const result = await demoLoginAction(email);
+      if (result) {
+        setError(result);
+        setPendingEmail(null);
+      }
     });
   }
 
   return (
-    <button
-      type="button"
-      onClick={handleCopy}
-      className="ml-2 rounded px-2 py-1 text-xs font-medium bg-amber-100 hover:bg-amber-200 text-amber-700 transition-colors shrink-0"
-    >
-      {copied ? "Copied!" : "Copy"}
-    </button>
-  );
-}
-
-function DemoCredentials() {
-  return (
-    <div className="rounded-lg bg-amber-50 border border-amber-100 px-3.5 py-3 text-xs text-amber-800 space-y-2">
-      <p className="font-semibold">Demo credentials</p>
-      {DEMO_ACCOUNTS.map(({ label, email }) => (
-        <div key={email} className="flex items-center justify-between gap-2">
-          <span className="text-amber-600">{label}:</span>
-          <div className="flex items-center min-w-0">
-            <span className="truncate font-mono">{email}</span>
-            <CopyButton text={email} />
-          </div>
-        </div>
-      ))}
-      <div className="mt-1 pt-2 border-t border-amber-100 rounded-md bg-amber-100/60 px-2.5 py-2 flex items-center justify-between gap-2">
-        <div className="flex flex-col gap-0.5">
-          <span className="text-amber-500 text-[10px] uppercase tracking-wide font-semibold">Password · all accounts</span>
-          <span className="font-mono text-amber-900">{DEMO_PASSWORD}</span>
-        </div>
-        <CopyButton text={DEMO_PASSWORD} />
+    <div className="rounded-lg bg-amber-50 border border-amber-100 px-3.5 py-3 space-y-2">
+      <p className="text-xs font-semibold text-amber-800">Try a demo account</p>
+      <div className="flex flex-wrap gap-2">
+        {DEMO_ACCOUNTS.map(({ label, email }) => (
+          <button
+            key={email}
+            type="button"
+            disabled={pending}
+            onClick={() => handleDemoLogin(email)}
+            className="flex-1 rounded-md px-3 py-2 text-xs font-medium bg-amber-100 hover:bg-amber-200 text-amber-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {pendingEmail === email ? "Signing in…" : label}
+          </button>
+        ))}
       </div>
+      {error && <p className="text-xs text-red-600">{error}</p>}
     </div>
   );
 }
@@ -130,7 +123,7 @@ export function LoginForm({ defaultTeam }: { defaultTeam?: string }) {
         Replace these with real seeded credentials before sharing.
       */}
       {defaultTeam === "demo" && (
-        <DemoCredentials />
+        <DemoButtons />
       )}
     </form>
   );

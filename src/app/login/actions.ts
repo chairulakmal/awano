@@ -22,6 +22,25 @@ function checkRateLimit(email: string): boolean {
   return true;
 }
 
+export async function demoLoginAction(email: string): Promise<string | null> {
+  if (!checkRateLimit(email)) {
+    return "Too many login attempts. Please try again later.";
+  }
+  try {
+    await signIn("credentials", {
+      team: "demo",
+      email,
+      password: "oretachinomachida",
+      redirectTo: "/",
+    });
+  } catch (err) {
+    unstable_rethrow(err);
+    if (err instanceof AuthError) return "Demo login failed.";
+    throw err;
+  }
+  return null;
+}
+
 export async function loginAction(
   _prevState: string | null,
   formData: FormData
