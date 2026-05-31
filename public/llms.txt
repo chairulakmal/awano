@@ -25,6 +25,6 @@ Awano is a production-grade support desk application demonstrating advanced Next
 
 ## Links
 
-- Live demo: https://awano.chairulakmal.com (login: support@awano.demo / oretachinomachida)
+- Live demo: https://awano.chairulakmal.com (one-click login buttons shown on the demo login page)
 - Source code: https://github.com/chairulakmal/awano
 - Author: https://chairulakmal.com

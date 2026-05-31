@@ -364,7 +364,7 @@ Deployed at `awano.chairulakmal.com` on Railway. Current configuration:
 | `support@beta.demo`    | SUPPORT   | —           | beta |
 | `manager@beta.demo`    | MANAGER   | —           | beta |
 
-Login: `/login?team=demo`. Demo password documented in `README.md`.
+Login: `/login?team=demo`. One-click login buttons are shown on the page for each role.
 
 ---
 
