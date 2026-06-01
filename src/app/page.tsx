@@ -78,7 +78,9 @@ const COPY = {
   },
   footer: {
     brand: "Awano",
-    tagline: `© ${new Date().getFullYear()} Chairul Akmal`,
+    year: new Date().getFullYear(),
+    author: "Chairul Akmal",
+    website: "https://chairulakmal.com/",
     license: "MIT License",
     github: "https://github.com/chairulakmal/awano",
   },
@@ -209,7 +211,16 @@ export default function Home() {
         <div className="max-w-5xl mx-auto flex items-center justify-between text-xs text-zinc-500">
           <span className="font-medium text-zinc-700">{COPY.footer.brand}</span>
           <span>
-            {COPY.footer.tagline} ·{" "}
+            © {COPY.footer.year}{" "}
+            <a
+              href={COPY.footer.website}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-zinc-800 transition-colors"
+            >
+              {COPY.footer.author}
+            </a>
+            {" "}·{" "}
             <a
               href={COPY.footer.github}
               target="_blank"
