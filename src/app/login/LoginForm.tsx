@@ -54,12 +54,7 @@ export function LoginForm({ defaultTeam }: { defaultTeam?: string }) {
 
   return (
     <form action={formAction} className="flex flex-col gap-5">
-      {/*
-        Team field is only shown when a team slug is already known from the URL.
-        Bare /login (no ?team=) skips this field entirely — that path is for
-        platform admins (SUPER role) who have no team.
-      */}
-      {defaultTeam && (
+      {defaultTeam ? (
         <div className="flex flex-col gap-1.5">
           <label className="text-sm font-medium text-zinc-700">Team</label>
           <input type="hidden" name="team" value={defaultTeam} />
@@ -73,58 +68,65 @@ export function LoginForm({ defaultTeam }: { defaultTeam?: string }) {
             </Link>
           </div>
         </div>
+      ) : (
+        <div className="flex p-3.5 w-full rounded-lg bg-zinc-100">
+          <Link
+            href="/login?team=demo"
+            className="self-start text-xs text-zinc-400 hover:text-primary transition-colors"
+          >
+            Want to try the demo? →
+          </Link>
+        </div>
       )}
 
-      <div className="flex flex-col gap-1.5">
-        <label htmlFor="email" className="text-sm font-medium text-zinc-700">
-          Email
-        </label>
-        <input
-          id="email"
-          name="email"
-          type="email"
-          required
-          autoComplete="email"
-          className="w-full rounded-lg ring-input px-3.5 py-2.5 text-sm text-zinc-900 placeholder:text-zinc-400 outline-none transition"
-        />
-      </div>
-
-      <div className="flex flex-col gap-1.5">
-        <label htmlFor="password" className="text-sm font-medium text-zinc-700">
-          Password
-        </label>
-        <input
-          id="password"
-          name="password"
-          type="password"
-          required
-          autoComplete="current-password"
-          className="w-full rounded-lg ring-input px-3.5 py-2.5 text-sm text-zinc-900 placeholder:text-zinc-400 outline-none transition"
-        />
-      </div>
-
-      {error && (
-        <p className="rounded-lg bg-red-50 border border-red-100 px-3.5 py-2.5 text-sm text-red-600">
-          {error}
-        </p>
-      )}
-
-      <button
-        type="submit"
-        disabled={pending}
-        className="mt-1 w-full h-12 rounded-lg bg-primary text-white text-base font-semibold hover:bg-primary-hover transition-colors shadow-sm disabled:cursor-not-allowed disabled:opacity-50"
-      >
-        {pending ? "Signing in…" : "Sign in"}
-      </button>
-
-      {/*
-        Demo credentials hint — only shown on the demo team login.
-        Makes it easy for portfolio reviewers to get in without asking.
-        Replace these with real seeded credentials before sharing.
-      */}
-      {defaultTeam === "demo" && (
+      {defaultTeam === "demo" ? (
         <DemoButtons />
+      ) : (
+        <>
+          <div className="flex flex-col gap-1.5">
+            <label htmlFor="email" className="text-sm font-medium text-zinc-700">
+              Email
+            </label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              required
+              autoComplete="email"
+              className="w-full rounded-lg ring-input px-3.5 py-2.5 text-sm text-zinc-900 placeholder:text-zinc-400 outline-none transition"
+            />
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <label htmlFor="password" className="text-sm font-medium text-zinc-700">
+              Password
+            </label>
+            <input
+              id="password"
+              name="password"
+              type="password"
+              required
+              autoComplete="current-password"
+              className="w-full rounded-lg ring-input px-3.5 py-2.5 text-sm text-zinc-900 placeholder:text-zinc-400 outline-none transition"
+            />
+          </div>
+
+          {error && (
+            <p className="rounded-lg bg-red-50 border border-red-100 px-3.5 py-2.5 text-sm text-red-600">
+              {error}
+            </p>
+          )}
+
+          <button
+            type="submit"
+            disabled={pending}
+            className="mt-1 w-full h-12 rounded-lg bg-primary text-white text-base font-semibold hover:bg-primary-hover transition-colors shadow-sm disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {pending ? "Signing in…" : "Sign in"}
+          </button>
+        </>
       )}
+
     </form>
   );
 }
