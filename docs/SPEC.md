@@ -4,7 +4,7 @@
 | --------------------- | -------------------------------------------------------------------------------------------------------------- |
 | **Status**            | Draft                                                                                                          |
 | **Owner**             | Chairul Akmal                                                                                                  |
-| **Last updated**      | 2026-05-21                                                                                                     |
+| **Last updated**      | 2026-07-18                                                                                                     |
 | **Stack**             | Next.js 16 (App Router) · TypeScript (strict) · Prisma 7 · PostgreSQL · Auth.js v5 · Zod · Vitest · Playwright |
 | **Deployment target** | Railway                                                                                                        |
 
@@ -98,6 +98,8 @@ Attachment (id, ticketId, commentId?, filename, mimeType, sizeBytes, data Bytes,
 | `Comment`     | `(ticketId, createdAt)`                                     |
 | `StatusEvent` | `(ticketId, createdAt)`                                     |
 
+**Cascade behaviour.** `Team` is the tenant root: `User`, `Category`, and `Ticket` rows cascade-delete when their team is removed. `Comment`, `StatusEvent`, and `Attachment` rows cascade-delete with their ticket.
+
 Prisma client output: `src/generated/prisma`.
 
 ---
@@ -178,6 +180,12 @@ assertCanUpdateTicket(session, ticket);
 ```
 
 Each throws a structured error on failure. Called at the top of every Server Action.
+
+---
+
+## Caching (`use cache`)
+
+Next.js 16 introduces a `'use cache'` directive. It requires `cacheComponents: true` in `next.config`, which this project does not set; enabling the flag is a whole-app decision, not a fix for one component. The directive is not the same as `React.cache` or `unstable_cache`. If it is ever enabled, caching belongs at the component or data-fetch layer, never on a server action or service function: the mutation layer must stay uncached.
 
 ---
 
