@@ -39,7 +39,7 @@ docker ps --filter name=awano-postgres
 docker compose exec db pg_isready -U awano -d awano
 ```
 
-Expected: `awano:5432 - accepting connections`
+Expected: `awano:5432 - accepting connections` (5432 is the container-internal port; from the host, Postgres is on 5433)
 
 **4. Connect with `psql` (optional)**
 
@@ -50,7 +50,7 @@ docker compose exec db psql -U awano -d awano -c "SELECT 1 AS ok;"
 **5. From the host (if you have `psql` installed)**
 
 ```bash
-psql "postgresql://awano:awano@localhost:5432/awano" -c "SELECT version();"
+psql "postgresql://awano:awano@localhost:5433/awano" -c "SELECT version();"
 ```
 
 ## App connection string
@@ -62,7 +62,7 @@ cp .env.example .env
 `DATABASE_URL` in `.env`:
 
 ```text
-postgresql://awano:awano@localhost:5432/awano?schema=public
+postgresql://awano:awano@localhost:5433/awano?schema=public
 ```
 
 After Prisma is set up:
@@ -83,7 +83,6 @@ npx prisma migrate dev
 
 ## Troubleshooting
 
-**Port 5432 already in use** — another Postgres is running. Stop it or change the host port in
-`docker-compose.yml`, e.g. `"5433:5432"`, and update `DATABASE_URL` to use port `5433`.
+**Port 5433 already in use**: the compose file maps host port 5433 (not the Postgres default 5432, to avoid clashing with other local Postgres instances). If something else holds 5433, change the host side of the mapping in `docker-compose.yml`, e.g. `"5434:5432"`, and update `DATABASE_URL` to match.
 
 **Container exits immediately** — run `docker compose logs db` for the error message.
