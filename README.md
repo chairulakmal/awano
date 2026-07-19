@@ -1,248 +1,78 @@
 # Awano
 
-Multi-tenant support desk demonstrating production-grade Next.js engineering: role-based access
-control, a finite-state ticket workflow, cross-tenant isolation enforced at every database query,
-and an immutable audit trail on every status change.
+[![CI](https://github.com/chairulakmal/awano/actions/workflows/ci.yml/badge.svg)](https://github.com/chairulakmal/awano/actions/workflows/ci.yml) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-[![CI](https://github.com/chairulakmal/awano/actions/workflows/ci.yml/badge.svg)](https://github.com/chairulakmal/awano/actions/workflows/ci.yml)
-&nbsp;
-![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript&logoColor=white)
-&nbsp; ![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=next.js&logoColor=white) &nbsp;
-![Tests](https://img.shields.io/badge/unit_tests-230_passing-22c55e)
+A multi-tenant support desk built on Next.js 16 Server Actions with no separate API layer: every mutation derives `teamId`, `userId`, and `role` from the server-side session, never from the client, and one service layer enforces the tenant boundary on every query. Below: the live demo, the highlights, the stack, how to run it locally, and how it is tested; [ARCHITECTURE.md](ARCHITECTURE.md) walks the design decisions.
 
----
+**Live demo:** [awano.chairulakmal.com/login?team=demo](https://awano.chairulakmal.com/login?team=demo). One-click login buttons cover every role: three requester flavours (customer, recruiter, field agent), support, manager, and admin. The platform super admin, who provisions teams and belongs to none, signs in at [/login](https://awano.chairulakmal.com/login) with no team slug. The full permission matrix lives in [docs/SPEC.md](docs/SPEC.md).
 
-## Live demo
+## Highlights
 
-[`awano.chairulakmal.com/login?team=demo`](https://awano.chairulakmal.com/login?team=demo)
-
-One-click login buttons are shown on the page — pick any role to jump straight in.
-
----
+- Ticket status is a finite state machine with a role gate on every edge. [`src/lib/tickets/fsm.ts`](src/lib/tickets/fsm.ts) is a single `TRANSITIONS` table of `{from, to, minRole}` rows, so escalating or reopening a closed ticket requires Manager while routine moves need only Support, and the whole rule set reads in one screen. Each transition writes the ticket update and a `StatusEvent` audit row inside one Prisma `$transaction` ([`src/lib/tickets/service.ts`](src/lib/tickets/service.ts)), so a ticket can never change state without a recorded cause.
+- The tenant boundary is enforced in the service layer, not the UI. Every query on a tenant-scoped model filters by the session's `teamId`, and every fetch-by-id path re-checks ownership through the typed assertions in [`src/lib/auth/assertions.ts`](src/lib/auth/assertions.ts) (`assertAuthenticated`, `assertRole`, `assertSameTeam`, `assertCanViewTicket`). A missing assertion is a visible gap at the top of a function, not a silent omission.
+- Requesters never receive internal notes, by construction. [`src/lib/tickets/service.ts`](src/lib/tickets/service.ts) filters `isInternal: true` comments out of the query itself when the session role is `REQUESTER`, so no page or component can opt out of the rule.
+- Attachments are compressed in the browser before upload: [`src/lib/attachments/compress.ts`](src/lib/attachments/compress.ts) redraws images through a canvas to WebP, probing first because Safari silently falls back to PNG on `canvas.toBlob('image/webp')`. The server trusts none of it: [`src/lib/attachments/service.ts`](src/lib/attachments/service.ts) re-checks a MIME allowlist and a 1 MB cap, and the serve route ([`src/app/api/attachments/[id]/route.ts`](src/app/api/attachments/%5Bid%5D/route.ts)) runs the same view assertion as the ticket page.
+- Ticket lists use cursor pagination with the `limit + 1` trick: fetch one extra row, and its presence is the "there are more pages" signal ([`src/lib/tickets/service.ts`](src/lib/tickets/service.ts)). A server component renders the first page and [`src/app/desk/DeskTicketList.tsx`](src/app/desk/DeskTicketList.tsx) appends later pages through a server action, so offset drift from concurrent inserts cannot skip or duplicate rows.
+- Login rate limiting blocks before bcrypt runs: a sliding-window counter in [`src/app/login/actions.ts`](src/app/login/actions.ts) (5 attempts per 15 minutes, keyed on email) rejects a flooded request before any password hashing work begins, and [`src/app/profile/actions.ts`](src/app/profile/actions.ts) applies the same pattern to password changes, keyed on user id.
+- Status buttons apply optimistically with `useOptimistic` ([`src/app/desk/[id]/StatusForm.tsx`](src/app/desk/%5Bid%5D/StatusForm.tsx)) and revert automatically when the server action rejects, for example because the agent's role changed since page load. The server-side FSM remains the only authority.
+- One production bug worth reading about: after the first Railway deploy, every successful login bounced back to the login form, because Railway terminates TLS at its load balancer and Auth.js could not resolve the real HTTPS origin from forwarded headers. The fix is one line, `trustHost: true` in [`src/auth.config.ts`](src/auth.config.ts); finding it required understanding how Auth.js validates redirect URLs behind a reverse proxy.
 
 ## Stack
 
-| Layer      | Choice                                                     | Why                                                                                                     |
-| ---------- | ---------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
-| Framework  | Next.js 16 — App Router, Server Components, Server Actions | Colocate mutations with UI; no separate API layer needed                                                |
-| Language   | TypeScript `strict: true`                                  | Compiler catches missing `teamId` filters before runtime                                                |
-| ORM        | Prisma 7 → PostgreSQL                                      | Typed query results; compound indexes on `(teamId, status)`                                             |
-| Auth       | Auth.js v5 — Credentials, stateless JWT, `httpOnly` cookie | No session table; CSRF handled; cookie inaccessible to JS                                               |
-| Validation | Zod on every server boundary                               | Validated types flow through the rest of the function                                                   |
-| Testing    | Vitest (unit) · Playwright (E2E)                           | Vitest mocks Prisma — tests focus on business logic; Playwright runs full user journeys against Railway |
-| Deployment | Railway — persistent container + managed PostgreSQL        | No cold starts; app and DB on one platform                                                              |
-
----
-
-## Engineering highlights
-
-**Finite state machine for ticket status.** All valid transitions (`OPEN → IN_PROGRESS`,
-`IN_PROGRESS → ESCALATED`, etc.) and their minimum required role live in one lookup table in
-`src/lib/tickets/fsm.ts`. `assertTransition()` throws on invalid pairs or insufficient role; on
-success a `StatusEvent` row is appended for an immutable audit trail.
-
-**Atomicity on the audit trail.** Each status transition writes two records — the updated ticket and
-a new `StatusEvent` — inside a single Prisma `$transaction`. If either write fails both roll back,
-so a ticket can never appear to jump states with no recorded cause.
-
-**Authorization as typed assertions.** Business rules live in explicit typed functions
-(`assertAuthenticated`, `assertRole`, `assertSameTeam`, `assertCanViewTicket`) called at the top of
-every server action before any DB work begins. A missing assertion is a visible gap in the code, not
-a silent omission.
-
-**`teamId` never comes from the client.** On every mutation, `teamId`, `userId`, and `role` are
-derived from the server-side session — the Zod schema at each server action accepts only what the
-client legitimately controls. This prevents privilege escalation regardless of what a client sends.
-
-**Service layer keeps business logic testable.** The pattern is
-`Server Action → service.ts → Prisma` with no Prisma calls outside the service layer. Business rules
-are unit-tested in Vitest with a mocked DB client — no database or Next.js infrastructure needed.
-
-**Diagnosing a reverse-proxy auth bug in production.** After deploying to Railway, every successful
-login redirected back to the login form. Railway terminates TLS at its load balancer, so without
-`trustHost: true` Auth.js couldn't resolve the real HTTPS origin from forwarded headers and fell
-back to the sign-in page after every login. One-line fix; finding the root cause required
-understanding how Auth.js validates redirect URLs behind a reverse proxy.
-
-**Optimistic UI for status transitions.** Clicking a status button applies the change immediately
-via React's `useOptimistic` before the server action resolves. If the action fails — for example
-because the agent's role has changed since page load — the UI reverts automatically. The server
-remains the source of truth.
-
-**Password policy informed by NIST, not convention.** The password change form enforces a
-15-character minimum and nothing else. NIST SP 800-63B states length is a stronger entropy predictor
-than character-set diversity, and that complexity rules push users toward predictable substitutions
-like `Password1!`.
-
-**Revoking a stateless JWT without a session table.** After a password change the old JWT is still
-technically valid. Rather than adding a `passwordChangedAt` column and checking it on every request,
-the client calls `signOut({ callbackUrl: "/login" })` from `next-auth/react` after the success flash
-— clearing the `httpOnly` cookie with no schema migration needed.
-
-**Cursor-based pagination with client-side "Load more".** Ticket lists fetch `limit + 1` rows; if
-the extra row exists there are more pages and `nextCursor` is set to the last returned id. The desk
-page is a Server Component that renders the first page; a `DeskTicketList` client component appends
-subsequent pages to local state via a `loadMoreDeskTickets` server action. Offset-based `skip` is
-avoided because it produces incorrect results when rows are inserted or deleted between pages.
-
-**Client/server component boundary in the header.** The `Header` component calls `auth()` and
-renders entirely on the server with no client JS. Interactive parts (dropdown state, keyboard and
-pointer handlers) are isolated in a `UserMenu` client component that receives only `name`, `email`,
-and `role` as props — keeping the server component tree as large as the UX permits.
-
-**Role-aware navigation with responsive collapse.** The header derives nav links from the
-server-side session role (`navLinksForRole`) and passes them to a `NavMenu` client component. On
-wide viewports the links render inline; on narrow viewports they collapse into a hamburger dropdown
-styled identically to the `UserMenu` panel. Managers see Queue + All Tickets + Dashboard; Support
-sees Queue; Requesters see My Tickets. The all-tickets view (`/admin/tickets`) adds a status
-filter bar and cursor-based pagination so managers can browse history across all statuses.
-
-**Regression caught and fixed by unit tests.** A PR that restricted assignee editing to managers
-also silently removed the ability for support staff to self-assign — violating the spec. The
-gap was surfaced by an `assignTicket` unit test added during a service-layer test audit. The fix
-restores SPEC-compliant behaviour: Support sees a dropdown filtered to themselves only; Manager+
-sees the full team list. The server-side guard was already correct; only the UI and the E2E test
-needed updating.
-
----
-
-## What it does
-
-External requesters (customers, recruiters, field agents) submit support tickets. Support agents
-manage the queue, reply, and leave internal notes. Managers handle escalations, closures, and team
-metrics. A platform super admin provisions isolated workspaces for each organisation.
-
-Every piece of data is scoped to a **Team**. A support agent from Team A cannot read, write, or
-accidentally stumble on Team B's tickets — this is enforced in every service function, not just in
-the UI.
-
----
-
-## Roles & access
-
-| Role          | Access                                                                               |
-| ------------- | ------------------------------------------------------------------------------------ |
-| **Requester** | Submit tickets, comment and track their own tickets only — never sees internal notes |
-| **Support**   | Team inbox, assign, status transitions, internal notes                               |
-| **Manager**   | Everything Support can do + escalate, close/reopen, manage users and categories      |
-| **Admin**     | User invites, role changes, category CRUD within a team                              |
-| **Super**     | Provision teams and users across the platform; is not part of any team               |
-
-Route guards are enforced in `src/proxy.ts` (Next.js 16's replacement for `middleware.ts`):
-`/desk/*` requires Support+, `/admin/*` requires Manager+, `/super/*` requires Super only,
-`/profile` requires any authenticated role.
-
----
-
-## Security
-
-The multi-tenant boundary is enforced in the service layer, not the UI.
-
-| Property                                | Implementation                                                                                                                                                          |
-| --------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Cross-tenant isolation**              | Every tenant-scoped query includes `teamId` in the `WHERE` clause. `assertSameTeam()` is called on any fetch-by-ID path as a second check.                              |
-| **Session is the authority**            | On every mutation, `teamId`, `userId`, and `role` come from the server-side JWT — never from `FormData` or the request body.                                            |
-| **Input validation**                    | Zod schemas at every server action boundary. Enums are validated with `z.nativeEnum()` so invalid status/priority values are rejected before reaching the DB.           |
-| **Internal comments**                   | The service layer strips `isInternal: true` comments from any response to a `REQUESTER` session — the UI cannot opt out of this.                                        |
-| **Route guards**                        | `src/proxy.ts` enforces role minimums at the edge: `/desk/*` → Support+, `/admin/*` → Manager+, `/super/*` → Super only.                                                |
-| **Session eviction on password change** | `signOut({ callbackUrl: "/login" })` called client-side after a successful password change — clears the `httpOnly` cookie immediately.                                  |
-| **Login rate limiting**                 | In-process sliding-window counter: 5 attempts per 15-minute window keyed on email address. Blocks before `signIn()` is called — bcrypt never runs on a blocked request. |
-| **Password change rate limiting**       | Same pattern, keyed on `userId`. Blocks before bcrypt work begins. Reset on success.                                                                                    |
-| **Security headers**                    | `Strict-Transport-Security`, `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy` applied to all responses via `next.config.ts`.               |
-| **Attachment MIME allowlist**           | `addAttachment` rejects any MIME type not in `{ image/jpeg, image/png, image/webp, application/pdf }` before the DB write — prevents XSS via `Content-Type` spoofing on the `/api/attachments/[id]` serve route. |
-
-A self-audit found one defence-in-depth gap: the top-assignees query in `getDashboardMetrics`
-fetched users by ID without an explicit `teamId` filter (safe in practice because the IDs came from
-a team-scoped query, but an implicit dependency). The filter was added to make isolation
-unconditional.
-
----
-
-## Tests
-
-Service tests mock `@/lib/db` with `vi.mock` so no database connection is needed — the full suite
-runs in CI without a Postgres service container. Playwright E2E covers complete user journeys
-against the live Railway deployment.
-
-Coverage: FSM transitions, all authorization assertion paths, and every service function across all
-domains — tickets, users, categories, admin metrics, teams, and attachments. Tests include role
-guards, cross-team isolation, Zod validation branches, business rule enforcement (assign
-self-only for Support, role-ceiling checks, slug generation), and computation logic (avg response
-time, status count zero-filling).
-
-```bash
-npm test                    # 230 unit tests
-npm run test:watch          # Re-run on file change
-npm run test:coverage       # V8 coverage report
-npx playwright test         # E2E (requires dev server or Railway URL)
-npm run db:seed:tickets     # Seed 60 bulk tickets for pagination testing
-```
-
----
+| Layer | What the code pins |
+|---|---|
+| Framework | Next.js 16.2.6 (App Router, Server Components, Server Actions), React 19.2.4 |
+| Language | TypeScript 5, `strict: true` |
+| Data | Prisma 7.8 (`prisma-client` generator, `pg` driver adapter), PostgreSQL 16 |
+| Auth | Auth.js v5 (next-auth 5.0.0-beta.31), Credentials provider, stateless JWT in an `httpOnly` cookie |
+| Validation | Zod 4 at every server action boundary |
+| Styling | Tailwind CSS 4 via the PostCSS plugin |
+| Tests | Vitest 4 (unit, mocked Prisma), Playwright 1.60 (E2E) |
+| Deployment | Railway: Railpack builder, standalone output, managed PostgreSQL ([railway.json](railway.json)) |
 
 ## Running locally
 
-**Prerequisites:** Node.js, Docker
+Prerequisites: Node 24, Docker.
 
 ```bash
+# 1. Dependencies (postinstall runs prisma generate)
 npm install
+
+# 2. Environment: the defaults match the Docker Postgres below
 cp .env.example .env
-docker compose up -d          # Start PostgreSQL
-npx prisma migrate dev        # Apply schema + generate client
-npx prisma db seed            # Seed demo teams and users
-npm run dev                   # http://localhost:3000
+
+# 3. PostgreSQL 16 in Docker, on host port 5433
+docker compose up -d
+
+# 4. Schema and demo data
+npx prisma migrate dev
+npx prisma db seed
+
+# 5. Dev server on :3000
+npm run dev
 ```
+
+Open [localhost:3000/login?team=demo](http://localhost:3000/login?team=demo) and use the one-click buttons; [`prisma/seed.ts`](prisma/seed.ts) creates the demo team with one account per role. Deeper local-Postgres notes live in [docs/local-postgres.md](docs/local-postgres.md).
+
+## Testing and CI
+
+The unit suite is 234 Vitest tests across the FSM, every authorization assertion path, and every service function in every domain: tickets, users, categories, admin metrics, teams, and attachments. The tests mock `@/lib/db` with `vi.mock`, so the whole suite runs in seconds with no database and CI needs no Postgres service container. One regression the suite caught for real: a PR restricting assignee editing to managers silently removed support staff's ability to self-assign, and an `assignTicket` unit test surfaced the gap.
+
+The Playwright suite ([`e2e/`](e2e)) drives complete journeys per role: requester, support, manager, cross-team isolation, demo login, search, and login rate limiting. [`playwright.config.ts`](playwright.config.ts) boots the dev server itself, and [`e2e/global-setup.ts`](e2e/global-setup.ts) resets the seed tickets so runs are repeatable.
 
 ```bash
-npm run build       # Production build
-npm run lint        # ESLint
-npm run format      # Prettier
-npx prisma studio   # Database GUI
+npm test                    # 234 unit tests, no database required
+npm run test:coverage       # V8 coverage report
+npm run test:e2e            # Playwright; needs the Docker Postgres up and seeded
+npm run db:seed:tickets     # optional: 60 bulk tickets for pagination testing
 ```
 
----
+CI is one workflow, [`ci.yml`](.github/workflows/ci.yml): ESLint, `tsc --noEmit`, the unit suite, and a production build on every push and pull request to `main`.
 
-## Demo accounts
+## Architecture
 
-Log in at [`/login?team=demo`](https://awano.chairulakmal.com/login?team=demo) — one-click login
-buttons are shown on the page for each role.
-
-| Email                  | Role      | Requester type |
-| ---------------------- | --------- | -------------- |
-| `customer@awano.demo`  | Requester | Customer       |
-| `recruiter@awano.demo` | Requester | Recruiter      |
-| `agent@awano.demo`     | Requester | Field Agent    |
-| `support@awano.demo`   | Support   | —              |
-| `manager@awano.demo`   | Manager   | —              |
-| `admin@awano.demo`     | Admin     | —              |
-
-Super admin: `super@awano.demo` at [`/login`](https://awano.chairulakmal.com/login) (no team slug —
-Super users have no team).
-
----
-
-## Design doc
-
-Full engineering design doc, data model, FSM transition table, test plan, and decision log:
-[docs/SPEC.md](docs/SPEC.md).
-
----
-
-## Production deployment
-
-Live at [`awano.chairulakmal.com`](https://awano.chairulakmal.com).
-
-| Concern           | Approach                                                                                                                                                          |
-| ----------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Build**         | Next.js `output: "standalone"` — only the production closure is shipped; dev dependencies stay out of the container image                                         |
-| **Static assets** | Copied from `.next/static` into `.next/standalone/.next/static` at build time so the standalone server can serve them directly                                    |
-| **Database**      | Railway managed PostgreSQL; `DATABASE_URL` injected automatically via a Railway service reference variable                                                        |
-| **Migrations**    | `npx prisma migrate deploy` runs as a `preDeployCommand` — the old container keeps serving until migrations succeed and the new container passes the health check |
-| **Networking**    | `HOSTNAME=0.0.0.0` set in the start command so the Node server binds to all interfaces, not just localhost                                                        |
-| **Config**        | `railway.json` at repo root — Railpack builder, replica count, restart policy, and region pinned to `asia-southeast1`                                             |
-
----
+[ARCHITECTURE.md](ARCHITECTURE.md) walks through the decisions with file paths: no separate API layer, tenant isolation as a service-layer discipline, the role-gated state machine and its atomic audit trail, stateless JWT sessions with no session table, attachments stored in Postgres with browser-side compression, a test suite that mocks Prisma so CI needs no database, and shipping as one standalone container on Railway. Each section states the choice, the reasoning, and the trade-off accepted. [docs/SPEC.md](docs/SPEC.md) is the full engineering design doc: data model, permission matrix, route map, test plan, and decision log.
 
 ## License
 
-[MIT](./LICENSE)
+[MIT](LICENSE)

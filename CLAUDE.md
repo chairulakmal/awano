@@ -6,7 +6,7 @@ Guidance for Claude Code (claude.ai/code) when working in this repository: the i
 
 ## Working here
 
-- Commands, local setup (Docker Postgres, `.env`, migrations, seed), and test invocations: `README.md` § Running locally and § Tests.
+- Commands, local setup (Docker Postgres, `.env`, migrations, seed), and test invocations: `README.md` § Running locally and § Testing and CI.
 - The Prisma client is generated to `src/generated/prisma`: import from there, never from `@prisma/client`. `docs/SPEC.md` § Data Model.
 - Tailwind is v4 via the PostCSS plugin, not the v3 CLI.
 
