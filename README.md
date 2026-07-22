@@ -52,7 +52,7 @@ npx prisma db seed
 npm run dev
 ```
 
-Open [localhost:3000/login?team=demo](http://localhost:3000/login?team=demo) and use the one-click buttons; [`prisma/seed.ts`](prisma/seed.ts) creates the demo team with one account per role. Deeper local-Postgres notes live in [docs/local-postgres.md](docs/local-postgres.md).
+Open [localhost:3000/login?team=demo](http://localhost:3000/login?team=demo) and use the one-click buttons; [`prisma/seed.ts`](prisma/seed.ts) creates the demo team with one account per role. Deeper local-Postgres notes live in [docs/dev.md](docs/dev.md).
 
 ## Testing and CI
 
