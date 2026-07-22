@@ -103,6 +103,7 @@ Not this iteration's focus, kept here so it is not lost.
   - Concurrency: single-flight or a queue on async `dispatch`.
   - Explicit terminal states, plus serialization for persistence.
   - Stronger types: valid events narrowed by the current state.
+- [ ] Dependabot dependency check, run once rather than on a recurring schedule: a single audit/update pass, not a standing `dependabot.yml` that opens PRs on an interval.
 - [ ] Notification model (email or in-app) for assignment and status changes.
 - [ ] Saved views / queues per agent.
 - [ ] Bulk ticket actions from the list.
