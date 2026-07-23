@@ -43,7 +43,7 @@ export function DeskSidebar() {
     return `block px-3 py-2 text-sm rounded-lg transition-colors ${
       activeView === key
         ? "bg-primary text-white font-medium"
-        : "text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100"
+        : "text-fg-secondary hover:text-fg-strong hover:bg-surface-subtle"
     }`;
   }
 
@@ -57,12 +57,12 @@ export function DeskSidebar() {
           defaultValue={currentQ}
           onChange={handleSearch}
           placeholder="Search tickets…"
-          className="w-full px-3 py-1.5 text-sm rounded-lg border border-zinc-200 bg-white placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-primary/40"
+          className="w-full px-3 py-1.5 text-sm rounded-lg border border-border bg-surface placeholder-fg-subtle focus:outline-none focus:ring-2 focus:ring-primary/40"
         />
       </div>
       <nav className="space-y-6">
         <div>
-          <p className="text-xs font-semibold text-zinc-400 uppercase tracking-wider px-3 mb-1">
+          <p className="text-xs font-semibold text-fg-subtle uppercase tracking-wider px-3 mb-1">
             My queue
           </p>
           <ul>
@@ -76,7 +76,7 @@ export function DeskSidebar() {
           </ul>
         </div>
         <div>
-          <p className="text-xs font-semibold text-zinc-400 uppercase tracking-wider px-3 mb-1">
+          <p className="text-xs font-semibold text-fg-subtle uppercase tracking-wider px-3 mb-1">
             Team queue
           </p>
           <ul>

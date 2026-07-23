@@ -12,7 +12,7 @@ export default async function MyTicketsPage() {
   return (
     <div>
       <div className="flex items-center justify-between mb-8">
-        <h1 className="text-2xl font-semibold text-zinc-900">My tickets</h1>
+        <h1 className="text-2xl font-semibold text-fg-strong">My tickets</h1>
         <Link
           href="/tickets/new"
           className="px-4 py-2 bg-primary text-white text-sm font-semibold rounded-lg hover:bg-primary-hover transition-colors shadow-sm"

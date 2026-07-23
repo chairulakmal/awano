@@ -47,15 +47,15 @@ export function TicketStatusFilter({
         defaultValue={currentQuery}
         onChange={handleSearch}
         placeholder="Search tickets…"
-        className="w-full sm:w-56 px-3 py-1.5 text-sm rounded-lg border border-zinc-200 bg-white placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-primary/40"
+        className="w-full sm:w-56 px-3 py-1.5 text-sm rounded-lg border border-border bg-surface placeholder-fg-subtle focus:outline-none focus:ring-2 focus:ring-primary/40"
       />
       <div className="flex flex-wrap gap-1.5">
         <a
           href={buildHref(undefined, currentQuery)}
           className={`px-3 py-1 text-xs font-medium rounded-full transition-colors ${
             !currentStatus
-              ? "bg-zinc-900 text-white"
-              : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200"
+              ? "bg-surface-inverse text-fg-on-inverse"
+              : "bg-surface-subtle text-fg-secondary hover:bg-surface-subtle"
           }`}
         >
           All
@@ -66,8 +66,8 @@ export function TicketStatusFilter({
             href={buildHref(value, currentQuery)}
             className={`px-3 py-1 text-xs font-medium rounded-full transition-colors ${
               currentStatus === value
-                ? "bg-zinc-900 text-white"
-                : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200"
+                ? "bg-surface-inverse text-fg-on-inverse"
+                : "bg-surface-subtle text-fg-secondary hover:bg-surface-subtle"
             }`}
           >
             {label}

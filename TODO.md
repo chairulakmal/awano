@@ -1,11 +1,12 @@
 # TODO
 
-The build backlog for Awano's next iteration. The single focus is a user-facing UI/UX revamp: turning a correct support desk into one that feels like a frontier Next.js 16 app to use, not just to read the source of. Below: the goal and how to read this list, then the revamp grouped from foundation upward (design system, app shell, desk and ticket experience, feedback and states, accessibility, internationalization, performance and Next 16 features, marketing surface), and finally a short non-UX backlog.
+The build backlog for Awano's next iteration. The single focus is a user-facing UI/UX revamp: turning a correct support desk into one that feels like a frontier Next.js 16 app to use, not just to read the source of. Below: where the plan stands and how to read it, then the revamp grouped from foundation upward (design system, app shell, desk and ticket experience, feedback and states, accessibility, internationalization, performance and Next 16 features, marketing surface), and finally a short non-UX backlog.
 
 Rules of the doc: `docs/DESIGN.md` owns the visual language and every token or component this list touches; `docs/SPEC.md` owns behaviour and permissions; `docs/i18n.md` owns the i18n and mobile implementation detail. This file only tracks *what to build and in what order*. When an item lands, its rule moves into the doc that owns it, the checkbox is ticked here, and the shipped entry moves to [CHANGELOG.md](CHANGELOG.md), so no fact lives in two places.
 
 ## Contents
 
+- [Status and critical path](#status-and-critical-path)
 - [How to read this](#how-to-read-this)
 - [1. Design system foundation](#1-design-system-foundation)
 - [2. App shell and navigation](#2-app-shell-and-navigation)
@@ -16,6 +17,17 @@ Rules of the doc: `docs/DESIGN.md` owns the visual language and every token or c
 - [7. Performance and Next 16 features](#7-performance-and-next-16-features)
 - [8. Marketing surface](#8-marketing-surface)
 - [Beyond UX (backlog)](#beyond-ux-backlog)
+
+## Status and critical path
+
+v1.0.0 shipped (2026-05-21, see [CHANGELOG.md](CHANGELOG.md)); the revamp below is the active iteration and none of it has started yet. Four **P0** items are the critical path, because everything in sections 3-8 assumes them:
+
+1. **Design tokens under `@theme`** (§1) — today `globals.css` hardcodes light-only `rgba(…)` in the ring and shadow utilities, so no other surface can be themed until the scales become variables.
+2. **Dark mode** (§1) — every surface below must ship both themes, so this has to land early or become a retrofit.
+3. **Responsive navigation** (§2) — the mobile shell behaviour that later desk and ticket work builds on.
+4. **Toast system** (§4) — the feedback primitive the optimistic actions in §3 surface their results through.
+
+Do these first, roughly in this order. The rest of the sections then proceed foundation-upward.
 
 ## How to read this
 

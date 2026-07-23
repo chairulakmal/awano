@@ -13,13 +13,13 @@ export function SeedDemoButton({ teamId }: { teamId: string }) {
         <button
           type="submit"
           disabled={pending}
-          className="px-4 py-2 bg-white border border-zinc-200 text-zinc-700 text-sm font-medium rounded-lg hover:bg-zinc-50 transition-colors shadow-sm disabled:opacity-50"
+          className="px-4 py-2 bg-surface border border-border text-fg text-sm font-medium rounded-lg hover:bg-surface-muted transition-colors shadow-sm disabled:opacity-50"
         >
           {pending ? "Seeding…" : "Seed demo users"}
         </button>
       </form>
       {message && (
-        <p className={`text-xs ${message.startsWith("Error") ? "text-red-600" : "text-zinc-500"}`}>
+        <p className={`text-xs ${message.startsWith("Error") ? "text-danger-text" : "text-fg-muted"}`}>
           {message}
         </p>
       )}

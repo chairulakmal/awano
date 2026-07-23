@@ -15,12 +15,12 @@ const STATUS_LABEL: Record<TicketStatus, string> = {
 };
 
 const STATUS_CLASS: Record<TicketStatus, string> = {
-  OPEN: "bg-zinc-100 text-zinc-600",
+  OPEN: "bg-surface-subtle text-fg-secondary",
   IN_PROGRESS: "bg-blue-50 text-blue-700",
-  WAITING_ON_REQUESTER: "bg-amber-50 text-amber-700",
-  ESCALATED: "bg-red-50 text-red-700",
+  WAITING_ON_REQUESTER: "bg-accent-amber-surface text-accent-amber-text",
+  ESCALATED: "bg-danger-surface text-danger-text",
   RESOLVED: "bg-green-50 text-green-700",
-  CLOSED: "bg-zinc-100 text-zinc-400",
+  CLOSED: "bg-surface-subtle text-fg-subtle",
 };
 
 type MyTicket = Awaited<ReturnType<typeof loadMoreMyTickets>>["items"][number];
@@ -47,8 +47,8 @@ export function TicketList({
 
   if (items.length === 0) {
     return (
-      <div className="rounded-xl shadow-card bg-white px-6 py-16 text-center">
-        <p className="text-sm text-zinc-400">No tickets yet.</p>
+      <div className="rounded-xl shadow-card bg-surface px-6 py-16 text-center">
+        <p className="text-sm text-fg-subtle">No tickets yet.</p>
         <Link
           href="/tickets/new"
           className="mt-3 inline-block text-sm font-medium text-primary hover:text-primary-hover transition-colors"
@@ -66,17 +66,17 @@ export function TicketList({
           <li key={ticket.id}>
             <Link
               href={`/tickets/${ticket.id}`}
-              className="block rounded-xl shadow-card bg-white px-5 py-4 hover:shadow-panel transition-shadow"
+              className="block rounded-xl shadow-card bg-surface px-5 py-4 hover:shadow-panel transition-shadow"
             >
               <div className="flex items-center justify-between gap-4">
-                <span className="text-sm font-medium text-zinc-900 truncate">{ticket.subject}</span>
+                <span className="text-sm font-medium text-fg-strong truncate">{ticket.subject}</span>
                 <span
                   className={`shrink-0 text-xs font-medium px-2.5 py-1 rounded-full ${STATUS_CLASS[ticket.status]}`}
                 >
                   {STATUS_LABEL[ticket.status]}
                 </span>
               </div>
-              <div className="mt-1.5 flex items-center gap-2 text-xs text-zinc-400">
+              <div className="mt-1.5 flex items-center gap-2 text-xs text-fg-subtle">
                 <span>{ticket.category.name}</span>
                 <span>·</span>
                 <span>{new Date(ticket.createdAt).toLocaleDateString()}</span>
@@ -90,7 +90,7 @@ export function TicketList({
           <button
             onClick={handleLoadMore}
             disabled={isPending}
-            className="px-4 py-2 text-sm font-medium text-zinc-600 bg-white rounded-lg shadow-card hover:shadow-panel transition-shadow disabled:opacity-50"
+            className="px-4 py-2 text-sm font-medium text-fg-secondary bg-surface rounded-lg shadow-card hover:shadow-panel transition-shadow disabled:opacity-50"
           >
             {isPending ? "Loading…" : "Load more"}
           </button>

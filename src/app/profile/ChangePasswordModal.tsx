@@ -40,16 +40,16 @@ export function ChangePasswordModal() {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/40" onClick={close} />
 
-          <div className="relative w-full max-w-md rounded-xl shadow-panel bg-white p-6">
+          <div className="relative w-full max-w-md rounded-xl shadow-panel bg-surface p-6">
             <div className="flex items-start justify-between mb-6">
               <div>
-                <h2 className="text-base font-semibold text-zinc-900">Change password</h2>
-                <p className="text-xs text-zinc-400 mt-0.5">Minimum 15 characters</p>
+                <h2 className="text-base font-semibold text-fg-strong">Change password</h2>
+                <p className="text-xs text-fg-subtle mt-0.5">Minimum 15 characters</p>
               </div>
               <button
                 onClick={close}
                 aria-label="Close"
-                className="text-zinc-400 hover:text-zinc-700 transition-colors leading-none text-lg"
+                className="text-fg-subtle hover:text-fg transition-colors leading-none text-lg"
               >
                 ✕
               </button>

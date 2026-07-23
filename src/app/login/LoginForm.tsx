@@ -29,8 +29,8 @@ function DemoButtons() {
   }
 
   return (
-    <div className="rounded-lg bg-amber-50 border border-amber-100 px-3.5 py-3 space-y-2">
-      <p className="text-xs font-semibold text-amber-800">Try a demo account</p>
+    <div className="rounded-lg bg-accent-amber-surface border border-amber-100 px-3.5 py-3 space-y-2">
+      <p className="text-xs font-semibold text-accent-amber-text">Try a demo account</p>
       <div className="flex flex-wrap gap-2">
         {DEMO_ACCOUNTS.map(({ label, email }) => (
           <button
@@ -38,13 +38,13 @@ function DemoButtons() {
             type="button"
             disabled={pending}
             onClick={() => handleDemoLogin(email)}
-            className="flex-1 rounded-md px-3 py-2 text-xs font-medium bg-amber-100 hover:bg-amber-200 text-amber-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex-1 rounded-md px-3 py-2 text-xs font-medium bg-accent-amber-surface hover:bg-amber-200 text-accent-amber-text transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {pendingEmail === email ? "Signing in…" : label}
           </button>
         ))}
       </div>
-      {error && <p className="text-xs text-red-600">{error}</p>}
+      {error && <p className="text-xs text-danger-text">{error}</p>}
     </div>
   );
 }
@@ -56,23 +56,23 @@ export function LoginForm({ defaultTeam }: { defaultTeam?: string }) {
     <form action={formAction} className="flex flex-col gap-5">
       {defaultTeam ? (
         <div className="flex flex-col gap-1.5">
-          <label className="text-sm font-medium text-zinc-700">Team</label>
+          <label className="text-sm font-medium text-fg">Team</label>
           <input type="hidden" name="team" value={defaultTeam} />
-          <div className="w-full rounded-lg bg-zinc-100 px-3.5 py-2.5 text-sm text-zinc-500 flex items-center justify-between">
+          <div className="w-full rounded-lg bg-surface-subtle px-3.5 py-2.5 text-sm text-fg-muted flex items-center justify-between">
             <span>{defaultTeam}</span>
             <Link
               href="/login"
-              className="text-xs text-zinc-400 hover:text-primary transition-colors"
+              className="text-xs text-fg-subtle hover:text-primary transition-colors"
             >
               Sign in differently?
             </Link>
           </div>
         </div>
       ) : (
-        <div className="flex p-3.5 w-full rounded-lg bg-zinc-100">
+        <div className="flex p-3.5 w-full rounded-lg bg-surface-subtle">
           <Link
             href="/login?team=demo"
-            className="self-start text-xs text-zinc-400 hover:text-primary transition-colors"
+            className="self-start text-xs text-fg-subtle hover:text-primary transition-colors"
           >
             Want to try the demo? →
           </Link>
@@ -84,7 +84,7 @@ export function LoginForm({ defaultTeam }: { defaultTeam?: string }) {
       ) : (
         <>
           <div className="flex flex-col gap-1.5">
-            <label htmlFor="email" className="text-sm font-medium text-zinc-700">
+            <label htmlFor="email" className="text-sm font-medium text-fg">
               Email
             </label>
             <input
@@ -93,12 +93,12 @@ export function LoginForm({ defaultTeam }: { defaultTeam?: string }) {
               type="email"
               required
               autoComplete="email"
-              className="w-full rounded-lg ring-input px-3.5 py-2.5 text-sm text-zinc-900 placeholder:text-zinc-400 outline-none transition"
+              className="w-full rounded-lg ring-input px-3.5 py-2.5 text-sm text-fg-strong placeholder:text-fg-subtle outline-none transition"
             />
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <label htmlFor="password" className="text-sm font-medium text-zinc-700">
+            <label htmlFor="password" className="text-sm font-medium text-fg">
               Password
             </label>
             <input
@@ -107,12 +107,12 @@ export function LoginForm({ defaultTeam }: { defaultTeam?: string }) {
               type="password"
               required
               autoComplete="current-password"
-              className="w-full rounded-lg ring-input px-3.5 py-2.5 text-sm text-zinc-900 placeholder:text-zinc-400 outline-none transition"
+              className="w-full rounded-lg ring-input px-3.5 py-2.5 text-sm text-fg-strong placeholder:text-fg-subtle outline-none transition"
             />
           </div>
 
           {error && (
-            <p className="rounded-lg bg-red-50 border border-red-100 px-3.5 py-2.5 text-sm text-red-600">
+            <p className="rounded-lg bg-danger-surface border border-danger-border px-3.5 py-2.5 text-sm text-danger-text">
               {error}
             </p>
           )}

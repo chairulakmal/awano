@@ -31,7 +31,7 @@ export function CommentForm({ ticketId }: { ticketId: string }) {
         required
         rows={3}
         placeholder="Write your reply…"
-        className="w-full rounded-lg ring-input px-3.5 py-2.5 text-sm text-zinc-900 placeholder:text-zinc-400 outline-none transition resize-none"
+        className="w-full rounded-lg ring-input px-3.5 py-2.5 text-sm text-fg-strong placeholder:text-fg-subtle outline-none transition resize-none"
       />
       <FilePicker
         onFiles={(files) => {
@@ -39,7 +39,7 @@ export function CommentForm({ ticketId }: { ticketId: string }) {
         }}
       />
       {error && (
-        <p className="rounded-lg bg-red-50 border border-red-100 px-3.5 py-2.5 text-sm text-red-600">
+        <p className="rounded-lg bg-danger-surface border border-danger-border px-3.5 py-2.5 text-sm text-danger-text">
           {error}
         </p>
       )}

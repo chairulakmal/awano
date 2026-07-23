@@ -18,7 +18,7 @@ export function NewTeamForm() {
           name="name"
           required
           placeholder="Team name"
-          className="rounded-lg ring-input px-3.5 py-2 text-sm text-zinc-900 placeholder:text-zinc-400 outline-none transition"
+          className="rounded-lg ring-input px-3.5 py-2 text-sm text-fg-strong placeholder:text-fg-subtle outline-none transition"
         />
         <input
           name="slug"
@@ -26,16 +26,16 @@ export function NewTeamForm() {
           placeholder="slug (e.g. acme)"
           pattern="[a-z0-9-]+"
           title="Lowercase letters, numbers, and hyphens only"
-          className="rounded-lg ring-input px-3.5 py-2 text-sm text-zinc-900 placeholder:text-zinc-400 font-mono outline-none transition"
+          className="rounded-lg ring-input px-3.5 py-2 text-sm text-fg-strong placeholder:text-fg-subtle font-mono outline-none transition"
         />
       </div>
       <textarea
         name="notes"
         placeholder="Notes (optional)"
         rows={2}
-        className="w-full rounded-lg ring-input px-3.5 py-2 text-sm text-zinc-900 placeholder:text-zinc-400 outline-none transition resize-none"
+        className="w-full rounded-lg ring-input px-3.5 py-2 text-sm text-fg-strong placeholder:text-fg-subtle outline-none transition resize-none"
       />
-      {error && <p className="text-xs text-red-600">{error}</p>}
+      {error && <p className="text-xs text-danger-text">{error}</p>}
       <div className="flex justify-end">
         <button
           type="submit"
