@@ -1,7 +1,8 @@
 "use client";
 
-import { useOptimistic, useTransition, useState } from "react";
+import { useOptimistic, useTransition } from "react";
 import { transitionStatusAction } from "./actions";
+import { useToast } from "@/components/Toast";
 import type { TicketStatus } from "@/generated/prisma/enums";
 
 const STATUS_LABEL: Record<TicketStatus, string> = {
@@ -33,7 +34,7 @@ export function StatusForm({
 }) {
   const [optimisticStatus, setOptimisticStatus] = useOptimistic(currentStatus);
   const [isPending, startTransition] = useTransition();
-  const [error, setError] = useState<string | null>(null);
+  const { toast } = useToast();
 
   return (
     <div className="space-y-3">
@@ -52,13 +53,13 @@ export function StatusForm({
             <form
               key={to}
               action={async (formData) => {
-                setError(null);
                 startTransition(async () => {
                   setOptimisticStatus(to);
-                  try {
-                    await transitionStatusAction(formData);
-                  } catch {
-                    setError("Transition failed. Please try again.");
+                  const error = await transitionStatusAction(formData);
+                  if (error) {
+                    toast(error, "error");
+                  } else {
+                    toast(`Moved to ${STATUS_LABEL[to]}`, "success");
                   }
                 });
               }}
@@ -78,8 +79,6 @@ export function StatusForm({
       ) : (
         <p className="text-xs text-fg-subtle">No transitions available</p>
       )}
-
-      {error && <p className="text-xs text-danger-text">{error}</p>}
     </div>
   );
 }

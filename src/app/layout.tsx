@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { cookies } from "next/headers";
+import { ToastProvider } from "@/components/Toast";
 import "./globals.css";
 
 const description: string = "Production-grade Next.js 16 support desk: role-based access control, finite-state ticket workflow, cursor-based pagination, and cross-tenant isolation enforced at every database query.";
@@ -49,7 +50,9 @@ export default async function RootLayout({
       suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        <ToastProvider>{children}</ToastProvider>
+      </body>
     </html>
   );
 }
