@@ -93,7 +93,7 @@ export function NewTicketForm({ categories }: { categories: Category[] }) {
       <button
         type="submit"
         disabled={pending}
-        className="mt-1 w-full h-12 rounded-lg bg-primary text-white text-base font-semibold hover:bg-primary-hover transition-colors shadow-sm disabled:cursor-not-allowed disabled:opacity-50"
+        className="mt-1 w-full h-12 rounded-lg bg-primary text-primary-fg text-base font-semibold hover:bg-primary-hover transition-colors shadow-sm disabled:cursor-not-allowed disabled:opacity-50"
       >
         {pending ? "Submitting…" : "Submit ticket"}
       </button>

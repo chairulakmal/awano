@@ -11,7 +11,7 @@ export default async function AdminCategoriesPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-xl font-semibold text-fg-strong">Categories</h1>
+      <h1 className="font-display text-xl font-semibold text-fg-strong">Categories</h1>
 
       <div className="rounded-xl shadow-card bg-surface overflow-hidden">
         {categories.length === 0 ? (

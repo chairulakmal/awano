@@ -94,7 +94,7 @@ export function NewUserForm({ teamId }: { teamId: string }) {
       <button
         type="submit"
         disabled={pending}
-        className="w-full px-4 py-2 bg-primary text-white text-sm font-semibold rounded-lg hover:bg-primary-hover transition-colors shadow-sm disabled:opacity-50"
+        className="w-full px-4 py-2 bg-primary text-primary-fg text-sm font-semibold rounded-lg hover:bg-primary-hover transition-colors shadow-sm disabled:opacity-50"
       >
         {pending ? "Creating…" : "Create user"}
       </button>

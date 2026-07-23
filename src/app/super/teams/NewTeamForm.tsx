@@ -40,7 +40,7 @@ export function NewTeamForm() {
         <button
           type="submit"
           disabled={pending}
-          className="px-4 py-2 bg-primary text-white text-sm font-semibold rounded-lg hover:bg-primary-hover transition-colors shadow-sm disabled:opacity-50"
+          className="px-4 py-2 bg-primary text-primary-fg text-sm font-semibold rounded-lg hover:bg-primary-hover transition-colors shadow-sm disabled:opacity-50"
         >
           {pending ? "Creating…" : "Create team"}
         </button>

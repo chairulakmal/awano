@@ -57,7 +57,7 @@ export default async function SuperTeamDetailPage({ params }: Props) {
       {/* Header */}
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-xl font-semibold text-fg-strong">{team.name}</h1>
+          <h1 className="font-display text-xl font-semibold text-fg-strong">{team.name}</h1>
           <p className="text-sm text-fg-subtle font-mono mt-0.5">{team.slug}</p>
           {team.notes && <p className="text-sm text-fg-secondary mt-2">{team.notes}</p>}
         </div>
@@ -65,7 +65,7 @@ export default async function SuperTeamDetailPage({ params }: Props) {
           <SeedDemoButton teamId={id} />
           <Link
             href={`/super/teams/${id}/users/new`}
-            className="px-4 py-2 bg-primary text-white text-sm font-semibold rounded-lg hover:bg-primary-hover transition-colors shadow-sm"
+            className="px-4 py-2 bg-primary text-primary-fg text-sm font-semibold rounded-lg hover:bg-primary-hover transition-colors shadow-sm"
           >
             + Add user
           </Link>

@@ -1,38 +1,48 @@
 @import "tailwindcss";
 
 /*
- * Theme tokens. Each token is a single `light-dark()` declaration: the browser
- * resolves it from the computed `color-scheme`, which `:root` sets to follow the
- * OS and `[data-theme]` overrides once the user picks a theme (see ThemeToggle).
- * Light values are the exact zinc/amber hexes the app shipped with, so light
- * mode is unchanged; dark supplies the second column. Utility classes below map
- * to these via `@theme inline`, so a theme swap is a variable change, not a
- * class rewrite. The role → value mapping is documented in docs/DESIGN.md.
+ * Theme tokens: the 淡 (awa, "pale/calm") brand. Each token is a single
+ * `light-dark()` declaration: the browser resolves it from the computed
+ * `color-scheme`, which `:root` sets to follow the OS and `[data-theme]`
+ * overrides once the user picks a theme (see ThemeToggle). Light is washi
+ * paper + sumi ink; dark is sumi paper. Utilities below map to these via
+ * `@theme inline`, so a theme swap is a variable change, not a class rewrite.
+ * The role → value mapping and brand rationale live in docs/DESIGN.md.
  */
 :root {
   color-scheme: light dark;
 
-  /* Surfaces */
-  --surface: light-dark(#ffffff, #18181b);
-  --surface-muted: light-dark(#fafafa, #1f1f23);
-  --surface-subtle: light-dark(#f4f4f5, #27272a);
-  --surface-inverse: light-dark(#18181b, #fafafa);
+  /* Surfaces: warm washi paper (light) / sumi paper (dark) */
+  --surface: light-dark(#fbfaf6, #1c1b19);
+  --surface-muted: light-dark(#f1f0eb, #211f1c);
+  --surface-subtle: light-dark(#e9e7df, #2a2825);
+  --surface-inverse: light-dark(#1c1b19, #f1f0eb);
 
-  /* Foreground (text), strong → subtle */
-  --fg-strong: light-dark(#18181b, #fafafa);
-  --fg: light-dark(#3f3f46, #e4e4e7);
-  --fg-secondary: light-dark(#52525b, #d4d4d8);
-  --fg-muted: light-dark(#71717a, #a1a1aa);
-  --fg-subtle: light-dark(#a1a1aa, #71717a);
-  --fg-on-inverse: light-dark(#ffffff, #18181b);
+  /* Foreground (text), strong → subtle: warm sumi-ink greys */
+  --fg-strong: light-dark(#1c1b19, #f4f2ec);
+  --fg: light-dark(#33302a, #e2dfd6);
+  --fg-secondary: light-dark(#4b473f, #c9c5bb);
+  --fg-muted: light-dark(#6b665b, #a29c90);
+  --fg-subtle: light-dark(#9a9585, #726d62);
+  --fg-on-inverse: light-dark(#fbfaf6, #1c1b19);
 
-  /* Borders */
-  --border: light-dark(#e4e4e7, #3f3f46);
-  --border-subtle: light-dark(#f4f4f5, #27272a);
+  /* Borders: warm paper edges */
+  --border: light-dark(#dedbd0, #38352f);
+  --border-subtle: light-dark(#eceae2, #2a2825);
 
-  /* Primary accent — amber, theme-agnostic */
-  --primary: #f59e0b;
-  --primary-hover: #d97706;
+  /* Primary accent: indigo (藍, ai). Theme-aware so links stay legible on
+     both papers; `primary-fg` is the text that rides on a solid indigo fill. */
+  --primary: light-dark(#3a4a7a, #9aa7da);
+  --primary-hover: light-dark(#2e3a61, #b4c0e6);
+  --primary-fg: light-dark(#ffffff, #191a1e);
+
+  /* Seal: vermilion (朱, shu). Reserved for the hanko mark: wordmark, hero
+     signature, login mark. Nowhere else, so it always reads as "the seal". */
+  --seal: light-dark(#c4361f, #e3654e);
+  --seal-tint: light-dark(
+    color-mix(in srgb, #c4361f 7%, transparent),
+    color-mix(in srgb, #e3654e 15%, transparent)
+  );
 
   /* Danger (form errors) */
   --danger-surface: light-dark(#fef2f2, color-mix(in srgb, #f43f5e 16%, transparent));
@@ -87,6 +97,10 @@
 
   --color-primary: var(--primary);
   --color-primary-hover: var(--primary-hover);
+  --color-primary-fg: var(--primary-fg);
+
+  --color-seal: var(--seal);
+  --color-seal-tint: var(--seal-tint);
 
   --color-danger-surface: var(--danger-surface);
   --color-danger-text: var(--danger-text);
@@ -104,6 +118,7 @@
 
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --font-display: var(--font-hanken-grotesk);
 }
 
 body {
@@ -115,7 +130,7 @@ body {
 /* ─── Background patterns ─────────────────────────────────────────────────── */
 
 /*
- * .bg-dots — subtle dot grid. Sets background-image only so it layers
+ * .bg-dots: subtle dot grid. Sets background-image only so it layers
  *   over any bg-* color class.
  */
 .bg-dots {
@@ -124,20 +139,48 @@ body {
 }
 
 /*
- * .hero-bg — amber-to-surface gradient for the homepage hero.
+ * .hero-bg: a barely-there warm paper wash for the homepage hero. The colour
+ * on the page comes from the seal, not the background, so this stays quiet.
  */
 .hero-bg {
   background-image: linear-gradient(
     to bottom,
-    light-dark(#fffbeb, #211a10),
-    light-dark(#fafafa, #18181b)
+    light-dark(#f5f4ef, #211f1c),
+    light-dark(#f1f0eb, #1c1b19)
   );
+}
+
+/* ─── Seal (hanko) ────────────────────────────────────────────────────────── */
+
+/*
+ * .seal: the vermilion hanko mark. A double ring around a centred kanji,
+ *   nudged off-square so it reads as stamped by hand rather than printed.
+ *   Used for the wordmark glyph, the hero signature, and the login mark.
+ */
+.seal {
+  color: var(--seal);
+  background: var(--seal-tint);
+  box-shadow: inset 0 0 0 1.5px var(--seal);
+  border-radius: 9999px;
+  line-height: 1;
+}
+
+/* .seal-lg: the hero signature: a larger stamp with a hand-inked double ring. */
+.seal-lg {
+  color: var(--seal);
+  background: var(--seal-tint);
+  box-shadow:
+    inset 0 0 0 2px var(--seal),
+    inset 0 0 0 5px var(--surface),
+    inset 0 0 0 6.5px var(--seal);
+  border-radius: 9999px;
+  line-height: 1;
 }
 
 /* ─── Shared border / ring styles ─────────────────────────────────────────── */
 
 /*
- * .ring-subtle  — replaces bare border on cards, panels, and modals.
+ * .ring-subtle: replaces bare border on cards, panels, and modals.
  *   Semi-transparent so it reads naturally on any background tone.
  */
 .ring-subtle {
@@ -145,14 +188,14 @@ body {
 }
 
 /*
- * .ring-input   — form fields at rest.
+ * .ring-input: form fields at rest.
  */
 .ring-input {
   box-shadow: 0 0 0 1px var(--ring-strong);
 }
 
 /*
- * .ring-input:focus  — focused field gets the primary ring.
+ * .ring-input:focus: focused field gets the primary ring.
  *   Pair with outline-none in JSX.
  */
 .ring-input:focus {
@@ -160,7 +203,7 @@ body {
 }
 
 /*
- * .ring-ghost   — ghost/secondary button border at rest.
+ * .ring-ghost: ghost/secondary button border at rest.
  */
 .ring-ghost {
   box-shadow: 0 0 0 1px var(--ring-ghost);
@@ -173,7 +216,7 @@ body {
 /* ─── Card shadows ────────────────────────────────────────────────────────── */
 
 /*
- * .shadow-card  — subtle lift for cards on the page background.
+ * .shadow-card: subtle lift for cards on the page background.
  */
 .shadow-card {
   box-shadow:
@@ -182,7 +225,7 @@ body {
 }
 
 /*
- * .shadow-panel — stronger lift for floating panels (login card, modals).
+ * .shadow-panel: stronger lift for floating panels (login card, modals).
  */
 .shadow-panel {
   box-shadow:

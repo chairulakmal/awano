@@ -42,7 +42,7 @@ export function DeskSidebar() {
   function linkClass(key: string) {
     return `block whitespace-nowrap px-3 py-2 text-sm rounded-lg transition-colors ${
       activeView === key
-        ? "bg-primary text-white font-medium"
+        ? "bg-primary text-primary-fg font-medium"
         : "text-fg-secondary hover:text-fg-strong hover:bg-surface-subtle"
     }`;
   }

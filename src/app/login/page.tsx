@@ -23,10 +23,13 @@ export default async function LoginPage({
           {/* Login card */}
           <div className="rounded-2xl bg-surface p-10 shadow-panel">
             <div className="mb-8">
-              <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-primary mb-6 mx-auto">
-                <span className="text-white font-bold text-base select-none">A</span>
+              <div
+                className="seal grid place-items-center w-11 h-11 text-lg mb-6 mx-auto -rotate-6 select-none"
+                aria-hidden="true"
+              >
+                淡
               </div>
-              <h1 className="text-xl font-semibold tracking-tight text-fg-strong text-center">
+              <h1 className="font-display text-xl font-semibold tracking-tight text-fg-strong text-center">
                 Sign in to Awano
               </h1>
               <p className="mt-1.5 text-sm text-fg-muted text-center">

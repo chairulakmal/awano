@@ -62,7 +62,7 @@ export default async function ProfilePage() {
             {initials}
           </div>
           <div className="min-w-0">
-            <h1 className="text-xl font-semibold text-fg-strong truncate">
+            <h1 className="font-display text-xl font-semibold text-fg-strong truncate">
               {user.name ?? user.email}
             </h1>
             {user.name && <p className="text-sm text-fg-subtle truncate">{user.email}</p>}

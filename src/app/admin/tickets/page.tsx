@@ -34,7 +34,7 @@ export default async function AllTicketsPage({
 
   return (
     <div>
-      <h1 className="text-2xl font-semibold text-fg-strong mb-6">All Tickets</h1>
+      <h1 className="font-display text-2xl font-semibold text-fg-strong mb-6">All Tickets</h1>
       <TicketStatusFilter currentStatus={status} currentQuery={q} />
       <AllTicketList
         key={`${status ?? "all"}|${q ?? ""}`}
