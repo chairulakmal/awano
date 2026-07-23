@@ -368,6 +368,7 @@ Deployed at `awano.chairulakmal.com` on Railway. Current configuration:
 | `agent@awano.demo`     | REQUESTER | FIELD_AGENT | demo |
 | `support@awano.demo`   | SUPPORT   | —           | demo |
 | `manager@awano.demo`   | MANAGER   | —           | demo |
+| `admin@awano.demo`     | ADMIN     | —           | demo |
 | `customer@beta.demo`   | REQUESTER | CUSTOMER    | beta |
 | `support@beta.demo`    | SUPPORT   | —           | beta |
 | `manager@beta.demo`    | MANAGER   | —           | beta |
@@ -402,7 +403,7 @@ Login: `/login?team=demo`. One-click login buttons are shown on the page for eac
 | 2   | Done | ~~**GitHub Actions pipeline:**~~ `eslint → tsc --noEmit → vitest → next build` runs in GH Actions on every PR with `main` branch protection enforced. Railway build remains the deploy path; GH Actions is the quality gate that blocks merges on test failure. |
 | 3   | Not planned | **Separate NestJS API server:** Split into Next.js (UI + thin BFF) + NestJS (REST API) as two Railway services sharing the same Postgres? NestJS brings structured DI, guards, interceptors, and OpenAPI generation — valuable if the service layer grows complex or needs to be consumed by a mobile client. Trade-off: a service-to-service hop on every Server Action, two repos or a monorepo workspace to maintain, and Railway costs for a second web service. Not justified for v1; revisit if a mobile app or public API lands on the roadmap. |
 | 4   | Not planned | **Migration rollback strategy:** `prisma migrate deploy` runs as a Railway release command — a failed migration can leave the DB in a partial state before the new container goes live. Options: (a) additive-only migrations enforced by convention; (b) explicit down migrations checked in alongside each up; (c) separate Railway "migration job" service that must succeed before the web deploy proceeds. |
-| 5   | Not planned | **Health check & zero-downtime deploys:** Add a `/api/health` endpoint and configure Railway's health-check path so the old instance keeps serving traffic until the new one passes? Currently no health check is configured; a slow cold start could drop in-flight requests. |
+| 5   | Not planned | **Dedicated health check for zero-downtime deploys:** Railway's health-check path is set to `/` (`railway.json`), so a deploy already waits on the app answering before traffic switches. A dedicated `/api/health` endpoint that also checks the database connection would be more precise than probing the homepage; not yet added. |
 | 6   | Done | ~~**Rate-limiting login:**~~ In-process sliding-window counter (5 / 15 min) keyed on email, implemented in `loginAction`. Swap for Upstash Redis if horizontal scaling becomes relevant. |
 
 ### Feature
