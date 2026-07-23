@@ -2,11 +2,11 @@
 
 > Multi-tenant support desk built as a portfolio project by Chairul Akmal.
 
-Awano is a production-grade support desk application demonstrating advanced Next.js 16 (App Router) patterns. It is not a SaaS product — it is a software engineering portfolio piece showcasing full-stack TypeScript development.
+Awano is a production-grade support desk application demonstrating advanced Next.js 16 (App Router) patterns. It is not a SaaS product; it is a software engineering portfolio piece showcasing full-stack TypeScript development.
 
 ## Tech stack
 
-- **Framework:** Next.js 16.2 — App Router, Server Actions, `proxy.ts` route guards (Next.js 16 convention)
+- **Framework:** Next.js 16.2 (App Router, Server Actions, `proxy.ts` route guards, the Next.js 16 convention)
 - **Auth:** Auth.js v5 (Credentials provider, stateless JWT, bcrypt 12, rate-limited login)
 - **Database:** PostgreSQL via Prisma 7, Docker Compose for local dev
 - **Styling:** Tailwind CSS v4
@@ -15,7 +15,7 @@ Awano is a production-grade support desk application demonstrating advanced Next
 
 ## Key engineering features
 
-- Multi-tenant data isolation — every query is scoped to a `teamId`
+- Multi-tenant data isolation: every query is scoped to a `teamId`
 - Five-role RBAC: REQUESTER, SUPPORT, MANAGER, ADMIN, SUPER
 - Finite-state ticket workflow with role-enforced transitions
 - Cursor-based pagination across all list views

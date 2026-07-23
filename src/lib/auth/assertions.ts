@@ -2,7 +2,7 @@ import type { Session } from "next-auth";
 import type { Role, RequesterType } from "@/generated/prisma/enums";
 
 // ---------------------------------------------------------------------------
-// Typed errors — server actions check instanceof to map to the right status
+// Typed errors: server actions check instanceof to map to the right status
 // ---------------------------------------------------------------------------
 
 export class AuthenticationError extends Error {
@@ -22,7 +22,7 @@ export class AuthorizationError extends Error {
 }
 
 // ---------------------------------------------------------------------------
-// Normalized session payload — what server actions work with after asserting
+// Normalized session payload: what server actions work with after asserting
 // ---------------------------------------------------------------------------
 
 export type SessionPayload = {
@@ -60,7 +60,7 @@ export function assertRole(payload: SessionPayload, allowedRoles: Role[]): void 
 
 /**
  * Throws 403 if the resource belongs to a different team.
- * SUPER users bypass this check — they have cross-team read access.
+ * SUPER users bypass this check; they have cross-team read access.
  * (Update actions in the SUPER service layer must not call this.)
  */
 export function assertSameTeam(payload: SessionPayload, resource: TeamScoped): void {
@@ -84,7 +84,7 @@ export function assertCanViewTicket(payload: SessionPayload, ticket: TicketRef):
 
 /**
  * Throws 403 if the user cannot mutate this ticket (status, assignee, priority).
- * REQUESTERs may post comments but cannot change ticket fields — use assertCanViewTicket for that.
+ * REQUESTERs may post comments but cannot change ticket fields; use assertCanViewTicket for that.
  */
 export function assertCanUpdateTicket(payload: SessionPayload, ticket: TicketRef): void {
   assertSameTeam(payload, ticket);

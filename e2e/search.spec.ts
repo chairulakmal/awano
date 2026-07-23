@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 import { login } from "./helpers";
 
-test.describe("Desk — ticket search", () => {
+test.describe("Desk: ticket search", () => {
   test("shows no tickets for a nonsense query", async ({ page }) => {
     await login(page, "support@awano.demo", "demo");
     await page.goto("/desk");

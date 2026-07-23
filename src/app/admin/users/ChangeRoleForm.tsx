@@ -7,9 +7,9 @@ import type { Role, RequesterType } from "@/generated/prisma/enums";
 type RoleOption = { value: string; label: string; role: Role };
 
 const ALL_OPTIONS: RoleOption[] = [
-  { value: "REQUESTER-CUSTOMER",    label: "Requester — Customer",    role: "REQUESTER" },
-  { value: "REQUESTER-RECRUITER",   label: "Requester — Recruiter",   role: "REQUESTER" },
-  { value: "REQUESTER-FIELD_AGENT", label: "Requester — Field Agent", role: "REQUESTER" },
+  { value: "REQUESTER-CUSTOMER",    label: "Requester (Customer)",    role: "REQUESTER" },
+  { value: "REQUESTER-RECRUITER",   label: "Requester (Recruiter)",   role: "REQUESTER" },
+  { value: "REQUESTER-FIELD_AGENT", label: "Requester (Field Agent)", role: "REQUESTER" },
   { value: "SUPPORT",               label: "Support",                 role: "SUPPORT"   },
   { value: "MANAGER",               label: "Manager",                 role: "MANAGER"   },
   { value: "ADMIN",                 label: "Admin",                   role: "ADMIN"     },

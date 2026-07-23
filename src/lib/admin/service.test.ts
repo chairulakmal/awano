@@ -41,7 +41,7 @@ beforeEach(() => {
 // Role guard
 // ---------------------------------------------------------------------------
 
-describe("getDashboardMetrics — role guard", () => {
+describe("getDashboardMetrics: role guard", () => {
   it("throws when called by SUPPORT", async () => {
     await expect(getDashboardMetrics(session({ role: Role.SUPPORT }))).rejects.toThrow(
       AuthorizationError
@@ -70,7 +70,7 @@ describe("getDashboardMetrics — role guard", () => {
 // teamId scoping
 // ---------------------------------------------------------------------------
 
-describe("getDashboardMetrics — teamId scoping", () => {
+describe("getDashboardMetrics: teamId scoping", () => {
   it("scopes all queries to session teamId", async () => {
     setupDefaultMocks();
     await getDashboardMetrics(session({ teamId: "team-a" }));
@@ -89,10 +89,10 @@ describe("getDashboardMetrics — teamId scoping", () => {
 });
 
 // ---------------------------------------------------------------------------
-// statusCounts — zero-fills missing statuses
+// statusCounts: zero-fills missing statuses
 // ---------------------------------------------------------------------------
 
-describe("getDashboardMetrics — statusCounts", () => {
+describe("getDashboardMetrics: statusCounts", () => {
   it("zero-fills statuses absent from groupBy results", async () => {
     setupDefaultMocks();
     vi.mocked(db.ticket.groupBy).mockResolvedValue([
@@ -121,7 +121,7 @@ describe("getDashboardMetrics — statusCounts", () => {
 // avgResponseHours calculation
 // ---------------------------------------------------------------------------
 
-describe("getDashboardMetrics — avgResponseHours", () => {
+describe("getDashboardMetrics: avgResponseHours", () => {
   it("returns null when no tickets have a staff reply", async () => {
     setupDefaultMocks();
     vi.mocked(db.ticket.findMany).mockResolvedValue([
@@ -163,7 +163,7 @@ describe("getDashboardMetrics — avgResponseHours", () => {
 // topAssignees
 // ---------------------------------------------------------------------------
 
-describe("getDashboardMetrics — topAssignees", () => {
+describe("getDashboardMetrics: topAssignees", () => {
   it("returns empty array when no assigned open tickets", async () => {
     setupDefaultMocks();
     const result = await getDashboardMetrics(session());

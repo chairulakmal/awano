@@ -24,10 +24,10 @@ const hankenGrotesk = Hanken_Grotesk({
 });
 
 export const metadata: Metadata = {
-  title: "Awano — Multi-tenant Support Desk",
+  title: "Awano: Multi-tenant Support Desk",
   description,
   openGraph: {
-    title: "Awano — Multi-tenant Support Desk",
+    title: "Awano: Multi-tenant Support Desk",
     description,
     url: "https://awano.chairulakmal.com",
     siteName: "Awano",
@@ -35,7 +35,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary",
-    title: "Awano — Multi-tenant Support Desk",
+    title: "Awano: Multi-tenant Support Desk",
     description
   },
 };
@@ -46,7 +46,7 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   // Read the theme cookie server-side so the correct scheme is in the initial
-  // HTML — no flash. Absent, `:root` follows the OS via `color-scheme`.
+  // HTML; no flash. Absent, `:root` follows the OS via `color-scheme`.
   const theme = (await cookies()).get("theme")?.value;
   const dataTheme = theme === "light" || theme === "dark" ? theme : undefined;
 

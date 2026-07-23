@@ -7,7 +7,7 @@ import { AuthorizationError } from "@/lib/auth/assertions";
 // assertTransition
 // ---------------------------------------------------------------------------
 
-describe("assertTransition — valid transitions", () => {
+describe("assertTransition: valid transitions", () => {
   it("OPEN → IN_PROGRESS as SUPPORT", () => {
     expect(() =>
       assertTransition(TicketStatus.OPEN, TicketStatus.IN_PROGRESS, Role.SUPPORT)
@@ -69,7 +69,7 @@ describe("assertTransition — valid transitions", () => {
   });
 });
 
-describe("assertTransition — insufficient role", () => {
+describe("assertTransition: insufficient role", () => {
   it("SUPPORT cannot escalate IN_PROGRESS → ESCALATED", () => {
     expect(() =>
       assertTransition(TicketStatus.IN_PROGRESS, TicketStatus.ESCALATED, Role.SUPPORT)
@@ -101,7 +101,7 @@ describe("assertTransition — insufficient role", () => {
   });
 });
 
-describe("assertTransition — nonexistent transitions", () => {
+describe("assertTransition: nonexistent transitions", () => {
   it("OPEN → RESOLVED has no path", () => {
     expect(() => assertTransition(TicketStatus.OPEN, TicketStatus.RESOLVED, Role.SUPER)).toThrow(
       AuthorizationError
@@ -139,7 +139,7 @@ describe("assertTransition — nonexistent transitions", () => {
   });
 });
 
-describe("assertTransition — error message content", () => {
+describe("assertTransition: error message content", () => {
   it("nonexistent transition error names both states", () => {
     expect(() => assertTransition(TicketStatus.OPEN, TicketStatus.CLOSED, Role.SUPER)).toThrow(
       /OPEN.*CLOSED|CLOSED.*OPEN/
@@ -153,7 +153,7 @@ describe("assertTransition — error message content", () => {
   });
 });
 
-describe("assertTransition — ADMIN role (rank above MANAGER)", () => {
+describe("assertTransition: ADMIN role (rank above MANAGER)", () => {
   it("ADMIN can de-escalate ESCALATED → IN_PROGRESS", () => {
     expect(() =>
       assertTransition(TicketStatus.ESCALATED, TicketStatus.IN_PROGRESS, Role.ADMIN)
@@ -255,7 +255,7 @@ describe("getAllowedTransitions", () => {
     expect(getAllowedTransitions(TicketStatus.CLOSED, Role.ADMIN)).toContain(TicketStatus.OPEN);
   });
 
-  it("getAllowedTransitions returns only valid targets — no duplicates", () => {
+  it("getAllowedTransitions returns only valid targets: no duplicates", () => {
     const allowed = getAllowedTransitions(TicketStatus.IN_PROGRESS, Role.MANAGER);
     const unique = new Set(allowed);
     expect(allowed.length).toBe(unique.size);

@@ -14,7 +14,7 @@ export function FilePicker({ onFiles }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
 
   // Clear display state when the parent <form> fires its reset event so
-  // the parent's useEffect only needs to call form.reset() — no setState needed there.
+  // the parent's useEffect only needs to call form.reset(); no setState needed there.
   useEffect(() => {
     const form = inputRef.current?.form;
     if (!form) return;

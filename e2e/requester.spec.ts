@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 import { login } from "./helpers";
 
-test.describe("Requester — field agent flow", () => {
+test.describe("Requester: field agent flow", () => {
   test("login → create ticket → appears in My tickets", async ({ page }) => {
     // 1. Login as field agent
     await login(page, "agent@awano.demo", "demo");
@@ -14,9 +14,9 @@ test.describe("Requester — field agent flow", () => {
     const subject = `E2E agent ticket ${Date.now()}`;
     await page.selectOption('select[name="categoryId"]', { index: 1 });
     await page.fill('input[name="subject"]', subject);
-    await page.fill('textarea[name="body"]', "Automated E2E test — please ignore.");
+    await page.fill('textarea[name="body"]', "Automated E2E test, please ignore.");
 
-    // 4. Submit — action redirects to /tickets/:id on success
+    // 4. Submit: action redirects to /tickets/:id on success
     await page.getByRole("button", { name: "Submit ticket" }).click();
     await page.waitForURL(/\/tickets\/[a-z0-9]{10,}/, { timeout: 10_000 });
 

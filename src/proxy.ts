@@ -30,42 +30,42 @@ export const proxy = auth((req) => {
     return NextResponse.next();
   }
 
-  // Root — send authenticated users straight to their workspace
+  // Root: send authenticated users straight to their workspace
   if (path === "/") {
     if (isAuthenticated) {
       return NextResponse.redirect(new URL(roleHome(role), nextUrl));
     }
   }
 
-  // /desk/* — Support, Manager, Admin
+  // /desk/*: Support, Manager, Admin
   if (path.startsWith("/desk")) {
     if (!isAuthenticated || !role || !DESK_ROLES.includes(role)) {
       return NextResponse.redirect(new URL("/login", nextUrl));
     }
   }
 
-  // /admin/* — Manager, Admin
+  // /admin/*: Manager, Admin
   if (path.startsWith("/admin")) {
     if (!isAuthenticated || !role || !ADMIN_ROLES.includes(role)) {
       return NextResponse.redirect(new URL("/login", nextUrl));
     }
   }
 
-  // /super/* — Super only
+  // /super/*: Super only
   if (path.startsWith("/super")) {
     if (!isAuthenticated || role !== "SUPER") {
       return NextResponse.redirect(new URL("/login", nextUrl));
     }
   }
 
-  // /tickets/* — Requester only
+  // /tickets/*: Requester only
   if (path.startsWith("/tickets")) {
     if (!isAuthenticated || role !== "REQUESTER") {
       return NextResponse.redirect(new URL("/login", nextUrl));
     }
   }
 
-  // /profile — any authenticated user
+  // /profile: any authenticated user
   if (path.startsWith("/profile")) {
     if (!isAuthenticated) {
       return NextResponse.redirect(new URL("/login", nextUrl));

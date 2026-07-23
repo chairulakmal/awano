@@ -37,7 +37,7 @@ beforeEach(() => {
 // listTeams
 // ---------------------------------------------------------------------------
 
-describe("listTeams — role guard", () => {
+describe("listTeams: role guard", () => {
   it("throws when called by MANAGER", async () => {
     await expect(listTeams(superSession({ role: Role.MANAGER }))).rejects.toThrow(
       AuthorizationError
@@ -59,7 +59,7 @@ describe("listTeams — role guard", () => {
 // createTeam
 // ---------------------------------------------------------------------------
 
-describe("createTeam — role guard", () => {
+describe("createTeam: role guard", () => {
   it("throws when called by ADMIN", async () => {
     await expect(createTeam({ name: "X", slug: "x" }, superSession({ role: Role.ADMIN }))).rejects.toThrow(
       AuthorizationError
@@ -68,7 +68,7 @@ describe("createTeam — role guard", () => {
   });
 });
 
-describe("createTeam — Zod validation", () => {
+describe("createTeam: Zod validation", () => {
   it("throws on empty name", async () => {
     await expect(createTeam({ name: "", slug: "valid-slug" }, superSession())).rejects.toThrow();
     expect(db.team.create).not.toHaveBeenCalled();
@@ -90,7 +90,7 @@ describe("createTeam — Zod validation", () => {
   });
 });
 
-describe("createTeam — duplicate slug", () => {
+describe("createTeam: duplicate slug", () => {
   it("throws a friendly error on P2002 unique constraint violation", async () => {
     vi.mocked(db.team.create).mockRejectedValue({ code: "P2002" });
     await expect(createTeam({ name: "Team A", slug: "team-a" }, superSession())).rejects.toThrow(
@@ -99,7 +99,7 @@ describe("createTeam — duplicate slug", () => {
   });
 });
 
-describe("createTeam — success path", () => {
+describe("createTeam: success path", () => {
   it("creates team with provided name, slug, and notes", async () => {
     vi.mocked(db.team.create).mockResolvedValue({ id: "team-1" } as never);
     await createTeam({ name: "Acme", slug: "acme", notes: "Test org" }, superSession());
@@ -115,7 +115,7 @@ describe("createTeam — success path", () => {
 // getTeamDetail
 // ---------------------------------------------------------------------------
 
-describe("getTeamDetail — role guard", () => {
+describe("getTeamDetail: role guard", () => {
   it("throws when called by MANAGER", async () => {
     await expect(getTeamDetail("team-1", superSession({ role: Role.MANAGER }))).rejects.toThrow(
       AuthorizationError
@@ -124,14 +124,14 @@ describe("getTeamDetail — role guard", () => {
   });
 });
 
-describe("getTeamDetail — not found", () => {
+describe("getTeamDetail: not found", () => {
   it("throws when team does not exist", async () => {
     vi.mocked(db.team.findUnique).mockResolvedValue(null);
     await expect(getTeamDetail("missing", superSession())).rejects.toThrow("Team not found");
   });
 });
 
-describe("getTeamDetail — success path", () => {
+describe("getTeamDetail: success path", () => {
   it("returns the team when found", async () => {
     const team = { id: "team-1", name: "Acme", users: [], _count: { tickets: 0 } };
     vi.mocked(db.team.findUnique).mockResolvedValue(team as never);
@@ -144,7 +144,7 @@ describe("getTeamDetail — success path", () => {
 // createUserInTeam
 // ---------------------------------------------------------------------------
 
-describe("createUserInTeam — role guard", () => {
+describe("createUserInTeam: role guard", () => {
   it("throws when called by ADMIN", async () => {
     await expect(
       createUserInTeam("team-1", {}, superSession({ role: Role.ADMIN }))
@@ -153,7 +153,7 @@ describe("createUserInTeam — role guard", () => {
   });
 });
 
-describe("createUserInTeam — Zod validation", () => {
+describe("createUserInTeam: Zod validation", () => {
   it("throws on invalid email", async () => {
     await expect(
       createUserInTeam(
@@ -188,7 +188,7 @@ describe("createUserInTeam — Zod validation", () => {
   });
 });
 
-describe("createUserInTeam — success path", () => {
+describe("createUserInTeam: success path", () => {
   it("hashes the password before storing", async () => {
     vi.mocked(bcrypt.hash).mockResolvedValue("hashed-pw" as never);
     vi.mocked(db.user.create).mockResolvedValue({} as never);
@@ -263,7 +263,7 @@ describe("createUserInTeam — success path", () => {
 // seedDemoUsers
 // ---------------------------------------------------------------------------
 
-describe("seedDemoUsers — role guard", () => {
+describe("seedDemoUsers: role guard", () => {
   it("throws when called by MANAGER", async () => {
     await expect(seedDemoUsers("team-1", superSession({ role: Role.MANAGER }))).rejects.toThrow(
       AuthorizationError
@@ -271,7 +271,7 @@ describe("seedDemoUsers — role guard", () => {
   });
 });
 
-describe("seedDemoUsers — team not found", () => {
+describe("seedDemoUsers: team not found", () => {
   it("throws when team does not exist", async () => {
     vi.mocked(db.team.findUnique).mockResolvedValue(null);
     await expect(seedDemoUsers("missing", superSession())).rejects.toThrow("Team not found");
@@ -279,7 +279,7 @@ describe("seedDemoUsers — team not found", () => {
   });
 });
 
-describe("seedDemoUsers — success path", () => {
+describe("seedDemoUsers: success path", () => {
   it("creates 5 demo users and returns correct count", async () => {
     vi.mocked(db.team.findUnique).mockResolvedValue({ slug: "acme" } as never);
     vi.mocked(bcrypt.hash).mockResolvedValue("hashed-pw" as never);

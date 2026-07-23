@@ -25,10 +25,10 @@ beforeEach(() => {
 });
 
 // ---------------------------------------------------------------------------
-// listCategories — role guard
+// listCategories: role guard
 // ---------------------------------------------------------------------------
 
-describe("listCategories — role guard", () => {
+describe("listCategories: role guard", () => {
   it("throws when called by SUPPORT", async () => {
     await expect(listCategories(session({ role: Role.SUPPORT }))).rejects.toThrow(
       AuthorizationError
@@ -54,10 +54,10 @@ describe("listCategories — role guard", () => {
 });
 
 // ---------------------------------------------------------------------------
-// createCategory — slug generation
+// createCategory: slug generation
 // ---------------------------------------------------------------------------
 
-describe("createCategory — slug generation", () => {
+describe("createCategory: slug generation", () => {
   beforeEach(() => {
     vi.mocked(db.category.create).mockResolvedValue({ id: "cat-1" } as never);
   });
@@ -119,7 +119,7 @@ describe("createCategory — slug generation", () => {
     expect(db.category.create).not.toHaveBeenCalled();
   });
 
-  it("role guard fires before slug logic — SUPPORT gets AuthorizationError", async () => {
+  it("role guard fires before slug logic: SUPPORT gets AuthorizationError", async () => {
     await expect(
       createCategory({ name: "Billing" }, session({ role: Role.SUPPORT }))
     ).rejects.toThrow(AuthorizationError);
@@ -131,7 +131,7 @@ describe("createCategory — slug generation", () => {
 // deleteCategory
 // ---------------------------------------------------------------------------
 
-describe("deleteCategory — role guard", () => {
+describe("deleteCategory: role guard", () => {
   it("throws when called by SUPPORT", async () => {
     await expect(deleteCategory("cat-1", session({ role: Role.SUPPORT }))).rejects.toThrow(
       AuthorizationError
@@ -140,7 +140,7 @@ describe("deleteCategory — role guard", () => {
   });
 });
 
-describe("deleteCategory — business rules", () => {
+describe("deleteCategory: business rules", () => {
   it("throws AuthorizationError when category is not found", async () => {
     vi.mocked(db.category.findUnique).mockResolvedValue(null);
     await expect(deleteCategory("missing", session())).rejects.toThrow(AuthorizationError);

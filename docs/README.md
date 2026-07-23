@@ -7,7 +7,7 @@ The index for Awano's documentation: what each file is and which files are curre
 | File | Owns |
 |---|---|
 | [SPEC.md](SPEC.md) | The engineering design doc: data model, roles and permissions, auth and session, route map, testing, deployment, and the decision log. The source of truth for behaviour. |
-| [DESIGN.md](DESIGN.md) | The visual design guide: colour, typography, spacing, and component patterns. The source of truth for how the UI looks. |
+| [DESIGN.md](DESIGN.md) | The brand and UI system: the 淡 Awa thesis, light/dark theming, colour and type tokens, voice and tone, and component recipes. The source of truth for how the UI looks and reads. |
 | [i18n.md](i18n.md) | Implementation reference for the planned English and Japanese internationalization and mobile-browser support. |
 | [dev.md](dev.md) | Local PostgreSQL notes beyond the README quick start. |
 

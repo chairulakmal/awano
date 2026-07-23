@@ -1,8 +1,8 @@
-// Awano database schema — maps to PostgreSQL tables.
+// Awano database schema: maps to PostgreSQL tables.
 // Docs: https://www.prisma.io/docs/orm/prisma-schema
 
 // ---------------------------------------------------------------------------
-// 1) Generator — tells Prisma how to generate the TypeScript client
+// 1) Generator: tells Prisma how to generate the TypeScript client
 // ---------------------------------------------------------------------------
 generator client {
   provider = "prisma-client"
@@ -10,14 +10,14 @@ generator client {
 }
 
 // ---------------------------------------------------------------------------
-// 2) Datasource — PostgreSQL (connection URL is in prisma.config.ts / .env)
+// 2) Datasource: PostgreSQL (connection URL is in prisma.config.ts / .env)
 // ---------------------------------------------------------------------------
 datasource db {
   provider = "postgresql"
 }
 
 // ---------------------------------------------------------------------------
-// 3) Enums — fixed sets of values stored in Postgres as enum types
+// 3) Enums: fixed sets of values stored in Postgres as enum types
 // ---------------------------------------------------------------------------
 
 /// Staff vs requester vs platform super-user (see spec: Roles & permissions)
@@ -53,7 +53,7 @@ enum TicketPriority {
 }
 
 // ---------------------------------------------------------------------------
-// 4) Models — each `model` block = one SQL table
+// 4) Models: each `model` block = one SQL table
 // ---------------------------------------------------------------------------
 
 /// Tenant / workspace (multi-team isolation)

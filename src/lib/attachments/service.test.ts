@@ -3,7 +3,7 @@ import { Role } from "@/generated/prisma/enums";
 import { AuthorizationError, type SessionPayload } from "@/lib/auth/assertions";
 
 // ---------------------------------------------------------------------------
-// Mock Prisma — must be declared before importing the service
+// Mock Prisma: must be declared before importing the service
 // ---------------------------------------------------------------------------
 
 vi.mock("@/lib/db", () => ({
@@ -24,15 +24,15 @@ function session(overrides: Partial<SessionPayload> = {}): SessionPayload {
   return { userId: "user-1", teamId: "team-a", role: Role.SUPPORT, ...overrides };
 }
 
-// Prisma mock return values are partial stubs — cast to silence strict type checking.
+// Prisma mock return values are partial stubs; cast to silence strict type checking.
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const stub = (value: unknown) => value as any;
 
 const TEAM_A_TICKET = { teamId: "team-a", createdById: "user-1" };
 const TEAM_B_TICKET = { teamId: "team-b", createdById: "user-9" };
 
-const SMALL_FILE = new Uint8Array(500_000) as Uint8Array<ArrayBuffer>; // 500 KB — under limit
-const BIG_FILE = new Uint8Array(1_100_000) as Uint8Array<ArrayBuffer>; // 1.1 MB — over limit
+const SMALL_FILE = new Uint8Array(500_000) as Uint8Array<ArrayBuffer>; // 500 KB, under limit
+const BIG_FILE = new Uint8Array(1_100_000) as Uint8Array<ArrayBuffer>; // 1.1 MB, over limit
 
 function attachmentInput(overrides: Record<string, unknown> = {}) {
   return {
@@ -52,7 +52,7 @@ beforeEach(() => {
 // addAttachment
 // ---------------------------------------------------------------------------
 
-describe("addAttachment — MIME type guard", () => {
+describe("addAttachment: MIME type guard", () => {
   it("throws when mimeType is not in the allowlist", async () => {
     await expect(
       addAttachment(attachmentInput({ mimeType: "text/html" }), session())
@@ -81,7 +81,7 @@ describe("addAttachment — MIME type guard", () => {
   });
 });
 
-describe("addAttachment — size guard", () => {
+describe("addAttachment: size guard", () => {
   it("throws when file exceeds 1 MB", async () => {
     vi.mocked(db.ticket.findUnique).mockResolvedValue(stub(TEAM_A_TICKET));
 
@@ -101,7 +101,7 @@ describe("addAttachment — size guard", () => {
   });
 });
 
-describe("addAttachment — ticket not found", () => {
+describe("addAttachment: ticket not found", () => {
   it("throws AuthorizationError when ticket does not exist", async () => {
     vi.mocked(db.ticket.findUnique).mockResolvedValue(stub(null));
 
@@ -111,7 +111,7 @@ describe("addAttachment — ticket not found", () => {
   });
 });
 
-describe("addAttachment — cross-team isolation", () => {
+describe("addAttachment: cross-team isolation", () => {
   it("throws when session team does not match ticket team", async () => {
     vi.mocked(db.ticket.findUnique).mockResolvedValue(stub(TEAM_B_TICKET));
 
@@ -132,7 +132,7 @@ describe("addAttachment — cross-team isolation", () => {
   });
 });
 
-describe("addAttachment — persists correct fields", () => {
+describe("addAttachment: persists correct fields", () => {
   it("writes filename, mimeType, sizeBytes, and data to DB", async () => {
     vi.mocked(db.ticket.findUnique).mockResolvedValue(stub(TEAM_A_TICKET));
     vi.mocked(db.attachment.create).mockResolvedValue(stub({ id: "att-3" }));
@@ -166,7 +166,7 @@ describe("addAttachment — persists correct fields", () => {
 // getAttachment
 // ---------------------------------------------------------------------------
 
-describe("getAttachment — not found", () => {
+describe("getAttachment: not found", () => {
   it("throws AuthorizationError when attachment does not exist", async () => {
     vi.mocked(db.attachment.findUnique).mockResolvedValue(stub(null));
 
@@ -174,7 +174,7 @@ describe("getAttachment — not found", () => {
   });
 });
 
-describe("getAttachment — cross-team isolation", () => {
+describe("getAttachment: cross-team isolation", () => {
   it("throws when session team does not match the attachment's ticket team", async () => {
     vi.mocked(db.attachment.findUnique).mockResolvedValue(
       stub({ id: "att-5", ticket: TEAM_B_TICKET })

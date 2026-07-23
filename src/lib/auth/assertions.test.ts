@@ -295,7 +295,7 @@ describe("assertCanUpdateTicket", () => {
     expect(() => assertCanUpdateTicket(payload, ticket)).toThrow(AuthorizationError);
   });
 
-  it("cross-team check fires before role check — REQUESTER on wrong team still gets AuthorizationError", () => {
+  it("cross-team check fires before role check: REQUESTER on wrong team still gets AuthorizationError", () => {
     const payload = makePayload({ role: Role.REQUESTER, userId: "user-1", teamId: "team-a" });
     const ticket = { teamId: "team-b", createdById: "user-1" };
     expect(() => assertCanUpdateTicket(payload, ticket)).toThrow(AuthorizationError);
