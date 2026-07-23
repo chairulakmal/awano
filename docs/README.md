@@ -17,6 +17,7 @@ The index for Awano's documentation: what each file is and which files are curre
 |---|---|
 | [../README.md](../README.md) | Public description, highlights, local setup, and testing. |
 | [../ARCHITECTURE.md](../ARCHITECTURE.md) | A guided tour of the key design decisions with file paths. |
+| [../SECURITY.md](../SECURITY.md) | The security policy: supported versions, how to report a vulnerability, and scope. |
 | [../TODO.md](../TODO.md) | The forward plan: what we intend to build next, currently focused on the UI/UX revamp. |
 | [../CHANGELOG.md](../CHANGELOG.md) | What has shipped, newest first. |
 
