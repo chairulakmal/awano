@@ -20,14 +20,14 @@ Rules of the doc: `docs/DESIGN.md` owns the visual language and every token or c
 
 ## Status and critical path
 
-v1.0.0 shipped (2026-05-21, see [CHANGELOG.md](CHANGELOG.md)); the revamp below is the active iteration and none of it has started yet. Four **P0** items are the critical path, because everything in sections 3-8 assumes them:
+v1.0.0 shipped (2026-05-21, see [CHANGELOG.md](CHANGELOG.md)). The revamp below is the active iteration. Four **P0** items are the critical path, because everything in sections 3-8 assumes them:
 
-1. **Design tokens under `@theme`** (§1) — today `globals.css` hardcodes light-only `rgba(…)` in the ring and shadow utilities, so no other surface can be themed until the scales become variables.
-2. **Dark mode** (§1) — every surface below must ship both themes, so this has to land early or become a retrofit.
-3. **Responsive navigation** (§2) — the mobile shell behaviour that later desk and ticket work builds on.
+1. ~~**Design tokens under `@theme`** (§1)~~ — **done.** Colour promoted to semantic `light-dark()` tokens; ring/shadow/dot utilities tokenised too.
+2. ~~**Dark mode** (§1)~~ — **done.** Cookie + SSR, OS default, header toggle, every surface migrated.
+3. **Responsive navigation** (§2) — the mobile shell behaviour that later desk and ticket work builds on. Partly in place (the header `NavMenu` already collapses to a hamburger); the desk sidebar and remaining shells still need it.
 4. **Toast system** (§4) — the feedback primitive the optimistic actions in §3 surface their results through.
 
-Do these first, roughly in this order. The rest of the sections then proceed foundation-upward.
+Items 1-2 have landed; **3 and 4 are next.** The rest of the sections then proceed foundation-upward.
 
 ## How to read this
 
@@ -39,8 +39,8 @@ Do these first, roughly in this order. The rest of the sections then proceed fou
 
 The current language is light-only amber with text-only status colours (`docs/DESIGN.md`). The revamp keeps that identity and makes it systematic and theme-aware.
 
-- [ ] **P0** Promote colour, spacing, and typography scales to CSS custom properties in `globals.css` under `@theme`, so a theme swap is a variable change, not a class rewrite.
-- [ ] **P0** Dark mode. DESIGN.md currently defers it; this iteration lands it. Define dark tokens, wire a `prefers-color-scheme` default with a manual toggle, and persist the choice. Every surface below must ship both themes.
+- [x] **P0** Promote the colour scale to semantic `light-dark()` custom properties in `globals.css` under `@theme`, so a theme swap is a variable change, not a class rewrite. (Spacing and typography stay on Tailwind's own theme scale — they don't vary by theme, so they needed no promotion.)
+- [x] **P0** Dark mode. Semantic dark tokens defined; `color-scheme` follows `prefers-color-scheme` by default, a header toggle overrides it, and the choice persists via a cookie the root layout reads server-side (no flash). Every surface is migrated to tokens. Details in `docs/DESIGN.md` § Theming.
 - [ ] **P1** Status system: promote the six ticket statuses to filled badges with an icon, keeping the semantic colours already in DESIGN.md, and reuse one `<StatusBadge>` everywhere instead of ad-hoc spans.
 - [ ] **P1** A motion vocabulary: standard durations and easings as tokens. DESIGN.md today allows `transition-colors` only; extend it deliberately (enter/exit, list reorder) without decorative animation.
 - [ ] **P2** A minimal component inventory page at `/style` (dev-only) rendering every primitive in both themes, as a living reference and visual-regression target.

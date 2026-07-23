@@ -2,8 +2,8 @@
 
 |                   |                                               |
 | ----------------- | --------------------------------------------- |
-| **Version**       | 0.2                                           |
-| **Last updated**  | 2026-05-19                                    |
+| **Version**       | 0.3                                           |
+| **Last updated**  | 2026-07-23                                    |
 | **Aesthetic ref** | tokuty.jp — clean, light, generous whitespace |
 | **Primary**       | Amber `#F59E0B` (Tailwind amber-500)          |
 
@@ -11,7 +11,9 @@
 
 ## Principles
 
-1. **Light-first.** All surfaces default to white/zinc-50. Dark mode is not a current priority.
+1. **Themed, not hard-coded.** Every colour is a semantic token (`surface`, `fg`, `border`, …) that
+   resolves per theme. The app ships light and dark; a surface must never reach for a raw
+   `zinc-*` / `white` class. Light stays the default and the design's reference point.
 2. **Sparse accent.** Amber appears on interactive elements only — primary buttons, focus rings,
    links, small indicators. Never as a large background fill.
 3. **Whitespace over density.** Generous vertical padding between sections. Prefer breathing room to
@@ -23,33 +25,62 @@
 
 ---
 
-## Color
+## Theming
 
-| Token                   | Value     | Use                                                    |
-| ----------------------- | --------- | ------------------------------------------------------ |
-| `--color-primary`       | `#f59e0b` | Primary buttons, focus rings, links, active indicators |
-| `--color-primary-hover` | `#d97706` | Hover state for all primary elements                   |
-| `white`                 | `#ffffff` | Page background, cards                                 |
-| `zinc-50`               | `#fafafa` | Section backgrounds (alternating), login page bg       |
-| `zinc-100`              | `#f4f4f5` | Dividers, subtle section borders                       |
-| `zinc-200`              | `#e4e4e7` | Input borders, card borders, stat dividers             |
-| `zinc-400`              | `#a1a1aa` | Overline text, footer text, placeholder                |
-| `zinc-500`              | `#71717a` | Body text, form labels (secondary)                     |
-| `zinc-700`              | `#3f3f46` | Form labels (primary)                                  |
-| `zinc-900`              | `#18181b` | Headings, strong text                                  |
-| `amber-50`              | `#fffbeb` | Feature number badge background                        |
-| `red-50 / red-600`      | —         | Error messages in forms                                |
+Awano ships light and dark themes. Every colour is a semantic token defined once in `globals.css` as a
+`light-dark()` custom property and exposed as a Tailwind utility through `@theme inline`, so components
+use `bg-surface` / `text-fg-muted` / `border-border`, never a raw `zinc-*`. A theme swap is a variable
+change, not a class rewrite.
 
-### Semantic status colors (ticket list & desk)
+The active theme is decided by CSS `color-scheme`: `:root` sets `light dark` so it follows the OS, and
+`<html data-theme="…">` overrides it. The root layout reads a `theme` cookie server-side and stamps
+that attribute, so the initial HTML already carries the right scheme — no flash. The header's
+[`ThemeToggle`](../src/components/ThemeToggle.tsx) flips the attribute for instant feedback and writes
+the cookie for the next render; it reads the effective theme with `useSyncExternalStore`, so an OS
+theme change is reflected live.
 
-| Status                 | Text color      | Tailwind class     |
-| ---------------------- | --------------- | ------------------ |
-| `OPEN`                 | Zinc            | `text-zinc-500`    |
-| `IN_PROGRESS`          | Amber (primary) | `text-primary`     |
-| `WAITING_ON_REQUESTER` | Amber dark      | `text-amber-600`   |
-| `ESCALATED`            | Rose            | `text-rose-500`    |
-| `RESOLVED`             | Emerald         | `text-emerald-600` |
-| `CLOSED`               | Zinc muted      | `text-zinc-400`    |
+## Colour tokens
+
+Utility `X` below means `bg-X`, `text-X`, `border-X` as appropriate. Light values are the exact hexes
+the app shipped with; dark is the counterpart.
+
+| Token             | Role                                            | Light     | Dark                    |
+| ----------------- | ----------------------------------------------- | --------- | ----------------------- |
+| `surface`         | Page background, cards                           | `#ffffff` | `#18181b`               |
+| `surface-muted`   | Section / nav backgrounds, login page            | `#fafafa` | `#1f1f23`               |
+| `surface-subtle`  | Hover fills, chips, subtle panels                | `#f4f4f5` | `#27272a`               |
+| `surface-inverse` | Inverted fills (selected pills)                  | `#18181b` | `#fafafa`               |
+| `fg-strong`       | Headings, strong text                            | `#18181b` | `#fafafa`               |
+| `fg`              | Form labels, default emphasis                    | `#3f3f46` | `#e4e4e7`               |
+| `fg-secondary`    | Secondary emphasis, ghost text                   | `#52525b` | `#d4d4d8`               |
+| `fg-muted`        | Body text                                        | `#71717a` | `#a1a1aa`               |
+| `fg-subtle`       | Overline, footer, placeholder                    | `#a1a1aa` | `#71717a`               |
+| `fg-on-inverse`   | Text on `surface-inverse`                        | `#ffffff` | `#18181b`               |
+| `border`          | Input borders, card borders                      | `#e4e4e7` | `#3f3f46`               |
+| `border-subtle`   | Dividers, subtle section borders                 | `#f4f4f5` | `#27272a`               |
+| `primary`         | Buttons, focus rings, links (theme-agnostic)     | `#f59e0b` | `#f59e0b`               |
+| `primary-hover`   | Hover state for primary                          | `#d97706` | `#d97706`               |
+| `danger-surface` / `danger-text` / `danger-border` | Form errors     | `red-50/600/100` | translucent rose |
+| `accent-amber-surface` / `accent-amber-text`       | Feature badges  | `amber-50/700`   | translucent amber |
+
+`text-white` is kept (not tokenised) on amber `bg-primary` buttons, where white reads on both themes.
+
+### Semantic status colours (ticket list & desk)
+
+Exposed as `text-status-*` tokens (defined in `globals.css`), so each adapts to the theme.
+
+| Status                 | Token             | Light basis     |
+| ---------------------- | ----------------- | --------------- |
+| `OPEN`                 | `status-open`     | zinc (fg-muted) |
+| `IN_PROGRESS`          | `status-progress` | amber (primary) |
+| `WAITING_ON_REQUESTER` | `status-waiting`  | amber-600       |
+| `ESCALATED`            | `status-escalated`| rose-500        |
+| `RESOLVED`             | `status-resolved` | emerald-600     |
+| `CLOSED`               | `status-closed`   | zinc (fg-subtle)|
+
+> Role and status **chips** (blue / violet / green tints on avatars and priority markers) are still raw
+> Tailwind accents pending the `<StatusBadge>` unification (TODO §1); their text-on-chip contrast holds
+> in dark, but the light tint backgrounds are not yet theme-aware.
 
 ---
 
@@ -62,10 +93,10 @@ ordinals, ticket IDs, code snippets.
 | ---------------- | ------------------------------------------------------------- | ---------------------------- |
 | Display / hero   | `text-5xl sm:text-6xl font-semibold tracking-tight`           | Landing h1                   |
 | Section heading  | `text-2xl font-semibold tracking-tight`                       | Desk / admin page titles     |
-| Card title       | `text-base font-semibold text-zinc-900`                       |                              |
-| Label / overline | `text-xs uppercase tracking-widest font-medium text-zinc-400` | Section labels               |
-| Body             | `text-sm leading-relaxed text-zinc-500`                       |                              |
-| Form label       | `text-sm font-medium text-zinc-700`                           |                              |
+| Card title       | `text-base font-semibold text-fg-strong`                      |                              |
+| Label / overline | `text-xs uppercase tracking-widest font-medium text-fg-subtle`| Section labels               |
+| Body             | `text-sm leading-relaxed text-fg-muted`                       |                              |
+| Form label       | `text-sm font-medium text-fg`                                 |                              |
 | Ordinal badge    | `font-mono text-xs font-semibold text-primary`                | Feature markers (01, 02, 03) |
 
 ---
@@ -98,7 +129,7 @@ ordinals, ticket IDs, code snippets.
 ### Button — ghost / secondary
 
 ```tsx
-<a className="inline-flex items-center justify-center h-11 px-6 rounded-md border border-zinc-200 text-sm font-medium text-zinc-600 hover:border-zinc-300 hover:text-zinc-900 transition-colors">
+<a className="inline-flex items-center justify-center h-11 px-6 rounded-md ring-ghost text-sm font-medium text-fg-secondary hover:text-fg-strong transition-colors">
   How it works →
 </a>
 ```
@@ -114,7 +145,7 @@ ordinals, ticket IDs, code snippets.
 ### Nav bar
 
 ```tsx
-<nav className="flex items-center justify-between px-8 py-5 border-b border-zinc-100">
+<nav className="flex items-center justify-between px-8 py-5 border-b border-border-subtle">
   <span className="text-base font-semibold tracking-tight">Awano</span>
   {/* right: amber arrow link */}
 </nav>
@@ -123,7 +154,7 @@ ordinals, ticket IDs, code snippets.
 ### Feature ordinal badge
 
 ```tsx
-<span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-amber-50 text-primary text-xs font-semibold font-mono">
+<span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-accent-amber-surface text-primary text-xs font-semibold font-mono">
   01
 </span>
 ```
@@ -131,13 +162,13 @@ ordinals, ticket IDs, code snippets.
 ### Section divider
 
 ```tsx
-<section className="bg-zinc-50 border-y border-zinc-100">
+<section className="bg-surface-muted border-y border-border-subtle">
 ```
 
 ### Form input
 
 ```tsx
-<input className="w-full rounded-lg ring-input px-3.5 py-2.5 text-sm text-zinc-900 placeholder:text-zinc-400 outline-none transition" />
+<input className="w-full rounded-lg ring-input px-3.5 py-2.5 text-sm text-fg-strong placeholder:text-fg-subtle outline-none transition" />
 ```
 
 Focus state handled by `.ring-input:focus` in `globals.css` — primary color ring, no extra classes
@@ -146,10 +177,10 @@ needed.
 ### Login card
 
 ```tsx
-<div className="rounded-xl border border-zinc-200 bg-white p-8 shadow-sm">
+<div className="rounded-xl border border-border bg-surface p-8 shadow-sm">
 ```
 
-Centred on a `bg-zinc-50` full-height page. No dark-mode variants — light only.
+Centred on a `bg-surface-muted` full-height page. Themed via tokens — adapts to light and dark.
 
 ### Status badge (text-only, no background fill)
 
@@ -162,7 +193,7 @@ Use semantic status colors from the Color table.
 ### Card (desk / ticket list item)
 
 ```tsx
-<div className="rounded-xl bg-white p-8 shadow-card">
+<div className="rounded-xl bg-surface p-8 shadow-card">
   {/* shadow-card = subtle ring + soft lift, defined in globals.css */}
 </div>
 ```
@@ -176,7 +207,7 @@ Use semantic status colors from the Color table.
 ### Login / modal panel
 
 ```tsx
-<div className="rounded-2xl bg-white p-10 shadow-panel">
+<div className="rounded-2xl bg-surface p-10 shadow-panel">
   {/* shadow-panel = same ring + stronger drop shadow */}
 </div>
 ```
