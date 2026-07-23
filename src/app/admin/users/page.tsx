@@ -60,7 +60,7 @@ export default async function AdminUsersPage() {
             {users.map((user) => (
               <tr key={user.id} className="hover:bg-surface-muted transition-colors">
                 <td className="px-5 py-3 font-medium text-fg-strong">
-                  {user.name ?? <span className="text-fg-subtle italic">—</span>}
+                  {user.name ?? <span className="text-fg-subtle italic">–</span>}
                 </td>
                 <td className="px-5 py-3 text-fg-muted">{user.email}</td>
                 <td className="px-5 py-3">

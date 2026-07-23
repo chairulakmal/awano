@@ -83,7 +83,7 @@ export default async function ProfilePage() {
             <div className="flex justify-between py-2.5 first:pt-0 last:pb-0">
               <dt className="text-fg-muted">Name</dt>
               <dd className="font-medium text-fg-strong">
-                {user.name ?? <span className="text-fg-subtle italic">—</span>}
+                {user.name ?? <span className="text-fg-subtle italic">–</span>}
               </dd>
             </div>
             <div className="flex justify-between py-2.5 first:pt-0 last:pb-0">

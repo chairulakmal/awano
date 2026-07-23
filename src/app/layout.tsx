@@ -24,10 +24,10 @@ const hankenGrotesk = Hanken_Grotesk({
 });
 
 export const metadata: Metadata = {
-  title: "Awano — Multi-tenant Support Desk",
+  title: "Awano: Multi-tenant Support Desk",
   description,
   openGraph: {
-    title: "Awano — Multi-tenant Support Desk",
+    title: "Awano: Multi-tenant Support Desk",
     description,
     url: "https://awano.chairulakmal.com",
     siteName: "Awano",
@@ -35,7 +35,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary",
-    title: "Awano — Multi-tenant Support Desk",
+    title: "Awano: Multi-tenant Support Desk",
     description
   },
 };

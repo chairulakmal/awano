@@ -37,7 +37,7 @@ export default async function AdminDashboardPage() {
         <StatCard label="Unassigned" value={metrics.unassignedCount} />
         <StatCard
           label="Avg first response"
-          value={metrics.avgResponseHours != null ? `${metrics.avgResponseHours.toFixed(1)}h` : "—"}
+          value={metrics.avgResponseHours != null ? `${metrics.avgResponseHours.toFixed(1)}h` : "–"}
         />
         <StatCard
           label="Opened (30d)"
