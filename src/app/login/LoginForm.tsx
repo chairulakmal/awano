@@ -38,9 +38,17 @@ function DemoButtons() {
             type="button"
             disabled={pending}
             onClick={() => handleDemoLogin(email)}
-            className="flex-1 rounded-md px-3 py-2 text-xs font-medium bg-accent-amber-surface hover:bg-amber-200 text-accent-amber-text transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="grid flex-1 rounded-md px-3 py-2 text-xs font-medium bg-accent-amber-surface hover:bg-amber-200 text-accent-amber-text transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {pendingEmail === email ? "Signing in…" : label}
+            {/* Reserve the widest of the two labels so the swap to
+                "Signing in…" never resizes the button (and, via flex-1,
+                never reflows the row). */}
+            <span aria-hidden className="col-start-1 row-start-1 invisible whitespace-nowrap">
+              {pendingEmail === email ? label : "Signing in…"}
+            </span>
+            <span className="col-start-1 row-start-1 justify-self-center whitespace-nowrap">
+              {pendingEmail === email ? "Signing in…" : label}
+            </span>
           </button>
         ))}
       </div>
