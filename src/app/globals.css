@@ -1,58 +1,154 @@
 @import "tailwindcss";
 
+/*
+ * Theme tokens. Each token is a single `light-dark()` declaration: the browser
+ * resolves it from the computed `color-scheme`, which `:root` sets to follow the
+ * OS and `[data-theme]` overrides once the user picks a theme (see ThemeToggle).
+ * Light values are the exact zinc/amber hexes the app shipped with, so light
+ * mode is unchanged; dark supplies the second column. Utility classes below map
+ * to these via `@theme inline`, so a theme swap is a variable change, not a
+ * class rewrite. The role → value mapping is documented in docs/DESIGN.md.
+ */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  color-scheme: light dark;
+
+  /* Surfaces */
+  --surface: light-dark(#ffffff, #18181b);
+  --surface-muted: light-dark(#fafafa, #1f1f23);
+  --surface-subtle: light-dark(#f4f4f5, #27272a);
+  --surface-inverse: light-dark(#18181b, #fafafa);
+
+  /* Foreground (text), strong → subtle */
+  --fg-strong: light-dark(#18181b, #fafafa);
+  --fg: light-dark(#3f3f46, #e4e4e7);
+  --fg-secondary: light-dark(#52525b, #d4d4d8);
+  --fg-muted: light-dark(#71717a, #a1a1aa);
+  --fg-subtle: light-dark(#a1a1aa, #71717a);
+  --fg-on-inverse: light-dark(#ffffff, #18181b);
+
+  /* Borders */
+  --border: light-dark(#e4e4e7, #3f3f46);
+  --border-subtle: light-dark(#f4f4f5, #27272a);
+
+  /* Primary accent — amber, theme-agnostic */
+  --primary: #f59e0b;
+  --primary-hover: #d97706;
+
+  /* Danger (form errors) */
+  --danger-surface: light-dark(#fef2f2, color-mix(in srgb, #f43f5e 16%, transparent));
+  --danger-text: light-dark(#dc2626, #fda4af);
+  --danger-border: light-dark(#fee2e2, color-mix(in srgb, #f43f5e 32%, transparent));
+
+  /* Amber tint (feature badges) */
+  --accent-amber-surface: light-dark(#fffbeb, color-mix(in srgb, #f59e0b 14%, transparent));
+  --accent-amber-text: light-dark(#b45309, #fbbf24);
+
+  /* Semantic ticket-status colors (see docs/DESIGN.md) */
+  --status-open: var(--fg-muted);
+  --status-progress: var(--primary);
+  --status-waiting: light-dark(#d97706, #fbbf24);
+  --status-escalated: light-dark(#f43f5e, #fb7185);
+  --status-resolved: light-dark(#059669, #34d399);
+  --status-closed: var(--fg-subtle);
+
+  /* Ring / shadow tints (used by the utilities below) */
+  --ring-subtle: light-dark(rgba(0, 0, 0, 0.06), rgba(255, 255, 255, 0.09));
+  --ring-strong: light-dark(rgba(0, 0, 0, 0.12), rgba(255, 255, 255, 0.16));
+  --ring-ghost: light-dark(rgba(0, 0, 0, 0.1), rgba(255, 255, 255, 0.13));
+  --ring-ghost-hover: light-dark(rgba(0, 0, 0, 0.18), rgba(255, 255, 255, 0.24));
+  --shadow-soft: light-dark(rgba(0, 0, 0, 0.04), rgba(0, 0, 0, 0.4));
+  --shadow-lift: light-dark(rgba(0, 0, 0, 0.07), rgba(0, 0, 0, 0.5));
+  --dot-color: light-dark(rgba(0, 0, 0, 0.07), rgba(255, 255, 255, 0.06));
+}
+
+/* Explicit user choice forces the scheme; absent, :root follows the OS. */
+:root[data-theme="light"] {
+  color-scheme: light;
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-surface: var(--surface);
+  --color-surface-muted: var(--surface-muted);
+  --color-surface-subtle: var(--surface-subtle);
+  --color-surface-inverse: var(--surface-inverse);
+
+  --color-fg-strong: var(--fg-strong);
+  --color-fg: var(--fg);
+  --color-fg-secondary: var(--fg-secondary);
+  --color-fg-muted: var(--fg-muted);
+  --color-fg-subtle: var(--fg-subtle);
+  --color-fg-on-inverse: var(--fg-on-inverse);
+
+  --color-border: var(--border);
+  --color-border-subtle: var(--border-subtle);
+
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+
+  --color-danger-surface: var(--danger-surface);
+  --color-danger-text: var(--danger-text);
+  --color-danger-border: var(--danger-border);
+
+  --color-accent-amber-surface: var(--accent-amber-surface);
+  --color-accent-amber-text: var(--accent-amber-text);
+
+  --color-status-open: var(--status-open);
+  --color-status-progress: var(--status-progress);
+  --color-status-waiting: var(--status-waiting);
+  --color-status-escalated: var(--status-escalated);
+  --color-status-resolved: var(--status-resolved);
+  --color-status-closed: var(--status-closed);
+
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-  --color-primary: #f59e0b;
-  --color-primary-hover: #d97706;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--surface);
+  color: var(--fg-strong);
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
 }
 
 /* ─── Background patterns ─────────────────────────────────────────────────── */
 
 /*
  * .bg-dots — subtle dot grid. Sets background-image only so it layers
- *   over any Tailwind bg-* color class.
+ *   over any bg-* color class.
  */
 .bg-dots {
-  background-image: radial-gradient(circle, rgba(0, 0, 0, 0.07) 1px, transparent 1px);
+  background-image: radial-gradient(circle, var(--dot-color) 1px, transparent 1px);
   background-size: 24px 24px;
 }
 
 /*
- * .hero-bg — amber-to-zinc gradient for the homepage hero.
+ * .hero-bg — amber-to-surface gradient for the homepage hero.
  */
 .hero-bg {
-  background-image: linear-gradient(to bottom, #fffbeb, #fafafa);
+  background-image: linear-gradient(
+    to bottom,
+    light-dark(#fffbeb, #211a10),
+    light-dark(#fafafa, #18181b)
+  );
 }
 
 /* ─── Shared border / ring styles ─────────────────────────────────────────── */
 
 /*
- * .ring-subtle  — replaces bare border-zinc-200 on cards, panels, and modals.
+ * .ring-subtle  — replaces bare border on cards, panels, and modals.
  *   Semi-transparent so it reads naturally on any background tone.
  */
 .ring-subtle {
-  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 0 0 1px var(--ring-subtle);
 }
 
 /*
  * .ring-input   — form fields at rest.
  */
 .ring-input {
-  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 0 0 1px var(--ring-strong);
 }
 
 /*
@@ -67,22 +163,22 @@ body {
  * .ring-ghost   — ghost/secondary button border at rest.
  */
 .ring-ghost {
-  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0 0 1px var(--ring-ghost);
 }
 
 .ring-ghost:hover {
-  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.18);
+  box-shadow: 0 0 0 1px var(--ring-ghost-hover);
 }
 
 /* ─── Card shadows ────────────────────────────────────────────────────────── */
 
 /*
- * .shadow-card  — subtle lift for white cards on light backgrounds.
+ * .shadow-card  — subtle lift for cards on the page background.
  */
 .shadow-card {
   box-shadow:
-    0 0 0 1px rgba(0, 0, 0, 0.06),
-    0 1px 4px rgba(0, 0, 0, 0.04);
+    0 0 0 1px var(--ring-subtle),
+    0 1px 4px var(--shadow-soft);
 }
 
 /*
@@ -90,6 +186,6 @@ body {
  */
 .shadow-panel {
   box-shadow:
-    0 0 0 1px rgba(0, 0, 0, 0.06),
-    0 4px 24px rgba(0, 0, 0, 0.07);
+    0 0 0 1px var(--ring-subtle),
+    0 4px 24px var(--shadow-lift);
 }

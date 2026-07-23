@@ -39,7 +39,7 @@ export function NavMenu({ links }: { links: NavLink[] }) {
           <Link
             key={href}
             href={href}
-            className="text-sm font-medium text-zinc-500 hover:text-zinc-900 transition-colors"
+            className="text-sm font-medium text-fg-muted hover:text-fg-strong transition-colors"
           >
             {label}
           </Link>
@@ -50,22 +50,22 @@ export function NavMenu({ links }: { links: NavLink[] }) {
       <div ref={ref} className="relative sm:hidden">
         <button
           onClick={() => setIsOpen((o) => !o)}
-          className="flex items-center justify-center w-8 h-8 rounded-lg hover:bg-zinc-100 transition-colors"
+          className="flex items-center justify-center w-8 h-8 rounded-lg hover:bg-surface-subtle transition-colors"
           aria-haspopup="true"
           aria-expanded={isOpen}
           aria-label="Navigation menu"
         >
-          <Menu size={18} className="text-zinc-600" />
+          <Menu size={18} className="text-fg-secondary" />
         </button>
 
         {isOpen && (
-          <div className="absolute left-0 top-full mt-1.5 w-44 rounded-xl shadow-panel bg-white py-1.5 z-20">
+          <div className="absolute left-0 top-full mt-1.5 w-44 rounded-xl shadow-panel bg-surface py-1.5 z-20">
             {links.map(({ href, label }) => (
               <Link
                 key={href}
                 href={href}
                 onClick={() => setIsOpen(false)}
-                className="flex items-center px-3 py-2 text-sm text-zinc-700 hover:bg-zinc-50 transition-colors"
+                className="flex items-center px-3 py-2 text-sm text-fg hover:bg-surface-muted transition-colors"
               >
                 {label}
               </Link>
