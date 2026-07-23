@@ -6,8 +6,8 @@ const COPY = {
   hero: {
     eyebrow: "Multi-tenant support desk",
     heading: "Every request,",
-    headingAccent: "handled.",
-    body: "Customers, recruiters, and field agents open tickets when they need help. Your support team picks them up, replies, and resolves them — with a complete audit trail and role-based access enforced at every step.",
+    headingAccent: "handled with care.",
+    body: "Customers, recruiters, and field agents open a ticket when they need help. Your team picks it up, replies, and sees it through to resolution. Every step is recorded in an audit trail that cannot be edited, and access is checked by role at every boundary.",
     ctaPrimary: "Try the demo →",
     ctaSecondary: "How it works →",
   },
@@ -17,32 +17,32 @@ const COPY = {
       {
         n: "01",
         title: "Isolated workspaces",
-        body: "Each team is a fully sandboxed environment. Tickets, users, and categories never cross team boundaries — safe to run multiple organisations on one instance.",
+        body: "Each team runs in a fully sealed environment. Tickets, users, and categories never cross a team boundary, so a single instance can serve many organisations without one ever seeing another's data.",
       },
       {
         n: "02",
         title: "Role-based access",
-        body: "Five roles with precise permission boundaries: Requesters see only their own tickets; Support agents work the queue; Managers control escalations; Admins manage team access.",
+        body: "Five roles, each with a precise boundary. Requesters see only their own tickets, Support works the queue, Managers control escalations, and Admins manage access. The rules are enforced on the server, never assumed in the UI.",
       },
       {
         n: "03",
         title: "Ticket workflow",
-        body: "A finite state machine governs all valid status transitions. Invalid moves are rejected server-side — no shortcut paths around the defined process.",
+        body: "A finite state machine defines every valid status change. Invalid moves are refused on the server, so no ticket can slip past the defined process, however the request is made.",
       },
       {
         n: "04",
-        title: "Smart inbox",
-        body: "Agents filter by Unassigned, Mine, Open, and Escalated. Priority and status changes apply with optimistic UI — the queue stays responsive without a full page reload.",
+        title: "Responsive inbox",
+        body: "Agents filter by Unassigned, Mine, Open, and Escalated. Priority and status changes apply at once and roll back on their own if the server declines, so the queue stays fast without ever showing a state the server rejected.",
       },
       {
         n: "05",
         title: "Immutable audit trail",
-        body: "Every status transition is written atomically alongside the ticket update. Actor, timestamp, and optional note are preserved — the history cannot be altered.",
+        body: "Every status change is written atomically alongside the ticket update. Who acted, when, and why are preserved for good; the history cannot be rewritten or deleted.",
       },
       {
         n: "06",
         title: "Attachments & search",
-        body: "Requesters attach images and PDFs directly to tickets. Agents search across subject and body in real time. All results are scoped to the active team.",
+        body: "Requesters attach images and PDFs to a ticket directly. Agents search across subject and body as they type. Every result stays scoped to the active team.",
       },
     ],
   },
@@ -52,17 +52,17 @@ const COPY = {
       {
         n: "01",
         title: "Submit",
-        body: "Customers, recruiters, and field agents open tickets from their portal. Each is categorised, timestamped, and immediately visible in the support queue.",
+        body: "Customers, recruiters, and field agents open a ticket from their portal. Each one is categorised, timestamped, and visible in the support queue the moment it arrives.",
       },
       {
         n: "02",
         title: "Triage",
-        body: "Support agents claim and prioritise tickets, post replies or internal-only notes, and move each ticket through defined status stages.",
+        body: "Support agents claim and prioritise each ticket, post a reply or an internal-only note, and move it through the defined status stages, one deliberate step at a time.",
       },
       {
         n: "03",
         title: "Resolve",
-        body: "Managers escalate, close, or reopen tickets. Every actor and status change is preserved in an audit trail that cannot be edited or deleted.",
+        body: "Managers escalate, close, or reopen. Every actor and every status change is kept in an audit trail that cannot be edited or deleted.",
       },
     ],
   },
@@ -72,8 +72,8 @@ const COPY = {
     { value: "6", label: "ticket states" },
   ],
   cta: {
-    heading: "See the full workflow in action",
-    body: "Log in as a support agent, manager, or requester with the demo accounts. No sign-up required.",
+    heading: "See the whole workflow, end to end",
+    body: "Sign in as a support agent, manager, or requester with the demo accounts. Nothing to install, and no sign-up required.",
     button: "Open the demo →",
   },
   footer: {

@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/chairulakmal/awano/actions/workflows/ci.yml/badge.svg)](https://github.com/chairulakmal/awano/actions/workflows/ci.yml) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-A multi-tenant support desk built on Next.js 16 Server Actions with no separate API layer: every mutation derives `teamId`, `userId`, and `role` from the server-side session, never from the client, and one service layer enforces the tenant boundary on every query. Below: the live demo, the highlights, the stack, how to run it locally, and how it is tested; [ARCHITECTURE.md](ARCHITECTURE.md) walks the design decisions.
+Awano is a multi-tenant support desk built on Next.js 16 Server Actions with no separate API layer. Its guiding principle is trust you can verify: every mutation derives `teamId`, `userId`, and `role` from the server-side session, never from the client; one service layer enforces the tenant boundary on every query; and every status change leaves an audit record that cannot be edited after the fact. Below: the live demo, the highlights, the stack, how to run it locally, and how it is tested; [ARCHITECTURE.md](ARCHITECTURE.md) walks the design decisions.
 
 **Live demo:** [awano.chairulakmal.com/login?team=demo](https://awano.chairulakmal.com/login?team=demo). One-click login buttons cover every role: three requester flavours (customer, recruiter, field agent), support, manager, and admin. The platform super admin, who provisions teams and belongs to none, signs in at [/login](https://awano.chairulakmal.com/login) with no team slug. The full permission matrix lives in [docs/SPEC.md](docs/SPEC.md).
 
