@@ -93,12 +93,26 @@ export default function Home() {
 
       {/* Hero — flex-1 so hero+features together fill the remaining viewport height */}
       <section className="w-full hero-bg flex-1 flex items-center">
-        <div className="w-full max-w-5xl mx-auto px-6 sm:px-8 py-14 sm:py-24">
+        <div className="relative w-full max-w-5xl mx-auto px-6 sm:px-8 py-14 sm:py-24">
+          {/* Signature: the hanko seal. A resolved ticket is 済 (settled):
+              stamped, permanent, never edited. The one bold mark on the page. */}
+          <div
+            className="pointer-events-none hidden lg:flex flex-col items-center gap-3 absolute top-24 right-8 -rotate-6"
+            aria-hidden="true"
+          >
+            <span className="seal-lg grid place-items-center w-36 h-36 text-6xl font-display font-medium">
+              済
+            </span>
+            <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-fg-subtle rotate-6">
+              settled
+            </span>
+          </div>
+
           <p className="text-xs uppercase tracking-widest text-fg-muted font-medium mb-6 sm:mb-8">
             {COPY.hero.eyebrow}
           </p>
 
-          <h1 className="text-4xl sm:text-6xl lg:text-7xl font-semibold tracking-tight leading-[1.06] mb-5 sm:mb-8 max-w-3xl">
+          <h1 className="font-display text-4xl sm:text-6xl lg:text-7xl font-semibold tracking-tight leading-[1.06] mb-5 sm:mb-8 max-w-3xl">
             {COPY.hero.heading}{" "}
             <span className="text-primary">{COPY.hero.headingAccent}</span>
           </h1>
@@ -110,7 +124,7 @@ export default function Home() {
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
             <Link
               href="/login?team=demo"
-              className="inline-flex items-center justify-center h-12 px-8 rounded-lg bg-primary text-white text-base font-semibold hover:bg-primary-hover transition-colors shadow-sm"
+              className="inline-flex items-center justify-center h-12 px-8 rounded-lg bg-primary text-primary-fg text-base font-semibold hover:bg-primary-hover transition-colors shadow-sm"
             >
               {COPY.hero.ctaPrimary}
             </Link>
@@ -144,9 +158,9 @@ export default function Home() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {COPY.features.items.map(({ n, title, body }) => (
               <div key={n} className="bg-surface rounded-xl p-8 flex flex-col gap-4 shadow-card">
-                <span className="font-mono text-xs font-semibold text-primary tracking-widest">
-                  {n}
-                </span>
+                {/* An indigo keyline, not a number: these are parallel
+                    capabilities, not an ordered sequence. */}
+                <span className="w-7 h-0.5 rounded-full bg-primary" aria-hidden="true" />
                 <h3 className="text-base font-semibold text-fg-strong leading-snug">{title}</h3>
                 <p className="text-sm text-fg-secondary leading-relaxed">{body}</p>
               </div>
@@ -193,13 +207,13 @@ export default function Home() {
       {/* CTA */}
       <section className="bg-surface">
         <div className="max-w-5xl mx-auto px-8 py-20 flex flex-col items-center text-center gap-6">
-          <h2 className="text-3xl sm:text-4xl font-semibold tracking-tight leading-tight max-w-xl">
+          <h2 className="font-display text-3xl sm:text-4xl font-semibold tracking-tight leading-tight max-w-xl">
             {COPY.cta.heading}
           </h2>
           <p className="text-base text-fg-secondary max-w-md leading-relaxed">{COPY.cta.body}</p>
           <Link
             href="/login?team=demo"
-            className="inline-flex items-center justify-center h-12 px-8 rounded-lg bg-primary text-white text-base font-semibold hover:bg-primary-hover transition-colors shadow-sm"
+            className="inline-flex items-center justify-center h-12 px-8 rounded-lg bg-primary text-primary-fg text-base font-semibold hover:bg-primary-hover transition-colors shadow-sm"
           >
             {COPY.cta.button}
           </Link>
@@ -209,7 +223,12 @@ export default function Home() {
       {/* Footer */}
       <footer className="border-t border-border px-8 py-7">
         <div className="max-w-5xl mx-auto flex items-center justify-between text-xs text-fg-muted">
-          <span className="font-medium text-fg">{COPY.footer.brand}</span>
+          <span className="inline-flex items-center gap-1.5 font-medium text-fg">
+            <span className="seal grid place-items-center w-4 h-4 text-[9px] -rotate-6 select-none" aria-hidden="true">
+              淡
+            </span>
+            <span className="font-display">{COPY.footer.brand}</span>
+          </span>
           <span>
             © {COPY.footer.year}{" "}
             <a

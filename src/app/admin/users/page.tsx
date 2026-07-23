@@ -33,7 +33,7 @@ export default async function AdminUsersPage() {
 
   return (
     <div>
-      <h1 className="text-xl font-semibold text-fg-strong mb-6">Users</h1>
+      <h1 className="font-display text-xl font-semibold text-fg-strong mb-6">Users</h1>
 
       <div className="rounded-xl shadow-card bg-surface overflow-hidden">
         <table className="w-full text-sm">

@@ -16,7 +16,7 @@ export default async function NewTicketPage() {
   return (
     <div className="max-w-xl">
       <div className="mb-8">
-        <h1 className="text-2xl font-semibold text-fg-strong">New ticket</h1>
+        <h1 className="font-display text-2xl font-semibold text-fg-strong">New ticket</h1>
         <p className="text-sm text-fg-muted mt-1">
           Describe your request and we&apos;ll get back to you.
         </p>

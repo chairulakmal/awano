@@ -35,7 +35,7 @@ export default async function SuperNewUserPage({ params }: Props) {
         <span className="text-fg-strong">New user</span>
       </div>
 
-      <h1 className="text-xl font-semibold text-fg-strong">Add user to {team.name}</h1>
+      <h1 className="font-display text-xl font-semibold text-fg-strong">Add user to {team.name}</h1>
 
       <div className="rounded-xl shadow-card bg-surface px-5 py-6 max-w-lg">
         <NewUserForm teamId={id} />

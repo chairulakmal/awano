@@ -78,7 +78,7 @@ export default async function DeskTicketPage({ params }: { params: Promise<{ id:
           {/* Header */}
           <div>
             <div className="flex items-start justify-between gap-4">
-              <h1 className="text-xl font-semibold text-fg-strong">{ticket.subject}</h1>
+              <h1 className="font-display text-xl font-semibold text-fg-strong">{ticket.subject}</h1>
               <span
                 className={`shrink-0 text-xs font-medium px-2.5 py-1 rounded-full ${STATUS_CLASS[ticket.status]}`}
               >

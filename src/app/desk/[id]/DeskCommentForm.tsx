@@ -51,7 +51,7 @@ export function DeskCommentForm({ ticketId }: { ticketId: string }) {
         <button
           type="submit"
           disabled={pending}
-          className="px-5 py-2 bg-primary text-white text-sm font-semibold rounded-lg hover:bg-primary-hover transition-colors shadow-sm disabled:cursor-not-allowed disabled:opacity-50"
+          className="px-5 py-2 bg-primary text-primary-fg text-sm font-semibold rounded-lg hover:bg-primary-hover transition-colors shadow-sm disabled:cursor-not-allowed disabled:opacity-50"
         >
           {pending ? "Sending…" : "Send"}
         </button>

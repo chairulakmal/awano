@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+  <!-- Awano 淡 hanko: a vermilion (朱) seal stamped on warm washi paper. -->
+  <rect width="64" height="64" rx="14" fill="#fbfaf6"/>
+  <g transform="rotate(-6 32 32)">
+    <!-- Hand-inked double ring -->
+    <circle cx="32" cy="32" r="25.5" fill="none" stroke="#c4361f" stroke-width="3"/>
+    <circle cx="32" cy="32" r="20" fill="#c4361f"/>
+    <!-- 淡: kanji knocked out of the seal impression -->
+    <text x="32" y="33" fill="#fbfaf6" font-size="27"
+          font-family="'Hiragino Sans','Yu Gothic','Noto Sans JP','Hanken Grotesk',sans-serif"
+          font-weight="700" text-anchor="middle" dominant-baseline="central">淡</text>
+  </g>
+</svg>

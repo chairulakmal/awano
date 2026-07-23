@@ -36,9 +36,18 @@ export async function Header() {
       <div className="flex items-center gap-6">
         <Link
           href="/"
-          className="text-base font-semibold tracking-tight text-fg-strong hover:text-primary transition-colors"
+          className="group inline-flex items-center gap-2 text-fg-strong transition-colors"
+          aria-label="Awano home"
         >
-          Awano
+          <span
+            className="seal grid place-items-center w-6 h-6 text-[13px] font-medium select-none -rotate-6 group-hover:rotate-0 transition-transform"
+            aria-hidden="true"
+          >
+            淡
+          </span>
+          <span className="font-display text-base font-semibold tracking-tight group-hover:text-primary transition-colors">
+            Awano
+          </span>
         </Link>
         <NavMenu links={navLinks} />
       </div>

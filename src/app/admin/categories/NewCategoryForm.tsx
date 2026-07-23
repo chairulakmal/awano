@@ -25,7 +25,7 @@ export function NewCategoryForm() {
       <button
         type="submit"
         disabled={pending}
-        className="shrink-0 px-4 py-2 bg-primary text-white text-sm font-semibold rounded-lg hover:bg-primary-hover transition-colors shadow-sm disabled:opacity-50"
+        className="shrink-0 px-4 py-2 bg-primary text-primary-fg text-sm font-semibold rounded-lg hover:bg-primary-hover transition-colors shadow-sm disabled:opacity-50"
       >
         {pending ? "Adding…" : "Add category"}
       </button>
