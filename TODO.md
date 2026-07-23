@@ -24,10 +24,10 @@ v1.0.0 shipped (2026-05-21, see [CHANGELOG.md](CHANGELOG.md)). The revamp below 
 
 1. ~~**Design tokens under `@theme`** (§1)~~ — **done.** Colour promoted to semantic `light-dark()` tokens; ring/shadow/dot utilities tokenised too.
 2. ~~**Dark mode** (§1)~~ — **done.** Cookie + SSR, OS default, header toggle, every surface migrated.
-3. **Responsive navigation** (§2) — the mobile shell behaviour that later desk and ticket work builds on. Partly in place (the header `NavMenu` already collapses to a hamburger); the desk sidebar and remaining shells still need it.
-4. **Toast system** (§4) — the feedback primitive the optimistic actions in §3 surface their results through.
+3. ~~**Responsive navigation** (§2)~~ — **done.** Shell navigation is responsive across Header/NavMenu, DeskSidebar, and AdminNav.
+4. ~~**Toast system** (§4)~~ — **done.** `ToastProvider` + `useToast` mounted globally; StatusForm is the first consumer.
 
-Items 1-2 have landed; **3 and 4 are next.** The rest of the sections then proceed foundation-upward.
+**All four P0 items have landed.** Next up: the §1 status-badge system and §2 command palette, then §3 (desk experience) building on the toast and token foundations. The rest of the sections proceed foundation-upward.
 
 ## How to read this
 
@@ -47,7 +47,7 @@ The current language is light-only amber with text-only status colours (`docs/DE
 
 ## 2. App shell and navigation
 
-- [ ] **P0** Responsive navigation: inline links on `sm+`, a hamburger dropdown on mobile that matches the existing `UserMenu` interaction, across `Header`, `NavMenu`, and `DeskSidebar`. Mobile card and drawer layouts are specced in [docs/i18n.md](docs/i18n.md#mobile-layouts).
+- [x] **P0** Responsive navigation across the shells. `Header` + `NavMenu` do inline links on `sm+` / hamburger dropdown on mobile; `DeskSidebar` collapses to a horizontal scrolling chip row on mobile (labelled vertical groups at `sm+`); `AdminNav`'s tabs scroll horizontally instead of overflowing. The fuller mobile **card/drawer** layouts for ticket tables remain in §3 / [docs/i18n.md](docs/i18n.md#mobile-layouts).
 - [ ] **P1** Command palette (`Cmd/Ctrl-K`): jump to a ticket by id or title, switch views, trigger status changes the current role is allowed to make. Actions are role-gated by reusing the FSM and assertions, never a client-side allowlist.
 - [ ] **P1** Global keyboard shortcuts for the desk (next/prev ticket, assign to me, change status) with a discoverable `?` cheat-sheet overlay.
 - [ ] **P2** Breadcrumbs and a persistent context bar so an agent always knows which team, queue, and ticket they are in.
@@ -65,7 +65,7 @@ The desk already uses cursor pagination and optimistic status buttons. This sect
 
 ## 4. Feedback and states
 
-- [ ] **P0** A toast system for server-action results (success, error, permission denied) that reads the same message the server returned, so feedback never contradicts the outcome.
+- [x] **P0** A toast system for server-action results (success, error, permission denied) that reads the same message the server returned, so feedback never contradicts the outcome. `ToastProvider` + `useToast` landed and mounted globally; `StatusForm` is the first consumer (surfaces the server's own rejection message). Remaining action forms adopt `useToast` incrementally.
 - [ ] **P1** Skeleton loaders for the desk list, ticket detail, and admin metrics, sized to the real content to avoid layout shift.
 - [ ] **P1** First-class empty states (no tickets, no results after filtering, new team) with a clear next action rather than a blank panel.
 - [ ] **P1** Error boundaries per route segment with a retry affordance, so one failed fetch does not blank the whole shell.
