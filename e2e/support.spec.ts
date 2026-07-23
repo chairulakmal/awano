@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 import { login } from "./helpers";
 
-test.describe("Support — assign · internal note · status change", () => {
+test.describe("Support: assign · internal note · status change", () => {
   test("support can assign, post internal note, and transition OPEN → IN_PROGRESS", async ({
     page,
   }) => {
@@ -11,7 +11,7 @@ test.describe("Support — assign · internal note · status change", () => {
     // 2. Open seed-ticket-a1 (OPEN, unassigned, reset by globalSetup)
     await page.goto("/desk/seed-ticket-a1");
     await expect(
-      page.getByRole("heading", { name: "在留カード renewal — expires in 12 days" })
+      page.getByRole("heading", { name: "在留カード renewal: expires in 12 days" })
     ).toBeVisible();
 
     // 3. Assign to self (Support may only assign to themselves)

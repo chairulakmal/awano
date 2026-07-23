@@ -4,7 +4,7 @@ import { test, expect } from "@playwright/test";
 const RATE_LIMIT_EMAIL = "ratelimit-test@awano.demo";
 const MAX_ATTEMPTS = 5;
 
-test.describe("Login — rate limiting", () => {
+test.describe("Login: rate limiting", () => {
   test("blocks further attempts after too many failures", async ({ page }) => {
     // Submit MAX_ATTEMPTS + 1 bad attempts. Each iteration waits for any error
     // response so it handles re-runs within the same window (where the limit

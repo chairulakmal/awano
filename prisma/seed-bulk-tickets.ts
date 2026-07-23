@@ -29,7 +29,7 @@ const SUBJECTS = [
   "Health insurance card not received after enrollment",
   "Assigned dormitory has mold issues",
   "Skills test registration portal keeps timing out",
-  "Change of employer — what documents are required?",
+  "Change of employer: what documents are required?",
   "Pension withdrawal process after leaving Japan",
   "Airport pickup never arrived on arrival day",
   "Translation of employment contract requested",
@@ -87,7 +87,7 @@ async function main() {
 
   await Promise.all(ops);
   console.log(`✓ Upserted ${COUNT} bulk tickets on team "demo" (slug: bulk-seed)`);
-  console.log("  Re-run safely — all IDs are stable.");
+  console.log("  Re-run safely: all IDs are stable.");
 }
 
 main()

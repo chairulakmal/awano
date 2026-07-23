@@ -35,7 +35,7 @@ beforeEach(() => {
 // Role guards
 // ---------------------------------------------------------------------------
 
-describe("listTeamMembers — role guard", () => {
+describe("listTeamMembers: role guard", () => {
   it("throws when called by REQUESTER", async () => {
     await expect(listTeamMembers(session({ role: Role.REQUESTER }))).rejects.toThrow(
       AuthorizationError
@@ -49,7 +49,7 @@ describe("listTeamMembers — role guard", () => {
   });
 });
 
-describe("listTeamMembers — teamId scoping", () => {
+describe("listTeamMembers: teamId scoping", () => {
   it("scopes query to session teamId", async () => {
     vi.mocked(db.user.findMany).mockResolvedValue([] as never);
     await listTeamMembers(session({ teamId: "team-a" }));
@@ -59,7 +59,7 @@ describe("listTeamMembers — teamId scoping", () => {
   });
 });
 
-describe("listTeamUsers — role guard", () => {
+describe("listTeamUsers: role guard", () => {
   it("throws when called by SUPPORT", async () => {
     await expect(listTeamUsers(session({ role: Role.SUPPORT }))).rejects.toThrow(
       AuthorizationError
@@ -73,7 +73,7 @@ describe("listTeamUsers — role guard", () => {
   });
 });
 
-describe("listTeamUsers — teamId scoping", () => {
+describe("listTeamUsers: teamId scoping", () => {
   it("scopes query to session teamId", async () => {
     vi.mocked(db.user.findMany).mockResolvedValue([] as never);
     await listTeamUsers(session({ teamId: "team-a" }));
@@ -87,7 +87,7 @@ describe("listTeamUsers — teamId scoping", () => {
 // changeUserRole
 // ---------------------------------------------------------------------------
 
-describe("changeUserRole — role guard", () => {
+describe("changeUserRole: role guard", () => {
   it("throws when called by REQUESTER", async () => {
     await expect(
       changeUserRole("user-x", Role.SUPPORT, null, session({ role: Role.REQUESTER }))
@@ -101,7 +101,7 @@ describe("changeUserRole — role guard", () => {
   });
 });
 
-describe("changeUserRole — self-edit guard", () => {
+describe("changeUserRole: self-edit guard", () => {
   it("throws when the actor tries to change their own role", async () => {
     const s = session({ userId: "admin-1" });
     await expect(changeUserRole("admin-1", Role.SUPPORT, null, s)).rejects.toThrow(AuthorizationError);
@@ -114,7 +114,7 @@ describe("changeUserRole — self-edit guard", () => {
   });
 });
 
-describe("changeUserRole — SUPER role guard", () => {
+describe("changeUserRole: SUPER role guard", () => {
   it("throws when trying to assign the SUPER role", async () => {
     await expect(changeUserRole("user-x", Role.SUPER, null, session())).rejects.toThrow(
       AuthorizationError
@@ -123,7 +123,7 @@ describe("changeUserRole — SUPER role guard", () => {
   });
 });
 
-describe("changeUserRole — role escalation guard", () => {
+describe("changeUserRole: role escalation guard", () => {
   it("throws when MANAGER tries to assign MANAGER", async () => {
     await expect(
       changeUserRole("user-x", Role.MANAGER, null, session({ role: Role.MANAGER }))
@@ -151,7 +151,7 @@ describe("changeUserRole — role escalation guard", () => {
   });
 });
 
-describe("changeUserRole — target rank guard", () => {
+describe("changeUserRole: target rank guard", () => {
   it("throws when MANAGER tries to demote an ADMIN", async () => {
     vi.mocked(db.user.findUnique).mockResolvedValue({
       teamId: "team-a",
@@ -189,7 +189,7 @@ describe("changeUserRole — target rank guard", () => {
   });
 });
 
-describe("changeUserRole — cross-team guard", () => {
+describe("changeUserRole: cross-team guard", () => {
   it("throws when the target user belongs to a different team", async () => {
     vi.mocked(db.user.findUnique).mockResolvedValue({
       teamId: "team-b",
@@ -202,7 +202,7 @@ describe("changeUserRole — cross-team guard", () => {
   });
 });
 
-describe("changeUserRole — promotion path", () => {
+describe("changeUserRole: promotion path", () => {
   it("throws when promoting CUSTOMER requester directly to SUPPORT", async () => {
     vi.mocked(db.user.findUnique).mockResolvedValue({
       teamId: "team-a",
@@ -240,7 +240,7 @@ describe("changeUserRole — promotion path", () => {
   });
 });
 
-describe("changeUserRole — success path", () => {
+describe("changeUserRole: success path", () => {
   it("promotes FIELD_AGENT requester to SUPPORT and clears requesterType", async () => {
     vi.mocked(db.user.findUnique).mockResolvedValue({
       teamId: "team-a",
@@ -298,7 +298,7 @@ describe("changeUserRole — success path", () => {
 // changeMyPassword
 // ---------------------------------------------------------------------------
 
-describe("changeMyPassword — user not found", () => {
+describe("changeMyPassword: user not found", () => {
   it("throws AuthorizationError when findUnique returns null", async () => {
     vi.mocked(db.user.findUnique).mockResolvedValue(null);
     await expect(changeMyPassword("old-pass", "new-pass-fifteen-chars", session())).rejects.toThrow(
@@ -309,7 +309,7 @@ describe("changeMyPassword — user not found", () => {
   });
 });
 
-describe("changeMyPassword — wrong current password", () => {
+describe("changeMyPassword: wrong current password", () => {
   it("throws AuthorizationError when bcrypt.compare returns false", async () => {
     vi.mocked(db.user.findUnique).mockResolvedValue({ passwordHash: "stored-hash" } as never);
     vi.mocked(bcrypt.compare).mockResolvedValue(false as never);
@@ -320,7 +320,7 @@ describe("changeMyPassword — wrong current password", () => {
   });
 });
 
-describe("changeMyPassword — success", () => {
+describe("changeMyPassword: success", () => {
   it("hashes the new password and saves it", async () => {
     vi.mocked(db.user.findUnique).mockResolvedValue({ passwordHash: "stored-hash" } as never);
     vi.mocked(bcrypt.compare).mockResolvedValue(true as never);

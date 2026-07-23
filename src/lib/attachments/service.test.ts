@@ -52,7 +52,7 @@ beforeEach(() => {
 // addAttachment
 // ---------------------------------------------------------------------------
 
-describe("addAttachment — MIME type guard", () => {
+describe("addAttachment: MIME type guard", () => {
   it("throws when mimeType is not in the allowlist", async () => {
     await expect(
       addAttachment(attachmentInput({ mimeType: "text/html" }), session())
@@ -81,7 +81,7 @@ describe("addAttachment — MIME type guard", () => {
   });
 });
 
-describe("addAttachment — size guard", () => {
+describe("addAttachment: size guard", () => {
   it("throws when file exceeds 1 MB", async () => {
     vi.mocked(db.ticket.findUnique).mockResolvedValue(stub(TEAM_A_TICKET));
 
@@ -101,7 +101,7 @@ describe("addAttachment — size guard", () => {
   });
 });
 
-describe("addAttachment — ticket not found", () => {
+describe("addAttachment: ticket not found", () => {
   it("throws AuthorizationError when ticket does not exist", async () => {
     vi.mocked(db.ticket.findUnique).mockResolvedValue(stub(null));
 
@@ -111,7 +111,7 @@ describe("addAttachment — ticket not found", () => {
   });
 });
 
-describe("addAttachment — cross-team isolation", () => {
+describe("addAttachment: cross-team isolation", () => {
   it("throws when session team does not match ticket team", async () => {
     vi.mocked(db.ticket.findUnique).mockResolvedValue(stub(TEAM_B_TICKET));
 
@@ -132,7 +132,7 @@ describe("addAttachment — cross-team isolation", () => {
   });
 });
 
-describe("addAttachment — persists correct fields", () => {
+describe("addAttachment: persists correct fields", () => {
   it("writes filename, mimeType, sizeBytes, and data to DB", async () => {
     vi.mocked(db.ticket.findUnique).mockResolvedValue(stub(TEAM_A_TICKET));
     vi.mocked(db.attachment.create).mockResolvedValue(stub({ id: "att-3" }));
@@ -166,7 +166,7 @@ describe("addAttachment — persists correct fields", () => {
 // getAttachment
 // ---------------------------------------------------------------------------
 
-describe("getAttachment — not found", () => {
+describe("getAttachment: not found", () => {
   it("throws AuthorizationError when attachment does not exist", async () => {
     vi.mocked(db.attachment.findUnique).mockResolvedValue(stub(null));
 
@@ -174,7 +174,7 @@ describe("getAttachment — not found", () => {
   });
 });
 
-describe("getAttachment — cross-team isolation", () => {
+describe("getAttachment: cross-team isolation", () => {
   it("throws when session team does not match the attachment's ticket team", async () => {
     vi.mocked(db.attachment.findUnique).mockResolvedValue(
       stub({ id: "att-5", ticket: TEAM_B_TICKET })

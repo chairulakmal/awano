@@ -62,7 +62,7 @@ beforeEach(() => {
 // Role guards
 // ---------------------------------------------------------------------------
 
-describe("createTicket — role guard", () => {
+describe("createTicket: role guard", () => {
   it("throws when called by SUPPORT", async () => {
     await expect(createTicket({}, session({ role: Role.SUPPORT }))).rejects.toThrow(
       AuthorizationError
@@ -83,7 +83,7 @@ describe("createTicket — role guard", () => {
   });
 });
 
-describe("createTicket — Zod validation", () => {
+describe("createTicket: Zod validation", () => {
   const s = session({ role: Role.REQUESTER });
 
   it("throws on missing categoryId", async () => {
@@ -108,7 +108,7 @@ describe("createTicket — Zod validation", () => {
   });
 });
 
-describe("createTicket — cross-tenant category guard", () => {
+describe("createTicket: cross-tenant category guard", () => {
   const s = session({ role: Role.REQUESTER, teamId: "team-a" });
   const validInput = { categoryId: "clxxxxxxxxxxxxxxxxxxxxxxxx", subject: "Help", body: "Details" };
 
@@ -125,7 +125,7 @@ describe("createTicket — cross-tenant category guard", () => {
   });
 });
 
-describe("createTicket — success path", () => {
+describe("createTicket: success path", () => {
   it("scopes ticket to session teamId and userId", async () => {
     const s = session({ role: Role.REQUESTER, userId: "user-1", teamId: "team-a" });
     vi.mocked(db.category.findUnique).mockResolvedValue({ teamId: "team-a" } as never);
@@ -142,7 +142,7 @@ describe("createTicket — success path", () => {
   });
 });
 
-describe("listMyTickets — role guard", () => {
+describe("listMyTickets: role guard", () => {
   it("throws when called by SUPPORT", async () => {
     await expect(listMyTickets({}, session({ role: Role.SUPPORT }))).rejects.toThrow(
       AuthorizationError
@@ -151,7 +151,7 @@ describe("listMyTickets — role guard", () => {
   });
 });
 
-describe("listMyTickets — cursor pagination", () => {
+describe("listMyTickets: cursor pagination", () => {
   it("returns { items, nextCursor: null } when fewer than limit rows returned", async () => {
     vi.mocked(db.ticket.findMany).mockResolvedValue([dbTicket()] as never);
     const result = await listMyTickets({}, session({ role: Role.REQUESTER }));
@@ -176,7 +176,7 @@ describe("listMyTickets — cursor pagination", () => {
   });
 });
 
-describe("listDeskTickets — cursor pagination", () => {
+describe("listDeskTickets: cursor pagination", () => {
   it("returns { items, nextCursor: null } when fewer than limit rows returned", async () => {
     vi.mocked(db.ticket.findMany).mockResolvedValue([dbTicket()] as never);
     const result = await listDeskTickets({}, session());
@@ -201,7 +201,7 @@ describe("listDeskTickets — cursor pagination", () => {
   });
 });
 
-describe("listDeskTickets — role guard", () => {
+describe("listDeskTickets: role guard", () => {
   it("throws when called by REQUESTER", async () => {
     await expect(listDeskTickets({}, session({ role: Role.REQUESTER }))).rejects.toThrow(
       AuthorizationError
@@ -210,7 +210,7 @@ describe("listDeskTickets — role guard", () => {
   });
 });
 
-describe("listDeskTickets — text search", () => {
+describe("listDeskTickets: text search", () => {
   it("passes OR contains filter when q is provided", async () => {
     vi.mocked(db.ticket.findMany).mockResolvedValue([dbTicket()] as never);
     await listDeskTickets({ q: "visa" }, session());

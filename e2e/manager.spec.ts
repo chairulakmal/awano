@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 import { login } from "./helpers";
 
-test.describe("Manager — escalate → close → reopen", () => {
+test.describe("Manager: escalate → close → reopen", () => {
   test("manager can walk the full ESCALATED → CLOSED → OPEN cycle", async ({ page }) => {
     // 1. Login as manager: redirects to /admin/dashboard
     await login(page, "manager@awano.demo", "demo");
@@ -10,7 +10,7 @@ test.describe("Manager — escalate → close → reopen", () => {
     await page.goto("/desk/seed-ticket-a2");
     await expect(
       page.getByRole("heading", {
-        name: "Tokutei Ginou No. 1 skills exam registration — food service (外食業)",
+        name: "Tokutei Ginou No. 1 skills exam registration: food service (外食業)",
       })
     ).toBeVisible();
 

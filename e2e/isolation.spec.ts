@@ -18,6 +18,6 @@ test.describe("Cross-team isolation", () => {
     expect(page.url()).not.toContain("/login");
 
     // The Team A ticket subject is not rendered anywhere on the page
-    await expect(page.getByText("在留カード renewal — expires in 12 days")).not.toBeVisible();
+    await expect(page.getByText("在留カード renewal: expires in 12 days")).not.toBeVisible();
   });
 });
