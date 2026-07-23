@@ -40,7 +40,7 @@ export function DeskSidebar() {
   }
 
   function linkClass(key: string) {
-    return `block px-3 py-2 text-sm rounded-lg transition-colors ${
+    return `block whitespace-nowrap px-3 py-2 text-sm rounded-lg transition-colors ${
       activeView === key
         ? "bg-primary text-white font-medium"
         : "text-fg-secondary hover:text-fg-strong hover:bg-surface-subtle"
@@ -48,8 +48,8 @@ export function DeskSidebar() {
   }
 
   return (
-    <aside className="w-44 shrink-0">
-      <div className="mb-5">
+    <aside className="w-full sm:w-44 shrink-0">
+      <div className="mb-4 sm:mb-5">
         {/* key resets the uncontrolled input when the committed URL query changes */}
         <input
           key={currentQ}
@@ -60,14 +60,18 @@ export function DeskSidebar() {
           className="w-full px-3 py-1.5 text-sm rounded-lg border border-border bg-surface placeholder-fg-subtle focus:outline-none focus:ring-2 focus:ring-primary/40"
         />
       </div>
-      <nav className="space-y-6">
-        <div>
-          <p className="text-xs font-semibold text-fg-subtle uppercase tracking-wider px-3 mb-1">
+      {/*
+       * Mobile: one horizontal scrolling row of view chips (group divs/lists
+       * collapse via `contents`, labels hidden). sm+: labelled vertical groups.
+       */}
+      <nav className="flex gap-2 overflow-x-auto pb-1 sm:block sm:space-y-6 sm:overflow-visible sm:pb-0">
+        <div className="contents sm:block">
+          <p className="hidden sm:block text-xs font-semibold text-fg-subtle uppercase tracking-wider px-3 mb-1">
             My queue
           </p>
-          <ul>
+          <ul className="contents sm:block">
             {MY_VIEWS.map(({ key, label }) => (
-              <li key={key}>
+              <li key={key} className="shrink-0">
                 <Link href={viewHref(key)} className={linkClass(key)}>
                   {label}
                 </Link>
@@ -75,13 +79,13 @@ export function DeskSidebar() {
             ))}
           </ul>
         </div>
-        <div>
-          <p className="text-xs font-semibold text-fg-subtle uppercase tracking-wider px-3 mb-1">
+        <div className="contents sm:block">
+          <p className="hidden sm:block text-xs font-semibold text-fg-subtle uppercase tracking-wider px-3 mb-1">
             Team queue
           </p>
-          <ul>
+          <ul className="contents sm:block">
             {TEAM_VIEWS.map(({ key, label }) => (
-              <li key={key}>
+              <li key={key} className="shrink-0">
                 <Link href={viewHref(key)} className={linkClass(key)}>
                   {label}
                 </Link>
