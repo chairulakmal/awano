@@ -24,7 +24,7 @@ export function NewTicketForm({ categories }: { categories: Category[] }) {
   return (
     <form ref={formRef} onSubmit={handleSubmit} className="flex flex-col gap-5">
       <div className="flex flex-col gap-1.5">
-        <label htmlFor="categoryId" className="text-sm font-medium text-zinc-700">
+        <label htmlFor="categoryId" className="text-sm font-medium text-fg">
           Category
         </label>
         <select
@@ -32,7 +32,7 @@ export function NewTicketForm({ categories }: { categories: Category[] }) {
           name="categoryId"
           required
           defaultValue=""
-          className="w-full rounded-lg ring-input px-3.5 py-2.5 text-sm text-zinc-900 bg-white outline-none transition"
+          className="w-full rounded-lg ring-input px-3.5 py-2.5 text-sm text-fg-strong bg-surface outline-none transition"
         >
           <option value="" disabled>
             Select a category
@@ -46,7 +46,7 @@ export function NewTicketForm({ categories }: { categories: Category[] }) {
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <label htmlFor="subject" className="text-sm font-medium text-zinc-700">
+        <label htmlFor="subject" className="text-sm font-medium text-fg">
           Subject
         </label>
         <input
@@ -56,12 +56,12 @@ export function NewTicketForm({ categories }: { categories: Category[] }) {
           required
           maxLength={255}
           placeholder="Brief summary of your request"
-          className="w-full rounded-lg ring-input px-3.5 py-2.5 text-sm text-zinc-900 placeholder:text-zinc-400 outline-none transition"
+          className="w-full rounded-lg ring-input px-3.5 py-2.5 text-sm text-fg-strong placeholder:text-fg-subtle outline-none transition"
         />
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <label htmlFor="body" className="text-sm font-medium text-zinc-700">
+        <label htmlFor="body" className="text-sm font-medium text-fg">
           Details
         </label>
         <textarea
@@ -70,13 +70,13 @@ export function NewTicketForm({ categories }: { categories: Category[] }) {
           required
           rows={5}
           placeholder="Describe your request in detail…"
-          className="w-full rounded-lg ring-input px-3.5 py-2.5 text-sm text-zinc-900 placeholder:text-zinc-400 outline-none transition resize-none"
+          className="w-full rounded-lg ring-input px-3.5 py-2.5 text-sm text-fg-strong placeholder:text-fg-subtle outline-none transition resize-none"
         />
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <span className="text-sm font-medium text-zinc-700">Attachments</span>
-        <p className="text-xs text-zinc-400">PNG, JPG up to 2 MB · PDF up to 1 MB</p>
+        <span className="text-sm font-medium text-fg">Attachments</span>
+        <p className="text-xs text-fg-subtle">PNG, JPG up to 2 MB · PDF up to 1 MB</p>
         <FilePicker
           onFiles={(files) => {
             pendingFiles.current = files;
@@ -85,7 +85,7 @@ export function NewTicketForm({ categories }: { categories: Category[] }) {
       </div>
 
       {error && (
-        <p className="rounded-lg bg-red-50 border border-red-100 px-3.5 py-2.5 text-sm text-red-600">
+        <p className="rounded-lg bg-danger-surface border border-danger-border px-3.5 py-2.5 text-sm text-danger-text">
           {error}
         </p>
       )}

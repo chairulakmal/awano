@@ -7,7 +7,7 @@ import { signOutAction } from "@/app/actions";
 import type { Role } from "@/generated/prisma/enums";
 
 const AVATAR_BG: Record<Role, string> = {
-  REQUESTER: "bg-zinc-200 text-zinc-600",
+  REQUESTER: "bg-surface-subtle text-fg-secondary",
   SUPPORT: "bg-blue-100 text-blue-700",
   MANAGER: "bg-violet-100 text-violet-700",
   ADMIN: "bg-amber-100 text-amber-800",
@@ -53,7 +53,7 @@ export function UserMenu({
     <div ref={ref} className="relative">
       <button
         onClick={() => setIsOpen((o) => !o)}
-        className="flex items-center gap-2 rounded-full py-1 pl-1 pr-2.5 hover:bg-zinc-100 transition-colors"
+        className="flex items-center gap-2 rounded-full py-1 pl-1 pr-2.5 hover:bg-surface-subtle transition-colors"
         aria-haspopup="true"
         aria-expanded={isOpen}
         data-testid="user-menu-trigger"
@@ -63,37 +63,37 @@ export function UserMenu({
         >
           {getInitial(name, email)}
         </span>
-        <span className="text-sm text-zinc-700">{name ?? email}</span>
+        <span className="text-sm text-fg">{name ?? email}</span>
         <ChevronDown
           size={14}
-          className={`text-zinc-400 transition-transform duration-150 ${isOpen ? "rotate-180" : ""}`}
+          className={`text-fg-subtle transition-transform duration-150 ${isOpen ? "rotate-180" : ""}`}
         />
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 top-full mt-1.5 w-48 rounded-xl shadow-panel bg-white py-1.5 z-20">
-          <div className="px-3 py-2 border-b border-zinc-100 mb-1">
-            <p className="text-xs font-medium text-zinc-800 truncate">{name ?? email}</p>
-            {name && <p className="text-xs text-zinc-400 truncate">{email}</p>}
+        <div className="absolute right-0 top-full mt-1.5 w-48 rounded-xl shadow-panel bg-surface py-1.5 z-20">
+          <div className="px-3 py-2 border-b border-border-subtle mb-1">
+            <p className="text-xs font-medium text-fg-strong truncate">{name ?? email}</p>
+            {name && <p className="text-xs text-fg-subtle truncate">{email}</p>}
           </div>
 
           <Link
             href="/profile"
             onClick={() => setIsOpen(false)}
-            className="flex items-center gap-2.5 px-3 py-2 text-sm text-zinc-700 hover:bg-zinc-50 transition-colors"
+            className="flex items-center gap-2.5 px-3 py-2 text-sm text-fg hover:bg-surface-muted transition-colors"
           >
-            <Settings size={14} className="text-zinc-400" />
+            <Settings size={14} className="text-fg-subtle" />
             Profile settings
           </Link>
 
-          <div className="my-1 border-t border-zinc-100" />
+          <div className="my-1 border-t border-border-subtle" />
 
           <form action={signOutAction}>
             <button
               type="submit"
-              className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900 transition-colors"
+              className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-fg-muted hover:bg-surface-muted hover:text-fg-strong transition-colors"
             >
-              <LogOut size={14} className="text-zinc-400" />
+              <LogOut size={14} className="text-fg-subtle" />
               Sign out
             </button>
           </form>

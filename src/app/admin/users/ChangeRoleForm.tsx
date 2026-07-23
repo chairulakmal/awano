@@ -57,13 +57,13 @@ export function ChangeRoleForm({
   const currentLabel = ALL_OPTIONS.find((o) => o.value === currentValue)?.label ?? currentRole;
 
   if (isSelf) {
-    return <span className="text-xs text-zinc-400 italic">{currentLabel}</span>;
+    return <span className="text-xs text-fg-subtle italic">{currentLabel}</span>;
   }
 
   if (ROLE_RANK[currentRole] > ASSIGNABLE_CEILING[sessionRole]) {
     return (
       <span
-        className="text-xs text-zinc-400 italic"
+        className="text-xs text-fg-subtle italic"
         title="This user's role can only be changed by a higher role"
       >
         {currentLabel}
@@ -78,7 +78,7 @@ export function ChangeRoleForm({
         name="roleValue"
         value={selected}
         onChange={(e) => setSelected(e.target.value)}
-        className="rounded-md ring-input px-2 py-1 text-xs text-zinc-900 outline-none transition"
+        className="rounded-md ring-input px-2 py-1 text-xs text-fg-strong outline-none transition"
       >
         {visibleOptions.map((opt) => (
           <option key={opt.value} value={opt.value}>
@@ -89,13 +89,13 @@ export function ChangeRoleForm({
       <button
         type="submit"
         disabled={pending || selected === currentValue}
-        className="px-2.5 py-1 text-xs font-medium text-zinc-600 bg-zinc-100 rounded-md hover:bg-zinc-200 transition-colors disabled:opacity-50"
+        className="px-2.5 py-1 text-xs font-medium text-fg-secondary bg-surface-subtle rounded-md hover:bg-surface-subtle transition-colors disabled:opacity-50"
       >
         {pending ? "Saving…" : "Save"}
       </button>
-      {error && <span className="text-xs text-red-600">{error}</span>}
+      {error && <span className="text-xs text-danger-text">{error}</span>}
       {currentRole === "REQUESTER" && currentRequesterType !== "FIELD_AGENT" && (
-        <span className="text-xs text-zinc-400">Set to Field Agent first to unlock Support</span>
+        <span className="text-xs text-fg-subtle">Set to Field Agent first to unlock Support</span>
       )}
     </form>
   );

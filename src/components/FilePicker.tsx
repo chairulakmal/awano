@@ -67,7 +67,7 @@ export function FilePicker({ onFiles }: Props) {
 
   return (
     <div className="flex flex-col gap-1">
-      <label className="flex items-center gap-2 text-sm text-zinc-500 cursor-pointer w-fit">
+      <label className="flex items-center gap-2 text-sm text-fg-muted cursor-pointer w-fit">
         <svg
           className="h-4 w-4 shrink-0"
           fill="none"
@@ -92,9 +92,9 @@ export function FilePicker({ onFiles }: Props) {
           disabled={processing}
         />
       </label>
-      {error && <p className="text-xs text-red-600">{error}</p>}
+      {error && <p className="text-xs text-danger-text">{error}</p>}
       {!error && names.length > 0 && (
-        <p className="text-xs text-zinc-400">
+        <p className="text-xs text-fg-subtle">
           {names.length} file{names.length > 1 ? "s" : ""} ready
         </p>
       )}

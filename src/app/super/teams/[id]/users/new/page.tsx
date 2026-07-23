@@ -23,21 +23,21 @@ export default async function SuperNewUserPage({ params }: Props) {
   return (
     <div className="space-y-6">
       {/* Breadcrumb */}
-      <div className="flex items-center gap-2 text-sm text-zinc-500">
-        <Link href="/super/teams" className="hover:text-zinc-800 transition-colors">
+      <div className="flex items-center gap-2 text-sm text-fg-muted">
+        <Link href="/super/teams" className="hover:text-fg-strong transition-colors">
           Teams
         </Link>
         <span>→</span>
-        <Link href={`/super/teams/${id}`} className="hover:text-zinc-800 transition-colors">
+        <Link href={`/super/teams/${id}`} className="hover:text-fg-strong transition-colors">
           {team.name}
         </Link>
         <span>→</span>
-        <span className="text-zinc-800">New user</span>
+        <span className="text-fg-strong">New user</span>
       </div>
 
-      <h1 className="text-xl font-semibold text-zinc-900">Add user to {team.name}</h1>
+      <h1 className="text-xl font-semibold text-fg-strong">Add user to {team.name}</h1>
 
-      <div className="rounded-xl shadow-card bg-white px-5 py-6 max-w-lg">
+      <div className="rounded-xl shadow-card bg-surface px-5 py-6 max-w-lg">
         <NewUserForm teamId={id} />
       </div>
     </div>

@@ -18,9 +18,9 @@ export function NewCategoryForm() {
           name="name"
           required
           placeholder="Category name"
-          className="w-full rounded-lg ring-input px-3.5 py-2 text-sm text-zinc-900 placeholder:text-zinc-400 outline-none transition"
+          className="w-full rounded-lg ring-input px-3.5 py-2 text-sm text-fg-strong placeholder:text-fg-subtle outline-none transition"
         />
-        {error && <p className="mt-1.5 text-xs text-red-600">{error}</p>}
+        {error && <p className="mt-1.5 text-xs text-danger-text">{error}</p>}
       </div>
       <button
         type="submit"

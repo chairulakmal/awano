@@ -27,7 +27,7 @@ export function AttachmentList({ attachments }: { attachments: Attachment[] }) {
               href={url}
               target="_blank"
               rel="noopener noreferrer"
-              className="block rounded-lg overflow-hidden border border-zinc-200 hover:opacity-90 transition-opacity"
+              className="block rounded-lg overflow-hidden border border-border hover:opacity-90 transition-opacity"
               title={a.filename}
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -42,10 +42,10 @@ export function AttachmentList({ attachments }: { attachments: Attachment[] }) {
             href={url}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-2 rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm text-zinc-700 hover:bg-zinc-100 transition-colors"
+            className="flex items-center gap-2 rounded-lg border border-border bg-surface-muted px-3 py-2 text-sm text-fg hover:bg-surface-subtle transition-colors"
           >
             <svg
-              className="h-4 w-4 shrink-0 text-zinc-400"
+              className="h-4 w-4 shrink-0 text-fg-subtle"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -58,7 +58,7 @@ export function AttachmentList({ attachments }: { attachments: Attachment[] }) {
               />
             </svg>
             <span className="truncate max-w-[140px]">{a.filename}</span>
-            <span className="shrink-0 text-zinc-400">{formatBytes(a.sizeBytes)}</span>
+            <span className="shrink-0 text-fg-subtle">{formatBytes(a.sizeBytes)}</span>
           </a>
         );
       })}

@@ -32,7 +32,7 @@ export default async function DeskPage({
 
   return (
     <div>
-      <h1 className="text-2xl font-semibold text-zinc-900 mb-6">Inbox</h1>
+      <h1 className="text-2xl font-semibold text-fg-strong mb-6">Inbox</h1>
       <DeskTicketList
         key={`${view}|${q ?? ""}`}
         initialItems={items}

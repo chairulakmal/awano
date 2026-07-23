@@ -21,7 +21,7 @@ export function ChangePasswordForm({
   return (
     <form action={formAction} onChange={() => onDirtyChange?.(true)} className="space-y-4">
       <div className="space-y-1">
-        <label htmlFor="currentPassword" className="block text-sm font-medium text-zinc-700">
+        <label htmlFor="currentPassword" className="block text-sm font-medium text-fg">
           Current password
         </label>
         <input
@@ -29,14 +29,14 @@ export function ChangePasswordForm({
           name="currentPassword"
           type="password"
           required
-          className="w-full rounded-md ring-input px-3 py-2 text-sm text-zinc-900 outline-none transition"
+          className="w-full rounded-md ring-input px-3 py-2 text-sm text-fg-strong outline-none transition"
         />
       </div>
 
       <div className="space-y-1">
-        <label htmlFor="newPassword" className="block text-sm font-medium text-zinc-700">
+        <label htmlFor="newPassword" className="block text-sm font-medium text-fg">
           New password
-          <span className="ml-1 text-xs font-normal text-zinc-400">(min. 15 characters)</span>
+          <span className="ml-1 text-xs font-normal text-fg-subtle">(min. 15 characters)</span>
         </label>
         <input
           id="newPassword"
@@ -44,12 +44,12 @@ export function ChangePasswordForm({
           type="password"
           required
           minLength={15}
-          className="w-full rounded-md ring-input px-3 py-2 text-sm text-zinc-900 outline-none transition"
+          className="w-full rounded-md ring-input px-3 py-2 text-sm text-fg-strong outline-none transition"
         />
       </div>
 
       <div className="space-y-1">
-        <label htmlFor="confirmPassword" className="block text-sm font-medium text-zinc-700">
+        <label htmlFor="confirmPassword" className="block text-sm font-medium text-fg">
           Confirm new password
         </label>
         <input
@@ -58,7 +58,7 @@ export function ChangePasswordForm({
           type="password"
           required
           minLength={15}
-          className="w-full rounded-md ring-input px-3 py-2 text-sm text-zinc-900 outline-none transition"
+          className="w-full rounded-md ring-input px-3 py-2 text-sm text-fg-strong outline-none transition"
         />
       </div>
 
@@ -72,7 +72,7 @@ export function ChangePasswordForm({
         </button>
 
         {state && (
-          <span className={`text-sm ${state.ok ? "text-green-600" : "text-red-600"}`}>
+          <span className={`text-sm ${state.ok ? "text-green-600" : "text-danger-text"}`}>
             {state.message}
           </span>
         )}

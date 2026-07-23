@@ -12,11 +12,11 @@ export function DeleteCategoryForm({ categoryId }: { categoryId: string }) {
       <button
         type="submit"
         disabled={pending}
-        className="text-xs text-red-500 hover:text-red-700 transition-colors disabled:opacity-50"
+        className="text-xs text-danger-text hover:text-danger-text transition-colors disabled:opacity-50"
       >
         {pending ? "Deleting…" : "Delete"}
       </button>
-      {error && <p className="text-xs text-red-600">{error}</p>}
+      {error && <p className="text-xs text-danger-text">{error}</p>}
     </form>
   );
 }

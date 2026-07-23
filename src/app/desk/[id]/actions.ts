@@ -4,18 +4,27 @@ import { revalidatePath } from "next/cache";
 import { unstable_rethrow } from "next/navigation";
 import { z } from "zod";
 import { auth } from "@/auth";
-import { assertAuthenticated } from "@/lib/auth/assertions";
+import { assertAuthenticated, AuthenticationError, AuthorizationError } from "@/lib/auth/assertions";
 import { transitionStatus, assignTicket, postComment, setPriority } from "@/lib/tickets/service";
 import { addAttachment } from "@/lib/attachments/service";
 import { TicketStatus, TicketPriority } from "@/generated/prisma/enums";
 
-export async function transitionStatusAction(formData: FormData): Promise<void> {
+export async function transitionStatusAction(formData: FormData): Promise<string | null> {
   const session = await auth();
   const payload = assertAuthenticated(session);
   const ticketId = z.string().min(1).parse(formData.get("ticketId"));
   const to = z.nativeEnum(TicketStatus).parse(formData.get("toStatus"));
-  await transitionStatus(ticketId, to, payload);
-  revalidatePath(`/desk/${ticketId}`);
+  try {
+    await transitionStatus(ticketId, to, payload);
+    revalidatePath(`/desk/${ticketId}`);
+  } catch (err) {
+    unstable_rethrow(err);
+    // Surface the real message for the errors we author; stay generic otherwise.
+    return err instanceof AuthorizationError || err instanceof AuthenticationError
+      ? err.message
+      : "Transition failed. Please try again.";
+  }
+  return null;
 }
 
 export async function assignTicketAction(

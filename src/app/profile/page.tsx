@@ -14,19 +14,19 @@ const ROLE_LABEL: Record<Role, string> = {
 };
 
 const ROLE_BADGE: Record<Role, string> = {
-  REQUESTER: "bg-zinc-100 text-zinc-500",
+  REQUESTER: "bg-surface-subtle text-fg-muted",
   SUPPORT: "bg-blue-50 text-blue-700",
   MANAGER: "bg-violet-50 text-violet-700",
-  ADMIN: "bg-amber-50 text-amber-800",
-  SUPER: "bg-red-50 text-red-700",
+  ADMIN: "bg-accent-amber-surface text-accent-amber-text",
+  SUPER: "bg-danger-surface text-danger-text",
 };
 
 const AVATAR_BG: Record<Role, string> = {
-  REQUESTER: "bg-zinc-200 text-zinc-600",
+  REQUESTER: "bg-surface-subtle text-fg-secondary",
   SUPPORT: "bg-blue-100 text-blue-700",
   MANAGER: "bg-violet-100 text-violet-700",
-  ADMIN: "bg-amber-100 text-amber-800",
-  SUPER: "bg-red-100 text-red-700",
+  ADMIN: "bg-accent-amber-surface text-accent-amber-text",
+  SUPER: "bg-danger-surface text-danger-text",
 };
 
 function getInitials(name: string | null | undefined, email: string): string {
@@ -51,7 +51,7 @@ export default async function ProfilePage() {
   const initials = getInitials(user.name, user.email);
 
   return (
-    <div className="min-h-screen bg-zinc-50">
+    <div className="min-h-screen bg-surface-muted">
       <Header />
       <main className="max-w-lg mx-auto px-6 py-10">
         {/* Avatar + identity header */}
@@ -62,10 +62,10 @@ export default async function ProfilePage() {
             {initials}
           </div>
           <div className="min-w-0">
-            <h1 className="text-xl font-semibold text-zinc-900 truncate">
+            <h1 className="text-xl font-semibold text-fg-strong truncate">
               {user.name ?? user.email}
             </h1>
-            {user.name && <p className="text-sm text-zinc-400 truncate">{user.email}</p>}
+            {user.name && <p className="text-sm text-fg-subtle truncate">{user.email}</p>}
             <span
               className={`mt-1 inline-block text-xs font-medium px-2 py-0.5 rounded-full ${ROLE_BADGE[user.role]}`}
             >
@@ -75,40 +75,40 @@ export default async function ProfilePage() {
         </div>
 
         {/* Account card */}
-        <div className="rounded-xl shadow-card bg-white p-6 mb-4">
-          <h2 className="text-xs font-medium text-zinc-400 uppercase tracking-wide mb-4">
+        <div className="rounded-xl shadow-card bg-surface p-6 mb-4">
+          <h2 className="text-xs font-medium text-fg-subtle uppercase tracking-wide mb-4">
             Account
           </h2>
-          <dl className="divide-y divide-zinc-50 text-sm">
+          <dl className="divide-y divide-border-subtle text-sm">
             <div className="flex justify-between py-2.5 first:pt-0 last:pb-0">
-              <dt className="text-zinc-500">Name</dt>
-              <dd className="font-medium text-zinc-800">
-                {user.name ?? <span className="text-zinc-400 italic">—</span>}
+              <dt className="text-fg-muted">Name</dt>
+              <dd className="font-medium text-fg-strong">
+                {user.name ?? <span className="text-fg-subtle italic">—</span>}
               </dd>
             </div>
             <div className="flex justify-between py-2.5 first:pt-0 last:pb-0">
-              <dt className="text-zinc-500">Email</dt>
-              <dd className="font-medium text-zinc-800">{user.email}</dd>
+              <dt className="text-fg-muted">Email</dt>
+              <dd className="font-medium text-fg-strong">{user.email}</dd>
             </div>
             <div className="flex justify-between py-2.5 first:pt-0 last:pb-0">
-              <dt className="text-zinc-500">Role</dt>
-              <dd className="font-medium text-zinc-800">{ROLE_LABEL[user.role]}</dd>
+              <dt className="text-fg-muted">Role</dt>
+              <dd className="font-medium text-fg-strong">{ROLE_LABEL[user.role]}</dd>
             </div>
           </dl>
-          <p className="mt-4 text-xs text-zinc-400">
+          <p className="mt-4 text-xs text-fg-subtle">
             To update your name, email, or role, contact your team admin.
           </p>
         </div>
 
         {/* Security card */}
-        <div className="rounded-xl shadow-card bg-white p-6">
-          <h2 className="text-xs font-medium text-zinc-400 uppercase tracking-wide mb-4">
+        <div className="rounded-xl shadow-card bg-surface p-6">
+          <h2 className="text-xs font-medium text-fg-subtle uppercase tracking-wide mb-4">
             Security
           </h2>
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-zinc-800">Password</p>
-              <p className="text-xs text-zinc-400 mt-0.5">Update your login password</p>
+              <p className="text-sm font-medium text-fg-strong">Password</p>
+              <p className="text-xs text-fg-subtle mt-0.5">Update your login password</p>
             </div>
             <ChangePasswordModal />
           </div>

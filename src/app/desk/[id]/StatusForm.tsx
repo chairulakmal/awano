@@ -1,7 +1,8 @@
 "use client";
 
-import { useOptimistic, useTransition, useState } from "react";
+import { useOptimistic, useTransition } from "react";
 import { transitionStatusAction } from "./actions";
+import { useToast } from "@/components/Toast";
 import type { TicketStatus } from "@/generated/prisma/enums";
 
 const STATUS_LABEL: Record<TicketStatus, string> = {
@@ -14,12 +15,12 @@ const STATUS_LABEL: Record<TicketStatus, string> = {
 };
 
 const STATUS_CLASS: Record<TicketStatus, string> = {
-  OPEN: "bg-zinc-100 text-zinc-600",
+  OPEN: "bg-surface-subtle text-fg-secondary",
   IN_PROGRESS: "bg-blue-50 text-blue-700",
-  WAITING_ON_REQUESTER: "bg-amber-50 text-amber-700",
-  ESCALATED: "bg-red-50 text-red-700",
+  WAITING_ON_REQUESTER: "bg-accent-amber-surface text-accent-amber-text",
+  ESCALATED: "bg-danger-surface text-danger-text",
   RESOLVED: "bg-green-50 text-green-700",
-  CLOSED: "bg-zinc-100 text-zinc-400",
+  CLOSED: "bg-surface-subtle text-fg-subtle",
 };
 
 export function StatusForm({
@@ -33,12 +34,12 @@ export function StatusForm({
 }) {
   const [optimisticStatus, setOptimisticStatus] = useOptimistic(currentStatus);
   const [isPending, startTransition] = useTransition();
-  const [error, setError] = useState<string | null>(null);
+  const { toast } = useToast();
 
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
-        <span className="text-xs font-medium text-zinc-500 uppercase tracking-wide">Status</span>
+        <span className="text-xs font-medium text-fg-muted uppercase tracking-wide">Status</span>
         <span
           className={`text-xs font-medium px-2.5 py-1 rounded-full ${STATUS_CLASS[optimisticStatus]}`}
         >
@@ -52,13 +53,13 @@ export function StatusForm({
             <form
               key={to}
               action={async (formData) => {
-                setError(null);
                 startTransition(async () => {
                   setOptimisticStatus(to);
-                  try {
-                    await transitionStatusAction(formData);
-                  } catch {
-                    setError("Transition failed. Please try again.");
+                  const error = await transitionStatusAction(formData);
+                  if (error) {
+                    toast(error, "error");
+                  } else {
+                    toast(`Moved to ${STATUS_LABEL[to]}`, "success");
                   }
                 });
               }}
@@ -68,7 +69,7 @@ export function StatusForm({
               <button
                 type="submit"
                 disabled={isPending}
-                className="w-full text-left text-sm px-3 py-2 rounded-lg text-zinc-700 hover:bg-zinc-100 transition-colors disabled:opacity-50"
+                className="w-full text-left text-sm px-3 py-2 rounded-lg text-fg hover:bg-surface-subtle transition-colors disabled:opacity-50"
               >
                 → {STATUS_LABEL[to]}
               </button>
@@ -76,10 +77,8 @@ export function StatusForm({
           ))}
         </div>
       ) : (
-        <p className="text-xs text-zinc-400">No transitions available</p>
+        <p className="text-xs text-fg-subtle">No transitions available</p>
       )}
-
-      {error && <p className="text-xs text-red-600">{error}</p>}
     </div>
   );
 }

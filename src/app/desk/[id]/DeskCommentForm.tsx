@@ -31,7 +31,7 @@ export function DeskCommentForm({ ticketId }: { ticketId: string }) {
         required
         rows={3}
         placeholder="Write a reply or internal note…"
-        className="w-full rounded-lg ring-input px-3.5 py-2.5 text-sm text-zinc-900 placeholder:text-zinc-400 outline-none transition resize-none"
+        className="w-full rounded-lg ring-input px-3.5 py-2.5 text-sm text-fg-strong placeholder:text-fg-subtle outline-none transition resize-none"
       />
       <FilePicker
         onFiles={(files) => {
@@ -39,12 +39,12 @@ export function DeskCommentForm({ ticketId }: { ticketId: string }) {
         }}
       />
       {error && (
-        <p className="rounded-lg bg-red-50 border border-red-100 px-3.5 py-2.5 text-sm text-red-600">
+        <p className="rounded-lg bg-danger-surface border border-danger-border px-3.5 py-2.5 text-sm text-danger-text">
           {error}
         </p>
       )}
       <div className="flex items-center justify-between">
-        <label className="flex items-center gap-2 text-sm text-zinc-600 cursor-pointer select-none">
+        <label className="flex items-center gap-2 text-sm text-fg-secondary cursor-pointer select-none">
           <input type="checkbox" name="isInternal" value="true" className="rounded" />
           Internal note
         </label>

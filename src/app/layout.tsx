@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { cookies } from "next/headers";
+import { ToastProvider } from "@/components/Toast";
 import "./globals.css";
 
 const description: string = "Production-grade Next.js 16 support desk: role-based access control, finite-state ticket workflow, cursor-based pagination, and cross-tenant isolation enforced at every database query.";
@@ -31,14 +33,26 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // Read the theme cookie server-side so the correct scheme is in the initial
+  // HTML — no flash. Absent, `:root` follows the OS via `color-scheme`.
+  const theme = (await cookies()).get("theme")?.value;
+  const dataTheme = theme === "light" || theme === "dark" ? theme : undefined;
+
   return (
-    <html lang="en" className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col">{children}</body>
+    <html
+      lang="en"
+      data-theme={dataTheme}
+      suppressHydrationWarning
+      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+    >
+      <body className="min-h-full flex flex-col">
+        <ToastProvider>{children}</ToastProvider>
+      </body>
     </html>
   );
 }

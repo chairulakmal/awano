@@ -1,11 +1,12 @@
 # TODO
 
-The build backlog for Awano's next iteration. The single focus is a user-facing UI/UX revamp: turning a correct support desk into one that feels like a frontier Next.js 16 app to use, not just to read the source of. Below: the goal and how to read this list, then the revamp grouped from foundation upward (design system, app shell, desk and ticket experience, feedback and states, accessibility, internationalization, performance and Next 16 features, marketing surface), and finally a short non-UX backlog.
+The build backlog for Awano's next iteration. The single focus is a user-facing UI/UX revamp: turning a correct support desk into one that feels like a frontier Next.js 16 app to use, not just to read the source of. Below: where the plan stands and how to read it, then the revamp grouped from foundation upward (design system, app shell, desk and ticket experience, feedback and states, accessibility, internationalization, performance and Next 16 features, marketing surface), and finally a short non-UX backlog.
 
 Rules of the doc: `docs/DESIGN.md` owns the visual language and every token or component this list touches; `docs/SPEC.md` owns behaviour and permissions; `docs/i18n.md` owns the i18n and mobile implementation detail. This file only tracks *what to build and in what order*. When an item lands, its rule moves into the doc that owns it, the checkbox is ticked here, and the shipped entry moves to [CHANGELOG.md](CHANGELOG.md), so no fact lives in two places.
 
 ## Contents
 
+- [Status and critical path](#status-and-critical-path)
 - [How to read this](#how-to-read-this)
 - [1. Design system foundation](#1-design-system-foundation)
 - [2. App shell and navigation](#2-app-shell-and-navigation)
@@ -17,6 +18,17 @@ Rules of the doc: `docs/DESIGN.md` owns the visual language and every token or c
 - [8. Marketing surface](#8-marketing-surface)
 - [Beyond UX (backlog)](#beyond-ux-backlog)
 
+## Status and critical path
+
+v1.0.0 shipped (2026-05-21, see [CHANGELOG.md](CHANGELOG.md)). The revamp below is the active iteration. Four **P0** items are the critical path, because everything in sections 3-8 assumes them:
+
+1. ~~**Design tokens under `@theme`** (§1)~~ — **done.** Colour promoted to semantic `light-dark()` tokens; ring/shadow/dot utilities tokenised too.
+2. ~~**Dark mode** (§1)~~ — **done.** Cookie + SSR, OS default, header toggle, every surface migrated.
+3. ~~**Responsive navigation** (§2)~~ — **done.** Shell navigation is responsive across Header/NavMenu, DeskSidebar, and AdminNav.
+4. ~~**Toast system** (§4)~~ — **done.** `ToastProvider` + `useToast` mounted globally; StatusForm is the first consumer.
+
+**All four P0 items have landed.** Next up: the §1 status-badge system and §2 command palette, then §3 (desk experience) building on the toast and token foundations. The rest of the sections proceed foundation-upward.
+
 ## How to read this
 
 - `[ ]` not started, `[~]` in progress, `[x]` done. Priority tiers: **P0** unblocks other work, **P1** ship-in-this-iteration, **P2** nice-to-have.
@@ -27,15 +39,15 @@ Rules of the doc: `docs/DESIGN.md` owns the visual language and every token or c
 
 The current language is light-only amber with text-only status colours (`docs/DESIGN.md`). The revamp keeps that identity and makes it systematic and theme-aware.
 
-- [ ] **P0** Promote colour, spacing, and typography scales to CSS custom properties in `globals.css` under `@theme`, so a theme swap is a variable change, not a class rewrite.
-- [ ] **P0** Dark mode. DESIGN.md currently defers it; this iteration lands it. Define dark tokens, wire a `prefers-color-scheme` default with a manual toggle, and persist the choice. Every surface below must ship both themes.
+- [x] **P0** Promote the colour scale to semantic `light-dark()` custom properties in `globals.css` under `@theme`, so a theme swap is a variable change, not a class rewrite. (Spacing and typography stay on Tailwind's own theme scale — they don't vary by theme, so they needed no promotion.)
+- [x] **P0** Dark mode. Semantic dark tokens defined; `color-scheme` follows `prefers-color-scheme` by default, a header toggle overrides it, and the choice persists via a cookie the root layout reads server-side (no flash). Every surface is migrated to tokens. Details in `docs/DESIGN.md` § Theming.
 - [ ] **P1** Status system: promote the six ticket statuses to filled badges with an icon, keeping the semantic colours already in DESIGN.md, and reuse one `<StatusBadge>` everywhere instead of ad-hoc spans.
 - [ ] **P1** A motion vocabulary: standard durations and easings as tokens. DESIGN.md today allows `transition-colors` only; extend it deliberately (enter/exit, list reorder) without decorative animation.
 - [ ] **P2** A minimal component inventory page at `/style` (dev-only) rendering every primitive in both themes, as a living reference and visual-regression target.
 
 ## 2. App shell and navigation
 
-- [ ] **P0** Responsive navigation: inline links on `sm+`, a hamburger dropdown on mobile that matches the existing `UserMenu` interaction, across `Header`, `NavMenu`, and `DeskSidebar`. Mobile card and drawer layouts are specced in [docs/i18n.md](docs/i18n.md#mobile-layouts).
+- [x] **P0** Responsive navigation across the shells. `Header` + `NavMenu` do inline links on `sm+` / hamburger dropdown on mobile; `DeskSidebar` collapses to a horizontal scrolling chip row on mobile (labelled vertical groups at `sm+`); `AdminNav`'s tabs scroll horizontally instead of overflowing. The fuller mobile **card/drawer** layouts for ticket tables remain in §3 / [docs/i18n.md](docs/i18n.md#mobile-layouts).
 - [ ] **P1** Command palette (`Cmd/Ctrl-K`): jump to a ticket by id or title, switch views, trigger status changes the current role is allowed to make. Actions are role-gated by reusing the FSM and assertions, never a client-side allowlist.
 - [ ] **P1** Global keyboard shortcuts for the desk (next/prev ticket, assign to me, change status) with a discoverable `?` cheat-sheet overlay.
 - [ ] **P2** Breadcrumbs and a persistent context bar so an agent always knows which team, queue, and ticket they are in.
@@ -53,7 +65,7 @@ The desk already uses cursor pagination and optimistic status buttons. This sect
 
 ## 4. Feedback and states
 
-- [ ] **P0** A toast system for server-action results (success, error, permission denied) that reads the same message the server returned, so feedback never contradicts the outcome.
+- [x] **P0** A toast system for server-action results (success, error, permission denied) that reads the same message the server returned, so feedback never contradicts the outcome. `ToastProvider` + `useToast` landed and mounted globally; `StatusForm` is the first consumer (surfaces the server's own rejection message). Remaining action forms adopt `useToast` incrementally.
 - [ ] **P1** Skeleton loaders for the desk list, ticket detail, and admin metrics, sized to the real content to avoid layout shift.
 - [ ] **P1** First-class empty states (no tickets, no results after filtering, new team) with a clear next action rather than a blank panel.
 - [ ] **P1** Error boundaries per route segment with a retry affordance, so one failed fetch does not blank the whole shell.
