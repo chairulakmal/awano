@@ -16,12 +16,12 @@ const VARIANT_TINT: Record<ToastVariant, string> = {
   info: "text-fg-secondary",
 };
 
-// Monotonic id source — avoids Date.now()/Math.random() for stable keys.
+// Monotonic id source: avoids Date.now()/Math.random() for stable keys.
 let nextId = 0;
 
 /*
  * App-wide toast host. Mount once (root layout). Any client component calls
- * `useToast().toast(message, variant)` — crucially with the exact string a
+ * `useToast().toast(message, variant)`, crucially with the exact string a
  * server action returned, so the feedback never contradicts the outcome.
  * Toasts auto-dismiss after 4s and are announced via an aria-live region.
  */

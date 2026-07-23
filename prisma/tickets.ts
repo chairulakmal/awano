@@ -1,8 +1,8 @@
 /**
  * Test scenarios: Tokutei Ginou (Specified Skilled Worker) support desk cases.
  *
- * Team A (demo)  — Indonesian and Vietnamese workers
- * Team B (beta)  — Myanmar and Vietnamese workers
+ * Team A (demo): Indonesian and Vietnamese workers
+ * Team B (beta): Myanmar and Vietnamese workers
  *
  * Covers all ticket statuses, every priority level, all requester types, and
  * a representative spread of FSM transitions (open → in-progress →
@@ -175,12 +175,12 @@ export async function seedTickets(db: Db, ctx: TicketSeedContext) {
   );
 
   // ══════════════════════════════════════════════════════════════════════════
-  // TEAM A — demo team tickets
+  // TEAM A: demo team tickets
   // Workers: Rahmat Hidayat (Indonesian), Nguyen Van Minh (Vietnamese)
   // Existing requesters: Alice (customer), Bob (recruiter), Carol (field agent)
   // ══════════════════════════════════════════════════════════════════════════
 
-  // OPEN · URGENT — Indonesian worker, residence card expiring
+  // OPEN · URGENT: Indonesian worker, residence card expiring
   await ticket(
     db,
     "seed-ticket-a1",
@@ -193,7 +193,7 @@ export async function seedTickets(db: Db, ctx: TicketSeedContext) {
     "URGENT"
   );
 
-  // IN_PROGRESS · HIGH — Vietnamese worker, skills exam registration
+  // IN_PROGRESS · HIGH: Vietnamese worker, skills exam registration
   await ticket(
     db,
     "seed-ticket-a2",
@@ -207,7 +207,7 @@ export async function seedTickets(db: Db, ctx: TicketSeedContext) {
     ctx.supportAId
   );
 
-  // WAITING_ON_REQUESTER · NORMAL — Indonesian worker, double dormitory deduction
+  // WAITING_ON_REQUESTER · NORMAL: Indonesian worker, double dormitory deduction
   await ticket(
     db,
     "seed-ticket-a3",
@@ -221,7 +221,7 @@ export async function seedTickets(db: Db, ctx: TicketSeedContext) {
     ctx.supportAId
   );
 
-  // ESCALATED · HIGH — Field agent, contract amendment dispute
+  // ESCALATED · HIGH: Field agent, contract amendment dispute
   await ticket(
     db,
     "seed-ticket-a4",
@@ -235,7 +235,7 @@ export async function seedTickets(db: Db, ctx: TicketSeedContext) {
     ctx.supportAId
   );
 
-  // RESOLVED · NORMAL — Vietnamese worker, birth certificate translation
+  // RESOLVED · NORMAL: Vietnamese worker, birth certificate translation
   await ticket(
     db,
     "seed-ticket-a5",
@@ -249,7 +249,7 @@ export async function seedTickets(db: Db, ctx: TicketSeedContext) {
     ctx.supportAId
   );
 
-  // OPEN · NORMAL — Recruiter, new-batch onboarding request
+  // OPEN · NORMAL: Recruiter, new-batch onboarding request
   await ticket(
     db,
     "seed-ticket-a6",
@@ -262,7 +262,7 @@ export async function seedTickets(db: Db, ctx: TicketSeedContext) {
     "NORMAL"
   );
 
-  // IN_PROGRESS · HIGH — Indonesian worker, NHI card never received
+  // IN_PROGRESS · HIGH: Indonesian worker, NHI card never received
   await ticket(
     db,
     "seed-ticket-a7",
@@ -276,7 +276,7 @@ export async function seedTickets(db: Db, ctx: TicketSeedContext) {
     ctx.supportAId
   );
 
-  // CLOSED · LOW — Field agent, NHI claims explanation in Bahasa Indonesia
+  // CLOSED · LOW: Field agent, NHI claims explanation in Bahasa Indonesia
   await ticket(
     db,
     "seed-ticket-a8",
@@ -290,7 +290,7 @@ export async function seedTickets(db: Db, ctx: TicketSeedContext) {
     ctx.supportAId
   );
 
-  // OPEN · NORMAL — Vietnamese worker, employment letter for bank account
+  // OPEN · NORMAL: Vietnamese worker, employment letter for bank account
   await ticket(
     db,
     "seed-ticket-a9",
@@ -303,7 +303,7 @@ export async function seedTickets(db: Db, ctx: TicketSeedContext) {
     "NORMAL"
   );
 
-  // RESOLVED · LOW — Indonesian worker, Japanese language class enrolment
+  // RESOLVED · LOW: Indonesian worker, Japanese language class enrolment
   await ticket(
     db,
     "seed-ticket-a10",
@@ -318,12 +318,12 @@ export async function seedTickets(db: Db, ctx: TicketSeedContext) {
   );
 
   // ══════════════════════════════════════════════════════════════════════════
-  // TEAM B — beta team tickets
+  // TEAM B: beta team tickets
   // Workers: Kyaw Thu (Myanmar), Nguyen Thi Lan (Vietnamese), Ma Htwe (field agent)
   // Existing requester: Frank (company liaison role)
   // ══════════════════════════════════════════════════════════════════════════
 
-  // OPEN · URGENT — Myanmar worker, COE not returned before permitted period ends
+  // OPEN · URGENT: Myanmar worker, COE not returned before permitted period ends
   await ticket(
     db,
     "seed-ticket-b1",
@@ -336,7 +336,7 @@ export async function seedTickets(db: Db, ctx: TicketSeedContext) {
     "URGENT"
   );
 
-  // IN_PROGRESS · HIGH — Vietnamese worker, apostille on care work skills certificate
+  // IN_PROGRESS · HIGH: Vietnamese worker, apostille on care work skills certificate
   await ticket(
     db,
     "seed-ticket-b2",
@@ -350,7 +350,7 @@ export async function seedTickets(db: Db, ctx: TicketSeedContext) {
     ctx.supportBId
   );
 
-  // ESCALATED · URGENT — Field agent, workplace injury and coerced negligence waiver
+  // ESCALATED · URGENT: Field agent, workplace injury and coerced negligence waiver
   await ticket(
     db,
     "seed-ticket-b3",
@@ -364,7 +364,7 @@ export async function seedTickets(db: Db, ctx: TicketSeedContext) {
     ctx.supportBId
   );
 
-  // WAITING_ON_REQUESTER · NORMAL — Company liaison, rental contract review
+  // WAITING_ON_REQUESTER · NORMAL: Company liaison, rental contract review
   await ticket(
     db,
     "seed-ticket-b4",
@@ -378,7 +378,7 @@ export async function seedTickets(db: Db, ctx: TicketSeedContext) {
     ctx.supportBId
   );
 
-  // RESOLVED · LOW — Myanmar worker, driving licence conversion query
+  // RESOLVED · LOW: Myanmar worker, driving licence conversion query
   await ticket(
     db,
     "seed-ticket-b5",
@@ -391,7 +391,7 @@ export async function seedTickets(db: Db, ctx: TicketSeedContext) {
     "LOW"
   );
 
-  // OPEN · HIGH — Vietnamese worker, unlawful salary deduction for uniform rental
+  // OPEN · HIGH: Vietnamese worker, unlawful salary deduction for uniform rental
   await ticket(
     db,
     "seed-ticket-b6",
@@ -404,7 +404,7 @@ export async function seedTickets(db: Db, ctx: TicketSeedContext) {
     "HIGH"
   );
 
-  // IN_PROGRESS · NORMAL — Field agent, city hall registration blocked
+  // IN_PROGRESS · NORMAL: Field agent, city hall registration blocked
   await ticket(
     db,
     "seed-ticket-b7",
@@ -418,7 +418,7 @@ export async function seedTickets(db: Db, ctx: TicketSeedContext) {
     ctx.supportBId
   );
 
-  // CLOSED · NORMAL — Company liaison, pre-entry health check translation
+  // CLOSED · NORMAL: Company liaison, pre-entry health check translation
   await ticket(
     db,
     "seed-ticket-b8",
@@ -433,7 +433,7 @@ export async function seedTickets(db: Db, ctx: TicketSeedContext) {
   );
 
   // ══════════════════════════════════════════════════════════════════════════
-  // STATUS EVENTS — key transitions for non-OPEN tickets
+  // STATUS EVENTS: key transitions for non-OPEN tickets
   // ══════════════════════════════════════════════════════════════════════════
 
   await Promise.all([
@@ -617,7 +617,7 @@ export async function seedTickets(db: Db, ctx: TicketSeedContext) {
   ]);
 
   // ══════════════════════════════════════════════════════════════════════════
-  // COMMENTS — support replies and internal notes
+  // COMMENTS: support replies and internal notes
   // ══════════════════════════════════════════════════════════════════════════
 
   await Promise.all([

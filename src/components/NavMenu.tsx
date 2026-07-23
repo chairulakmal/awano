@@ -33,7 +33,7 @@ export function NavMenu({ links }: { links: NavLink[] }) {
 
   return (
     <>
-      {/* Inline links — hidden on small screens */}
+      {/* Inline links, hidden on small screens */}
       <div className="hidden sm:flex items-center gap-6">
         {links.map(({ href, label }) => (
           <Link
@@ -46,7 +46,7 @@ export function NavMenu({ links }: { links: NavLink[] }) {
         ))}
       </div>
 
-      {/* Hamburger dropdown — visible only on small screens */}
+      {/* Hamburger dropdown, visible only on small screens */}
       <div ref={ref} className="relative sm:hidden">
         <button
           onClick={() => setIsOpen((o) => !o)}

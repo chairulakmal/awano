@@ -1,7 +1,7 @@
 /**
  * Bulk ticket seed for pagination testing.
  * Creates 60 minimal tickets on Team A (demo) spread across all statuses and priorities.
- * Safe to re-run — uses upsert with stable IDs.
+ * Safe to re-run; uses upsert with stable IDs.
  */
 
 import "dotenv/config";

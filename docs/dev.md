@@ -85,4 +85,4 @@ npx prisma migrate dev
 
 **Port 5433 already in use**: the compose file maps host port 5433 (not the Postgres default 5432, to avoid clashing with other local Postgres instances). If something else holds 5433, change the host side of the mapping in `docker-compose.yml`, e.g. `"5434:5432"`, and update `DATABASE_URL` to match.
 
-**Container exits immediately** — run `docker compose logs db` for the error message.
+**Container exits immediately**: run `docker compose logs db` for the error message.

@@ -25,7 +25,7 @@ beforeEach(() => {
 });
 
 // ---------------------------------------------------------------------------
-// listCategories — role guard
+// listCategories: role guard
 // ---------------------------------------------------------------------------
 
 describe("listCategories — role guard", () => {
@@ -54,7 +54,7 @@ describe("listCategories — role guard", () => {
 });
 
 // ---------------------------------------------------------------------------
-// createCategory — slug generation
+// createCategory: slug generation
 // ---------------------------------------------------------------------------
 
 describe("createCategory — slug generation", () => {

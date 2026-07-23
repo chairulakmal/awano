@@ -8,7 +8,7 @@ test.describe("Support — assign · internal note · status change", () => {
     // 1. Login as support
     await login(page, "support@awano.demo", "demo");
 
-    // 2. Open seed-ticket-a1 (OPEN, unassigned — reset by globalSetup)
+    // 2. Open seed-ticket-a1 (OPEN, unassigned, reset by globalSetup)
     await page.goto("/desk/seed-ticket-a1");
     await expect(
       page.getByRole("heading", { name: "在留カード renewal — expires in 12 days" })

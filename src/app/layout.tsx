@@ -46,7 +46,7 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   // Read the theme cookie server-side so the correct scheme is in the initial
-  // HTML — no flash. Absent, `:root` follows the OS via `color-scheme`.
+  // HTML; no flash. Absent, `:root` follows the OS via `color-scheme`.
   const theme = (await cookies()).get("theme")?.value;
   const dataTheme = theme === "light" || theme === "dark" ? theme : undefined;
 

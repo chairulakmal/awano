@@ -3,10 +3,10 @@ import { login } from "./helpers";
 
 test.describe("Manager — escalate → close → reopen", () => {
   test("manager can walk the full ESCALATED → CLOSED → OPEN cycle", async ({ page }) => {
-    // 1. Login as manager — redirects to /admin/dashboard
+    // 1. Login as manager: redirects to /admin/dashboard
     await login(page, "manager@awano.demo", "demo");
 
-    // 2. Open seed-ticket-a2 (IN_PROGRESS — reset by globalSetup)
+    // 2. Open seed-ticket-a2 (IN_PROGRESS, reset by globalSetup)
     await page.goto("/desk/seed-ticket-a2");
     await expect(
       page.getByRole("heading", {

@@ -5,9 +5,9 @@ import {
   type SessionPayload,
 } from "@/lib/auth/assertions";
 
-const MAX_BYTES = 1_000_000; // 1 MB hard limit — enforced independently of client-side compression
+const MAX_BYTES = 1_000_000; // 1 MB hard limit, enforced independently of client-side compression
 
-// Server-side allowlist — matches compress.ts accepted types plus WebP (compression output).
+// Server-side allowlist: matches compress.ts accepted types plus WebP (compression output).
 // Rejects arbitrary MIME types that could be rendered as HTML by browsers and enable XSS.
 const ALLOWED_MIME_TYPES = new Set([
   "image/jpeg",

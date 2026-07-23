@@ -89,7 +89,7 @@ describe("getDashboardMetrics — teamId scoping", () => {
 });
 
 // ---------------------------------------------------------------------------
-// statusCounts — zero-fills missing statuses
+// statusCounts: zero-fills missing statuses
 // ---------------------------------------------------------------------------
 
 describe("getDashboardMetrics — statusCounts", () => {

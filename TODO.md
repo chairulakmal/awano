@@ -22,10 +22,10 @@ Rules of the doc: `docs/DESIGN.md` owns the visual language and every token or c
 
 v1.0.0 shipped (2026-05-21, see [CHANGELOG.md](CHANGELOG.md)). The revamp below is the active iteration. Four **P0** items are the critical path, because everything in sections 3-8 assumes them:
 
-1. ~~**Design tokens under `@theme`** (§1)~~ — **done.** Colour promoted to semantic `light-dark()` tokens; ring/shadow/dot utilities tokenised too.
-2. ~~**Dark mode** (§1)~~ — **done.** Cookie + SSR, OS default, header toggle, every surface migrated.
-3. ~~**Responsive navigation** (§2)~~ — **done.** Shell navigation is responsive across Header/NavMenu, DeskSidebar, and AdminNav.
-4. ~~**Toast system** (§4)~~ — **done.** `ToastProvider` + `useToast` mounted globally; StatusForm is the first consumer.
+1. ~~**Design tokens under `@theme`** (§1)~~: **done.** Colour promoted to semantic `light-dark()` tokens; ring/shadow/dot utilities tokenised too.
+2. ~~**Dark mode** (§1)~~: **done.** Cookie + SSR, OS default, header toggle, every surface migrated.
+3. ~~**Responsive navigation** (§2)~~: **done.** Shell navigation is responsive across Header/NavMenu, DeskSidebar, and AdminNav.
+4. ~~**Toast system** (§4)~~: **done.** `ToastProvider` + `useToast` mounted globally; StatusForm is the first consumer.
 
 **All four P0 items have landed.** Next up: the §1 status-badge system and §2 command palette, then §3 (desk experience) building on the toast and token foundations. The rest of the sections proceed foundation-upward.
 
@@ -37,9 +37,9 @@ v1.0.0 shipped (2026-05-21, see [CHANGELOG.md](CHANGELOG.md)). The revamp below 
 
 ## 1. Design system foundation
 
-The current language is light-only amber with text-only status colours (`docs/DESIGN.md`). The revamp keeps that identity and makes it systematic and theme-aware.
+The language is now the 淡 Awa system: paper-and-ink surfaces, indigo as the single action colour, and the vermilion hanko seal as the one loud mark, all on theme-aware `light-dark()` tokens (`docs/DESIGN.md`). Tokens and dark mode have landed; what remains is systematising the status badges and motion on top of that foundation.
 
-- [x] **P0** Promote the colour scale to semantic `light-dark()` custom properties in `globals.css` under `@theme`, so a theme swap is a variable change, not a class rewrite. (Spacing and typography stay on Tailwind's own theme scale — they don't vary by theme, so they needed no promotion.)
+- [x] **P0** Promote the colour scale to semantic `light-dark()` custom properties in `globals.css` under `@theme`, so a theme swap is a variable change, not a class rewrite. (Spacing and typography stay on Tailwind's own theme scale; they don't vary by theme, so they needed no promotion.)
 - [x] **P0** Dark mode. Semantic dark tokens defined; `color-scheme` follows `prefers-color-scheme` by default, a header toggle overrides it, and the choice persists via a cookie the root layout reads server-side (no flash). Every surface is migrated to tokens. Details in `docs/DESIGN.md` § Theming.
 - [ ] **P1** Status system: promote the six ticket statuses to filled badges with an icon, keeping the semantic colours already in DESIGN.md, and reuse one `<StatusBadge>` everywhere instead of ad-hoc spans.
 - [ ] **P1** A motion vocabulary: standard durations and easings as tokens. DESIGN.md today allows `transition-colors` only; extend it deliberately (enter/exit, list reorder) without decorative animation.
@@ -77,7 +77,7 @@ The bar every revamp item is measured against, not a separate phase.
 
 - [ ] **P0** Keyboard-operable everything: focus-visible rings (already tokenised via `.ring-input`), logical tab order, no keyboard traps in the palette or dropdowns.
 - [ ] **P1** Semantic landmarks and ARIA on nav, dialogs, toasts (`aria-live`), and status badges so a screen reader announces state changes.
-- [ ] **P1** Colour-contrast audit of both themes against WCAG AA, especially the amber-on-white interactive states and the status colours.
+- [ ] **P1** Colour-contrast audit of both themes against WCAG AA, especially the indigo-on-paper interactive states and the status colours.
 - [ ] **P2** Respect `prefers-reduced-motion` by disabling the section 1 motion vocabulary.
 
 ## 6. Internationalization

@@ -14,7 +14,7 @@ test.describe("Cross-team isolation", () => {
     // Server responds with 404 (cross-team access blocked at service layer)
     expect(response?.status()).toBe(404);
 
-    // No redirect to login — this is an isolation failure, not an auth failure
+    // No redirect to login: this is an isolation failure, not an auth failure
     expect(page.url()).not.toContain("/login");
 
     // The Team A ticket subject is not rendered anywhere on the page

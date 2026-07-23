@@ -3,7 +3,7 @@ import { Role, TicketStatus, TicketPriority } from "@/generated/prisma/enums";
 import { AuthorizationError, type SessionPayload } from "@/lib/auth/assertions";
 
 // ---------------------------------------------------------------------------
-// Mock Prisma — must be declared before importing the service
+// Mock Prisma: must be declared before importing the service
 // ---------------------------------------------------------------------------
 
 vi.mock("@/lib/db", () => ({
@@ -78,7 +78,7 @@ describe("createTicket — role guard", () => {
 
   it("accepts REQUESTER role (proceeds to Zod validation)", async () => {
     const s = session({ role: Role.REQUESTER });
-    // Zod will throw next because input is invalid — but the role guard passed.
+    // Zod will throw next because input is invalid, but the role guard passed.
     await expect(createTicket({}, s)).rejects.not.toThrow(AuthorizationError);
   });
 });
@@ -334,7 +334,7 @@ describe("assignTicket", () => {
     vi.mocked(db.ticket.findUnique).mockResolvedValue(dbTicket() as never);
     vi.mocked(db.ticket.update).mockResolvedValue(dbTicket() as never);
     const s = session({ role: Role.SUPPORT, userId: "user-1" });
-    // null !== "user-1", so this should throw — unassign requires MANAGER+
+    // null !== "user-1", so this should throw; unassign requires MANAGER+
     await expect(assignTicket("ticket-1", null, s)).rejects.toThrow(AuthorizationError);
   });
 

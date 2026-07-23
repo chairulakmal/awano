@@ -91,7 +91,7 @@ export default function Home() {
     <div className="flex flex-col text-fg-strong font-sans min-h-[100dvh]">
       <Header />
 
-      {/* Hero — flex-1 so hero+features together fill the remaining viewport height */}
+      {/* Hero: flex-1 so hero+features together fill the remaining viewport height */}
       <section className="w-full hero-bg flex-1 flex items-center">
         <div className="relative w-full max-w-5xl mx-auto px-6 sm:px-8 py-14 sm:py-24">
           {/* Signature: the hanko seal. A resolved ticket is 済 (settled):

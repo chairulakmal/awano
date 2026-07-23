@@ -2,7 +2,7 @@ import "dotenv/config";
 import { Pool } from "pg";
 
 export default async function globalSetup() {
-  // Strip Prisma-specific ?schema= param — pg doesn't understand it
+  // Strip Prisma-specific ?schema= param; pg doesn't understand it
   const rawUrl = process.env.DATABASE_URL!;
   const connectionString = rawUrl.includes("?") ? rawUrl.split("?")[0] : rawUrl;
 

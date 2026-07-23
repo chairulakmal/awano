@@ -32,7 +32,7 @@ async function main() {
   const hash = await bcrypt.hash(DEMO_PASSWORD, 12);
 
   // -------------------------------------------------------------------------
-  // Super user — teamId IS NULL, can't use compound unique key for upsert
+  // Super user: teamId IS NULL, can't use compound unique key for upsert
   // -------------------------------------------------------------------------
   await db.user.upsert({
     where: { id: "seed-super" },
@@ -47,7 +47,7 @@ async function main() {
   });
 
   // -------------------------------------------------------------------------
-  // Team A — Demo (primary team, matches README credentials)
+  // Team A: Demo (primary team, matches README credentials)
   // -------------------------------------------------------------------------
   const teamA = await upsertTeam("demo", "Awano Demo");
 
@@ -80,7 +80,7 @@ async function main() {
   await upsertUser(teamA.id, "admin@awano.demo", hash, "ADMIN", "Fay Admin");
 
   // -------------------------------------------------------------------------
-  // Team B — Beta Inc
+  // Team B: Beta Inc
   // -------------------------------------------------------------------------
   const teamB = await upsertTeam("beta", "Beta Inc");
 
@@ -102,7 +102,7 @@ async function main() {
   const managerB = await upsertUser(teamB.id, "manager@beta.demo", hash, "MANAGER", "Hank Manager");
 
   // -------------------------------------------------------------------------
-  // Tickets — see prisma/tickets.ts for the full test scenario breakdown
+  // Tickets: see prisma/tickets.ts for the full test scenario breakdown
   // -------------------------------------------------------------------------
   await seedTickets(db, {
     teamAId: teamA.id,

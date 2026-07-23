@@ -3,7 +3,7 @@ import { Role } from "@/generated/prisma/enums";
 import { AuthorizationError, type SessionPayload } from "@/lib/auth/assertions";
 
 // ---------------------------------------------------------------------------
-// Mock Prisma — must be declared before importing the service
+// Mock Prisma: must be declared before importing the service
 // ---------------------------------------------------------------------------
 
 vi.mock("@/lib/db", () => ({
@@ -24,15 +24,15 @@ function session(overrides: Partial<SessionPayload> = {}): SessionPayload {
   return { userId: "user-1", teamId: "team-a", role: Role.SUPPORT, ...overrides };
 }
 
-// Prisma mock return values are partial stubs — cast to silence strict type checking.
+// Prisma mock return values are partial stubs; cast to silence strict type checking.
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const stub = (value: unknown) => value as any;
 
 const TEAM_A_TICKET = { teamId: "team-a", createdById: "user-1" };
 const TEAM_B_TICKET = { teamId: "team-b", createdById: "user-9" };
 
-const SMALL_FILE = new Uint8Array(500_000) as Uint8Array<ArrayBuffer>; // 500 KB — under limit
-const BIG_FILE = new Uint8Array(1_100_000) as Uint8Array<ArrayBuffer>; // 1.1 MB — over limit
+const SMALL_FILE = new Uint8Array(500_000) as Uint8Array<ArrayBuffer>; // 500 KB, under limit
+const BIG_FILE = new Uint8Array(1_100_000) as Uint8Array<ArrayBuffer>; // 1.1 MB, over limit
 
 function attachmentInput(overrides: Record<string, unknown> = {}) {
   return {

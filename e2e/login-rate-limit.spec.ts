@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 
-// Non-existent email — no real account is locked by this test.
+// Non-existent email; no real account is locked by this test.
 const RATE_LIMIT_EMAIL = "ratelimit-test@awano.demo";
 const MAX_ATTEMPTS = 5;
 

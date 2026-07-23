@@ -16,7 +16,7 @@ test.describe("Requester — field agent flow", () => {
     await page.fill('input[name="subject"]', subject);
     await page.fill('textarea[name="body"]', "Automated E2E test — please ignore.");
 
-    // 4. Submit — action redirects to /tickets/:id on success
+    // 4. Submit: action redirects to /tickets/:id on success
     await page.getByRole("button", { name: "Submit ticket" }).click();
     await page.waitForURL(/\/tickets\/[a-z0-9]{10,}/, { timeout: 10_000 });
 

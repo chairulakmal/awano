@@ -1,7 +1,7 @@
-// Browser-only. Uses Canvas API and createImageBitmap — do not import from server code.
+// Browser-only. Uses Canvas API and createImageBitmap; do not import from server code.
 //
 // Error handling: validateFile() returns an error string the UI can display directly.
-// compressImage() throws on decode failure — callers should catch.
+// compressImage() throws on decode failure; callers should catch.
 // The service layer enforces TARGET_BYTES independently as a final server-side guard.
 
 // ── Accepted types (app policy) ──────────────────────────────────────────────
@@ -12,8 +12,8 @@ export const ACCEPTED_TYPES = [...ACCEPTED_IMAGE_TYPES, "application/pdf"] as co
 /** Drop into <input accept={ACCEPT_ATTR}> to filter the OS file picker. */
 export const ACCEPT_ATTR = "image/png,image/jpeg,application/pdf";
 
-export const MAX_IMAGE_BYTES = 2 * 1024 * 1024; // 2 MB — images are compressed after
-export const MAX_PDF_BYTES = 1 * 1024 * 1024; // 1 MB — PDFs are stored as-is
+export const MAX_IMAGE_BYTES = 2 * 1024 * 1024; // 2 MB; images are compressed after
+export const MAX_PDF_BYTES = 1 * 1024 * 1024; // 1 MB; PDFs are stored as-is
 
 /**
  * Validate a file before upload. Returns a user-facing error string, or null
@@ -34,12 +34,12 @@ export function validateFile(file: File): string | null {
 // Slightly under the 1 MB DB hard limit to leave headroom.
 const TARGET_BYTES = 950_000;
 
-// Image types that carry an alpha channel — composited over white before
+// Image types that carry an alpha channel, composited over white before
 // lossy encoding so transparency doesn't render as black.
 const HAS_ALPHA = new Set(["image/png", "image/webp", "image/avif"]);
 
 // Detect WebP canvas-output support once and cache. Safari supports displaying
-// WebP but canvas.toBlob('image/webp') silently falls back to PNG there —
+// WebP but canvas.toBlob('image/webp') silently falls back to PNG there;
 // checking the returned MIME type is the reliable probe.
 let _outputMime: "image/webp" | "image/jpeg" | null = null;
 
@@ -59,7 +59,7 @@ async function getOutputMime(): Promise<"image/webp" | "image/jpeg"> {
 /**
  * Compress any image File to under 1 MB.
  *
- * Accepts any image/* MIME type — app-level type restrictions are handled
+ * Accepts any image/* MIME type; app-level type restrictions are handled
  * separately by validateFile(). PDFs are returned unchanged.
  *
  * Output format: WebP where the browser supports canvas.toBlob('image/webp')
@@ -121,7 +121,7 @@ export async function compressImage(file: File): Promise<File> {
 
     if (best) return new File([best], outputName, { type: mime });
 
-    // Still too large — halve dimensions and retry.
+    // Still too large; halve dimensions and retry.
     width = Math.round(width / 2);
     height = Math.round(height / 2);
   }
