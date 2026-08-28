@@ -32,17 +32,18 @@ Awano is a multi-tenant support desk built on Next.js 16 Server Actions with no 
 
 ## Running locally
 
-Prerequisites: Node 24, Docker.
+Prerequisites: Node 24 and a PostgreSQL 18 server. Docker is the easiest way to get one.
 
 ```bash
 # 1. Dependencies (postinstall runs prisma generate)
 npm install
 
-# 2. Environment: the defaults match the Docker Postgres below
+# 2. Environment: the defaults match the database below
 cp .env.example .env
 
-# 3. PostgreSQL 16 in Docker, on host port 5433
-docker compose up -d
+# 3. PostgreSQL 18 on localhost:5432. Any instance works; this is a throwaway one.
+docker run -d --name awano-db -p 5432:5432 \
+  -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=awano postgres:18
 
 # 4. Schema and demo data
 npx prisma migrate dev
@@ -63,7 +64,7 @@ The Playwright suite ([`e2e/`](e2e)) drives complete journeys per role: requeste
 ```bash
 npm test                    # 234 unit tests, no database required
 npm run test:coverage       # V8 coverage report
-npm run test:e2e            # Playwright; needs the Docker Postgres up and seeded
+npm run test:e2e            # Playwright; needs PostgreSQL up and seeded
 npm run db:seed:tickets     # optional: 60 bulk tickets for pagination testing
 ```
 

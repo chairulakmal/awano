@@ -1,88 +1,71 @@
-# Local PostgreSQL (Docker)
+# Local PostgreSQL
 
-Awano uses PostgreSQL. For development, run it with Docker Compose.
+How to give Awano a database while you develop. The only thing Awano requires is a PostgreSQL 18 server that `DATABASE_URL` can reach; how that server is started is your choice. This document covers three things: starting a server with Docker, checking that it accepts connections, and fixing the two problems that happen most often.
 
-## Prerequisites
+Awano used to ship a `docker-compose.yml`. It no longer does, because a database container per project is unnecessary when one PostgreSQL server can hold a separate database for each project you work on.
 
-- [Docker](https://docs.docker.com/get-docker/) installed
-- Docker daemon running (`docker info` should succeed)
+## Start a server
 
-## Start the database
+If you already run PostgreSQL 18, create a database called `awano` in it and skip to the next section.
 
-From the project root:
-
-```bash
-docker compose up -d
-```
-
-`-d` runs the container in the background.
-
-## Check that it is running
-
-**1. Container status**
+Otherwise, start a throwaway container:
 
 ```bash
-docker compose ps
+docker run -d --name awano-db -p 5432:5432 \
+  -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=awano postgres:18
 ```
 
-You want `STATE` = `running` and `HEALTH` = `healthy` (may take a few seconds after start).
+The container keeps its data until you delete it with `docker rm -f awano-db`.
 
-**2. Docker’s view**
+## Check that it accepts connections
 
 ```bash
-docker ps --filter name=awano-postgres
+docker exec awano-db pg_isready -U postgres -d awano
 ```
 
-**3. Health check (Postgres ready for connections)**
+Expected output: `/var/run/postgresql:5432 - accepting connections`.
+
+From the host, if you have `psql` installed:
 
 ```bash
-docker compose exec db pg_isready -U awano -d awano
+psql "postgresql://postgres:postgres@localhost:5432/awano" -c "SELECT version();"
 ```
 
-Expected: `awano:5432 - accepting connections` (5432 is the container-internal port; from the host, Postgres is on 5433)
-
-**4. Connect with `psql` (optional)**
-
-```bash
-docker compose exec db psql -U awano -d awano -c "SELECT 1 AS ok;"
-```
-
-**5. From the host (if you have `psql` installed)**
-
-```bash
-psql "postgresql://awano:awano@localhost:5433/awano" -c "SELECT version();"
-```
-
-## App connection string
+## Connect the application
 
 ```bash
 cp .env.example .env
 ```
 
-`DATABASE_URL` in `.env`:
+The `DATABASE_URL` in `.env` must match the server:
 
 ```text
-postgresql://awano:awano@localhost:5433/awano?schema=public
+postgresql://postgres:postgres@localhost:5432/awano?schema=public
 ```
 
-After Prisma is set up:
+Then create the tables and the demo data:
 
 ```bash
 npx prisma migrate dev
+npx prisma db seed
 ```
+
+`npm run dev` does not start the database. Start the database first, then run the dev server.
 
 ## Useful commands
 
-| Task                         | Command                     |
-| ---------------------------- | --------------------------- |
-| View logs                    | `docker compose logs -f db` |
-| Stop (keep data)             | `docker compose stop`       |
-| Start again                  | `docker compose start`      |
-| Stop and remove container    | `docker compose down`       |
-| Stop and **delete all data** | `docker compose down -v`    |
+| Task                        | Command                             |
+| --------------------------- | ----------------------------------- |
+| View logs                   | `docker logs -f awano-db`           |
+| Stop (keep data)            | `docker stop awano-db`              |
+| Start again                 | `docker start awano-db`             |
+| Delete the container and its data | `docker rm -f awano-db`       |
+| Reset the schema and reseed | `npm run db:reset`                  |
 
 ## Troubleshooting
 
-**Port 5433 already in use**: the compose file maps host port 5433 (not the Postgres default 5432, to avoid clashing with other local Postgres instances). If something else holds 5433, change the host side of the mapping in `docker-compose.yml`, e.g. `"5434:5432"`, and update `DATABASE_URL` to match.
+**Port 5432 already in use**: another PostgreSQL server is running. Use it instead of starting a second one, or publish this one on a different host port (`-p 5433:5432`) and change the port in `DATABASE_URL` to match.
 
-**Container exits immediately**: run `docker compose logs db` for the error message.
+**The container exits immediately**: run `docker logs awano-db` to see the error message.
+
+**Prisma reports that the database does not exist**: the server is running but has no `awano` database. Create it with `docker exec awano-db createdb -U postgres awano`.
