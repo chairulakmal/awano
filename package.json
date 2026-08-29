@@ -5,7 +5,7 @@
   "license": "MIT",
   "scripts": {
     "postinstall": "prisma generate",
-    "dev": "docker compose up -d && next dev",
+    "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",

@@ -8,7 +8,7 @@ Awano is a production-grade support desk application demonstrating advanced Next
 
 - **Framework:** Next.js 16.2 (App Router, Server Actions, `proxy.ts` route guards, the Next.js 16 convention)
 - **Auth:** Auth.js v5 (Credentials provider, stateless JWT, bcrypt 12, rate-limited login)
-- **Database:** PostgreSQL via Prisma 7, Docker Compose for local dev
+- **Database:** PostgreSQL 18 via Prisma 7
 - **Styling:** Tailwind CSS v4
 - **Testing:** Vitest (230 unit tests), Playwright (E2E)
 - **CI/CD:** GitHub Actions + Railway deployment
