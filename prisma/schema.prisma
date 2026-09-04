@@ -7,6 +7,9 @@
 generator client {
   provider = "prisma-client"
   output   = "../src/generated/prisma"
+  // CommonJS output: the ESM client uses import.meta, which the Playwright
+  // transpiler cannot load. Next.js and Vitest accept either format.
+  moduleFormat = "cjs"
 }
 
 // ---------------------------------------------------------------------------

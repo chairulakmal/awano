@@ -17,7 +17,11 @@
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "test:e2e": "playwright test",
-    "test:e2e:ui": "playwright test --ui"
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:smoke": "E2E_TAG=@smoke playwright test",
+    "test:e2e:security": "E2E_TAG=@security playwright test",
+    "test:e2e:a11y": "E2E_TAG=@a11y playwright test",
+    "test:e2e:report": "playwright show-report"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.8.0",
@@ -34,6 +38,7 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.13.0",
     "@playwright/test": "^1.60.0",
     "@tailwindcss/postcss": "^4",
     "@types/bcryptjs": "^2.4.6",
@@ -41,6 +46,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@vitest/coverage-v8": "^4.1.6",
+    "dotenv": "^17.4.2",
     "eslint": "^9",
     "eslint-config-next": "16.2.11",
     "eslint-config-prettier": "^10.1.8",

@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-Guidance for Claude Code (claude.ai/code) when working in this repository: the invariants and trip-wires most worth knowing, each pointing at the doc that owns the full rule. `docs/SPEC.md` owns the architecture: roles, permissions, data model, auth, route map, testing, deployment, and the decision log. `README.md` owns the public description, commands, and local setup. If this file disagrees with either, one of them is a bug: fix that one.
+Guidance for Claude Code (claude.ai/code) when working in this repository: the invariants and trip-wires most worth knowing, each pointing at the doc that owns the full rule. `docs/SPEC.md` owns the architecture: roles, permissions, data model, auth, route map, testing, deployment, and the decision log. `docs/TESTING.md` owns the end-to-end suite: its design, coverage, tags and known defects. `README.md` owns the public description, commands, and local setup. If this file disagrees with either, one of them is a bug: fix that one.
 
 @AGENTS.md
 

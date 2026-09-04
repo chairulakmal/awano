@@ -81,6 +81,7 @@ export default async function AdminUsersPage() {
                 <td className="px-5 py-3">
                   <ChangeRoleForm
                     userId={user.id}
+                    userLabel={user.name ?? user.email}
                     currentRole={user.role}
                     currentRequesterType={user.requesterType}
                     isSelf={user.id === payload.userId}
