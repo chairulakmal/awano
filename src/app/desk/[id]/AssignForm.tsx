@@ -25,9 +25,7 @@ export function AssignForm({
   const canAssignOthers = ["MANAGER", "ADMIN", "SUPER"].includes(role);
 
   // SUPPORT may only assign to themselves; MANAGER+ sees the full team list
-  const selectableMembers = canAssignOthers
-    ? members
-    : members.filter((m) => m.id === userId);
+  const selectableMembers = canAssignOthers ? members : members.filter((m) => m.id === userId);
 
   const currentMember = members.find((m) => m.id === currentAssigneeId);
 
@@ -44,9 +42,15 @@ export function AssignForm({
 
   return (
     <form key={currentAssigneeId} action={formAction} className="space-y-3">
-      <span className="text-xs font-medium text-fg-muted uppercase tracking-wide">Assignee</span>
+      <label
+        htmlFor="ticket-assignee"
+        className="text-xs font-medium text-fg-muted uppercase tracking-wide"
+      >
+        Assignee
+      </label>
       <input type="hidden" name="ticketId" value={ticketId} />
       <select
+        id="ticket-assignee"
         name="assigneeId"
         defaultValue={currentAssigneeId ?? ""}
         className="w-full rounded-lg ring-input px-3 py-2 text-sm text-fg-strong outline-none transition"

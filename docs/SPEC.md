@@ -306,16 +306,9 @@ All queries are team-scoped. Page is a Server Component.
 
 ### E2E (Playwright)
 
-| Flow                                                    | Verified                |
-| ------------------------------------------------------- | ----------------------- |
-| Field agent: login → create ticket → view in My tickets | Requester path          |
-| Support: login → self-assign → internal note → status change | Support path, assign-self rule |
-| Manager: escalate → close → reopen                      | Permission gates        |
-| Team B support: attempt to access Team A ticket         | Returns 403 / redirects |
-| Login: rate limit after too many failed attempts        | Brute-force protection  |
-| Support: search nonsense query → no results; clear → results restore | Desk search  |
+The suite drives the product through a browser as each role. It is ordered by risk: tenant isolation, the route guards, internal-note visibility, the state machine, the role ceiling and the login rate limit come first, then the feature journeys, the accessibility scans and the phone layouts.
 
-`e2e/global-setup.ts` resets seed tickets to known states before every run and resets seed user roles (`support@awano.demo` → `SUPPORT`) so that manual role-change testing against the dev server cannot corrupt subsequent E2E runs.
+[`docs/TESTING.md`](TESTING.md) owns the detail: the design decisions, the coverage matrix, the tags, and the defects the suite records. One rule is worth repeating here, because it constrains how tests are written: the suite provisions its own teams per run and each test deletes the rows it created, so no test may read seed data or assert on the length of a list.
 
 ---
 
@@ -333,7 +326,7 @@ eslint → tsc --noEmit → vitest → next build
 → deploy to Railway production
 ```
 
-Playwright E2E runs against Railway preview deployment on pull requests.
+The Playwright suite runs in the same workflow, against a production build and a PostgreSQL service container, split across two shards.
 
 ---
 

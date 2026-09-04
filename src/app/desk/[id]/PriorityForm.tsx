@@ -24,9 +24,15 @@ export function PriorityForm({
 
   return (
     <form key={currentPriority} action={formAction} className="space-y-3">
-      <span className="text-xs font-medium text-fg-muted uppercase tracking-wide">Priority</span>
+      <label
+        htmlFor="ticket-priority"
+        className="text-xs font-medium text-fg-muted uppercase tracking-wide"
+      >
+        Priority
+      </label>
       <input type="hidden" name="ticketId" value={ticketId} />
       <select
+        id="ticket-priority"
         name="priority"
         defaultValue={currentPriority}
         className="w-full rounded-lg ring-input px-3 py-2 text-sm text-fg-strong outline-none transition"

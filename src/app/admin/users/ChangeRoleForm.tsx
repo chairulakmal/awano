@@ -7,30 +7,40 @@ import type { Role, RequesterType } from "@/generated/prisma/enums";
 type RoleOption = { value: string; label: string; role: Role };
 
 const ALL_OPTIONS: RoleOption[] = [
-  { value: "REQUESTER-CUSTOMER",    label: "Requester (Customer)",    role: "REQUESTER" },
-  { value: "REQUESTER-RECRUITER",   label: "Requester (Recruiter)",   role: "REQUESTER" },
+  { value: "REQUESTER-CUSTOMER", label: "Requester (Customer)", role: "REQUESTER" },
+  { value: "REQUESTER-RECRUITER", label: "Requester (Recruiter)", role: "REQUESTER" },
   { value: "REQUESTER-FIELD_AGENT", label: "Requester (Field Agent)", role: "REQUESTER" },
-  { value: "SUPPORT",               label: "Support",                 role: "SUPPORT"   },
-  { value: "MANAGER",               label: "Manager",                 role: "MANAGER"   },
-  { value: "ADMIN",                 label: "Admin",                   role: "ADMIN"     },
+  { value: "SUPPORT", label: "Support", role: "SUPPORT" },
+  { value: "MANAGER", label: "Manager", role: "MANAGER" },
+  { value: "ADMIN", label: "Admin", role: "ADMIN" },
 ];
 
 const ROLE_RANK: Record<Role, number> = {
-  REQUESTER: 0, SUPPORT: 1, MANAGER: 2, ADMIN: 3, SUPER: 4,
+  REQUESTER: 0,
+  SUPPORT: 1,
+  MANAGER: 2,
+  ADMIN: 3,
+  SUPER: 4,
 };
 
 const ASSIGNABLE_CEILING: Record<Role, number> = {
-  REQUESTER: -1, SUPPORT: -1, MANAGER: 1, ADMIN: 2, SUPER: 3,
+  REQUESTER: -1,
+  SUPPORT: -1,
+  MANAGER: 1,
+  ADMIN: 2,
+  SUPER: 3,
 };
 
 export function ChangeRoleForm({
   userId,
+  userLabel,
   currentRole,
   currentRequesterType,
   isSelf,
   sessionRole,
 }: {
   userId: string;
+  userLabel: string;
   currentRole: Role;
   currentRequesterType: RequesterType | null;
   isSelf: boolean;
@@ -39,9 +49,7 @@ export function ChangeRoleForm({
   const [error, formAction, pending] = useActionState(changeRoleAction, null);
 
   const currentValue =
-    currentRole === "REQUESTER"
-      ? `REQUESTER-${currentRequesterType ?? "CUSTOMER"}`
-      : currentRole;
+    currentRole === "REQUESTER" ? `REQUESTER-${currentRequesterType ?? "CUSTOMER"}` : currentRole;
 
   const [selected, setSelected] = useState(currentValue);
 
@@ -49,7 +57,11 @@ export function ChangeRoleForm({
     if (ROLE_RANK[opt.role] > ASSIGNABLE_CEILING[sessionRole]) return false;
     // SUPPORT is only available once the user is already a FIELD_AGENT requester.
     // (Demoting from MANAGER/SUPPORT to SUPPORT is still allowed.)
-    if (opt.role === "SUPPORT" && currentRole === "REQUESTER" && currentRequesterType !== "FIELD_AGENT")
+    if (
+      opt.role === "SUPPORT" &&
+      currentRole === "REQUESTER" &&
+      currentRequesterType !== "FIELD_AGENT"
+    )
       return false;
     return true;
   });
@@ -76,6 +88,7 @@ export function ChangeRoleForm({
       <input type="hidden" name="userId" value={userId} />
       <select
         name="roleValue"
+        aria-label={`Role for ${userLabel}`}
         value={selected}
         onChange={(e) => setSelected(e.target.value)}
         className="rounded-md ring-input px-2 py-1 text-xs text-fg-strong outline-none transition"

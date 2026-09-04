@@ -59,16 +59,17 @@ Open [localhost:3000/login?team=demo](http://localhost:3000/login?team=demo) and
 
 The unit suite is 234 Vitest tests across the FSM, every authorization assertion path, and every service function in every domain: tickets, users, categories, admin metrics, teams, and attachments. The tests mock `@/lib/db` with `vi.mock`, so the whole suite runs in seconds with no database and CI needs no Postgres service container. One regression the suite caught for real: a PR restricting assignee editing to managers silently removed support staff's ability to self-assign, and an `assignTicket` unit test surfaced the gap.
 
-The Playwright suite ([`e2e/`](e2e)) drives complete journeys per role: requester, support, manager, cross-team isolation, demo login, search, and login rate limiting. [`playwright.config.ts`](playwright.config.ts) boots the dev server itself, and [`e2e/global-setup.ts`](e2e/global-setup.ts) resets the seed tickets so runs are repeatable.
+The Playwright suite ([`e2e/`](e2e)) is 149 tests over 13 files, ordered by risk: tenant isolation first, then the route guards for six roles against nine paths, internal-note visibility, the state machine, the role ceiling, and the login rate limit, followed by the feature journeys, accessibility scans and phone layouts. It runs in about a minute on four workers. Every run provisions its own two teams under a unique namespace and deletes them afterwards, so it is safe against a database shared with development and never depends on seed data. [`docs/TESTING.md`](docs/TESTING.md) explains the design, the coverage, the tags and the defects the suite currently records.
 
 ```bash
 npm test                    # 234 unit tests, no database required
 npm run test:coverage       # V8 coverage report
-npm run test:e2e            # Playwright; needs PostgreSQL up and seeded
+npm run test:e2e            # 149 Playwright tests; needs PostgreSQL, no seed data
+npm run test:e2e:smoke      # the 10 @smoke tests, about 15 seconds
 npm run db:seed:tickets     # optional: 60 bulk tickets for pagination testing
 ```
 
-CI is one workflow, [`ci.yml`](.github/workflows/ci.yml): ESLint, `tsc --noEmit`, the unit suite, and a production build on every push and pull request to `main`.
+CI is one workflow, [`ci.yml`](.github/workflows/ci.yml): ESLint, `tsc --noEmit`, the unit suite and a production build, then the Playwright suite against that build on a PostgreSQL service container, split across two shards whose reports are merged into one.
 
 ## Architecture
 

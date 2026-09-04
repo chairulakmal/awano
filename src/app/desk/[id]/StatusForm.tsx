@@ -41,6 +41,7 @@ export function StatusForm({
       <div className="flex items-center justify-between">
         <span className="text-xs font-medium text-fg-muted uppercase tracking-wide">Status</span>
         <span
+          data-testid="ticket-status"
           className={`text-xs font-medium px-2.5 py-1 rounded-full ${STATUS_CLASS[optimisticStatus]}`}
         >
           {STATUS_LABEL[optimisticStatus]}
